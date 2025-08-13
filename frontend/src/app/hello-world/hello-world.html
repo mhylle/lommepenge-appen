@@ -1,20 +1,99 @@
 <div class="hello-world-container">
   <h1>{{ title }}</h1>
   <p>{{ message }}</p>
+  
+  <!-- Task Management Section -->
+  <div class="task-management">
+    <h3>Live Task Management</h3>
+    <p>Add and manage tasks using the backend API</p>
+    
+    <!-- Add Task Form -->
+    <div class="add-task-form">
+      <h4>Add New Task</h4>
+      <div class="form-group">
+        <input 
+          type="text" 
+          [(ngModel)]="newTask.content" 
+          placeholder="Enter your task..." 
+          class="task-input"
+          (keyup.enter)="addTask()"
+          [disabled]="loading">
+        <input 
+          type="text" 
+          [(ngModel)]="newTask.author" 
+          placeholder="Your name" 
+          class="author-input"
+          [disabled]="loading">
+        <button 
+          (click)="addTask()" 
+          class="add-btn"
+          [disabled]="loading || !newTask.content.trim()">
+          {{ loading ? 'Adding...' : 'Add Task' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div class="error-message" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading" *ngIf="loading">
+      Loading...
+    </div>
+
+    <!-- Tasks List -->
+    <div class="tasks-section">
+      <h4>Tasks ({{ messages.length }})</h4>
+      <div class="refresh-section">
+        <button (click)="loadMessages()" class="refresh-btn" [disabled]="loading">
+          🔄 Refresh
+        </button>
+      </div>
+      
+      <div class="tasks-list" *ngIf="messages.length > 0">
+        <div class="task-item" *ngFor="let task of messages; trackBy: task.id">
+          <div class="task-content">
+            <strong>{{ task.content }}</strong>
+            <div class="task-meta">
+              <span class="author">by {{ task.author }}</span>
+              <span class="date" *ngIf="task.createdAt">{{ formatDate(task.createdAt) }}</span>
+            </div>
+          </div>
+          <button 
+            (click)="deleteTask(task.id!)" 
+            class="delete-btn"
+            [disabled]="loading">
+            🗑️
+          </button>
+        </div>
+      </div>
+      
+      <div class="no-tasks" *ngIf="messages.length === 0 && !loading">
+        <p>No tasks yet. Add your first task above!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Info -->
   <div class="app-info">
     <h3>App2 Features:</h3>
     <ul>
-      <li>Task Creation & Management</li>
-      <li>Project Organization</li>
-      <li>Collaboration Tools</li>
-      <li>Reporting & Analytics</li>
+      <li>✅ Task Creation & Management</li>
+      <li>✅ Real-time Database Storage</li>
+      <li>✅ RESTful API Integration</li>
+      <li>✅ Full CRUD Operations</li>
     </ul>
-    <div class="task-demo">
-      <h4>Current Tasks:</h4>
-      <div class="task-item completed">✅ Infrastructure Setup</div>
-      <div class="task-item in-progress">🔄 App1 Development</div>
-      <div class="task-item in-progress">🔄 App2 Development</div>
-      <div class="task-item pending">⏳ Testing & Documentation</div>
+    
+    <div class="api-info">
+      <h4>API Endpoints:</h4>
+      <ul>
+        <li><code>GET /api/app2/messages</code> - Get all tasks</li>
+        <li><code>POST /api/app2/messages</code> - Create task</li>
+        <li><code>DELETE /api/app2/messages/:id</code> - Delete task</li>
+        <li><code>GET /api/app2/health</code> - Health check</li>
+      </ul>
     </div>
   </div>
 </div>
