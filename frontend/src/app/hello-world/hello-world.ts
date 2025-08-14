@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 interface Message {
   id?: number;
@@ -11,7 +13,9 @@ interface Message {
 @Component({
   selector: 'app-hello-world',
   templateUrl: './hello-world.html',
-  styleUrls: ['./hello-world.scss']
+  styleUrls: ['./hello-world.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule]
 })
 export class HelloWorld implements OnInit {
   title = 'Hello World 2';

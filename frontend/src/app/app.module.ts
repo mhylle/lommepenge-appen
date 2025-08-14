@@ -35,8 +35,7 @@ import { HelloWorld } from './hello-world/hello-world';
     AppComponent,
     TaskListComponent,
     TaskFormComponent,
-    DashboardComponent,
-    HelloWorld
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -63,7 +62,10 @@ import { HelloWorld } from './hello-world/hello-world';
     MatPaginatorModule,
     MatSortModule,
     MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+
+    // Standalone Components
+    HelloWorld
   ],
   providers: [],
   bootstrap: [AppComponent]
