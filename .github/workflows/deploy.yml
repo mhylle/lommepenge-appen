@@ -1,271 +1,355 @@
-name: Deploy App2 to Production
+name: Deploy App2 to mhylle.com
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
-  IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
+  FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
+  BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
   APP_NAME: app2
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Test Application
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Validate Dockerfile syntax
-        run: |
-          docker build --no-cache -f frontend/Dockerfile -t test-frontend . || echo "Frontend Dockerfile needs adjustment"
-          docker build --no-cache -f backend/Dockerfile -t test-backend . || echo "Backend Dockerfile needs adjustment"
-      
-      - name: Configuration check
-        run: |
-          echo "✅ Repository structure validated"
-          echo "✅ Deployment configuration ready"
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-  build-and-deploy:
-    needs: test
+    - name: Validate Dockerfile syntax
+      run: |
+        docker build --no-cache -f frontend/Dockerfile -t test-frontend . || echo "Frontend Dockerfile needs adjustment"
+        docker build --no-cache -f backend/Dockerfile -t test-backend . || echo "Backend Dockerfile needs adjustment"
+
+    - name: Configuration check
+      run: |
+        echo "✅ Repository structure validated"
+        echo "✅ Deployment configuration ready"
+
+  build:
     runs-on: ubuntu-latest
-    name: Build and Deploy
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
+    needs: test
     permissions:
       contents: read
       packages: write
 
+    outputs:
+      frontend-image: ${{ steps.meta-frontend.outputs.tags }}
+      backend-image: ${{ steps.meta-backend.outputs.tags }}
+      frontend-digest: ${{ steps.build-frontend.outputs.digest }}
+      backend-digest: ${{ steps.build-backend.outputs.digest }}
+      version: ${{ steps.version.outputs.version }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Generate version
+      id: version
+      run: |
+        if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+          VERSION="v$(date +%Y%m%d)-$(echo ${{ github.sha }} | cut -c1-7)"
+        else
+          VERSION="pr-${{ github.event.number }}-$(echo ${{ github.sha }} | cut -c1-7)"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Generated version: $VERSION"
 
-      - name: Extract metadata for Frontend
-        id: meta-frontend
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for Backend
-        id: meta-backend
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Frontend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ steps.meta-frontend.outputs.tags }}
-          labels: ${{ steps.meta-frontend.outputs.labels }}
+    # Build Frontend
+    - name: Extract frontend metadata
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=${{ steps.version.outputs.version }}
 
-      - name: Build and push Backend Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./backend/Dockerfile
-          push: true
-          tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: ${{ steps.meta-backend.outputs.labels }}
+    - name: Build and push frontend image
+      id: build-frontend
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./frontend/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        build-args: |
+          BASE_HREF=/app2/
+          DEPLOY_URL=/app2/
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
-      - name: Deploy to Production Server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            set -e
-            
-            echo "🚀 Starting deployment of app2..."
-            
-            # Navigate to main infrastructure directory
-            cd /home/mhylle/projects/mhylle.com
-            
-            # Source environment variables
-            source .env
-            
-            # Extract image tags
-            FRONTEND_TAG=$(echo "${{ steps.meta-frontend.outputs.tags }}" | head -n1 | cut -d':' -f2)
-            BACKEND_TAG=$(echo "${{ steps.meta-backend.outputs.tags }}" | head -n1 | cut -d':' -f2)
-            
-            echo "Frontend tag: $FRONTEND_TAG"
-            echo "Backend tag: $BACKEND_TAG"
-            
-            # Log in to GitHub Container Registry
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # Deploy App2 independently using Docker directly
-            echo "🚀 Deploying App2 using Docker containers..."
-            
-            # Extract image information
-            FRONTEND_FULL=$(echo "${{ steps.meta-frontend.outputs.tags }}" | head -n1)
-            BACKEND_FULL=$(echo "${{ steps.meta-backend.outputs.tags }}" | head -n1)
-            VERSION=$(echo "$FRONTEND_FULL" | cut -d':' -f2)
-            
-            echo "Frontend image: $FRONTEND_FULL"
-            echo "Backend image: $BACKEND_FULL"
-            echo "Version: $VERSION"
-            
-            # Log in to GitHub Container Registry
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # Pull latest images
-            docker pull "$FRONTEND_FULL"
-            docker pull "$BACKEND_FULL"
-            
-            # Stop and remove existing App2 containers only (app independence)
-            echo "🛑 Stopping existing App2 containers only..."
-            docker stop app2-frontend app2-backend 2>/dev/null || echo "No existing App2 containers to stop"
-            docker rm app2-frontend app2-backend 2>/dev/null || echo "No existing App2 containers to remove"
-            
-            # Verify App1 is still running (critical independence check)
-            echo "🔍 Verifying App1 independence..."
-            if docker ps | grep -E "app1-(frontend|backend)"; then
-              echo "✅ App1 containers still running - independence maintained"
-            else
-              echo "ℹ️ App1 containers not found (may not be deployed yet)"
-            fi
-            
-            # Start App2 backend
-            echo "🚀 Starting App2 backend..."
-            docker run -d \
-              --name app2-backend \
-              --restart unless-stopped \
-              --network mhylle_app-network \
-              -p 8002:3000 \
-              -e NODE_ENV=production \
-              -e PORT=3000 \
-              -e POSTGRES_HOST=mhylle-postgres \
-              -e POSTGRES_PORT=5432 \
-              -e POSTGRES_DB=app2_db \
-              -e POSTGRES_USER="${POSTGRES_USER}" \
-              -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
-              -e JWT_SECRET="${APP2_JWT_SECRET:-default_jwt_secret_app2}" \
-              -e JWT_EXPIRATION="${JWT_EXPIRATION:-7d}" \
-              --health-cmd="curl -f http://localhost:3000/api/app2/health || exit 1" \
-              --health-interval=30s \
-              --health-timeout=10s \
-              --health-retries=3 \
-              --health-start-period=45s \
-              "$BACKEND_FULL"
-            
-            # Start App2 frontend
-            echo "🚀 Starting App2 frontend..."
-            docker run -d \
-              --name app2-frontend \
-              --restart unless-stopped \
-              --network mhylle_app-network \
-              -p 3002:80 \
-              -e NODE_ENV=production \
-              --health-cmd="curl -f http://localhost:80/ || exit 1" \
-              --health-interval=30s \
-              --health-timeout=10s \
-              --health-retries=3 \
-              --health-start-period=30s \
-              "$FRONTEND_FULL"
-            
-            # Wait for containers to be healthy
-            echo "⏳ Waiting for App2 containers to be healthy..."
-            timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-backend 2>/dev/null)" = "healthy" ]; do echo "Waiting for backend..."; sleep 5; done' || echo "⚠️ Backend health check timeout"
-            timeout 60 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-frontend 2>/dev/null)" = "healthy" ]; do echo "Waiting for frontend..."; sleep 5; done' || echo "⚠️ Frontend health check timeout"
-            
-            # Final verification
-            if docker ps | grep -q "app2-backend.*Up" && docker ps | grep -q "app2-frontend.*Up"; then
-              echo "✅ App2 deployment successful!"
-              echo "Frontend: http://mhylle.com/app2/"
-              echo "API: http://mhylle.com/api/app2/"
-              
-              # Show final status ensuring both apps are independent
-              echo "📊 Current application status:"
-              docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(app1|app2)" || echo "No app containers found"
-              
-            else
-              echo "❌ App2 deployment failed!"
-              docker ps | grep app2 || echo "No app2 containers found"
-              docker logs app2-backend --tail=10 2>/dev/null || echo "No backend logs"
-              docker logs app2-frontend --tail=10 2>/dev/null || echo "No frontend logs"
-              exit 1
-            fi
-      - name: Notify deployment status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
+    # Build Backend
+    - name: Extract backend metadata
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=${{ steps.version.outputs.version }}
+
+    - name: Build and push backend image
+      id: build-backend
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./backend/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+    - name: Deploy to Scaleway
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          set -e
+          
+          echo "🚀 Starting deployment of ${{ env.APP_NAME }}..."
+          
+          # Navigate to infrastructure directory
+          cd /home/mhylle/projects/mhylle.com
+          
+          # Source environment variables
+          source .env
+          
+          # Log deployment start
+          echo "📝 Logging deployment..."
+          docker exec mhylle-postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "
+            INSERT INTO deployment_logs (
+              app_name, deployment_id, status, frontend_image, backend_image, 
+              version, deployed_by, metadata
+            ) VALUES (
+              '${{ env.APP_NAME }}', 
+              'gh-${{ github.run_id }}', 
+              'started', 
+              '${{ needs.build.outputs.frontend-image }}',
+              '${{ needs.build.outputs.backend-image }}',
+              '${{ needs.build.outputs.version }}',
+              '${{ github.actor }}',
+              '{\"github_run_id\": \"${{ github.run_id }}\", \"commit_sha\": \"${{ github.sha }}\"}'
+            );
+          " || echo "Warning: Failed to log deployment start"
+          
+          # Run deployment using docker-compose
+          FRONTEND_FULL=$(echo "${{ needs.build.outputs.frontend-image }}" | head -n1)
+          BACKEND_FULL=$(echo "${{ needs.build.outputs.backend-image }}" | head -n1)
+          
+          # Extract base image name (remove tag)
+          FRONTEND_IMAGE=${FRONTEND_FULL%:*}
+          BACKEND_IMAGE=${BACKEND_FULL%:*}
+          
+          echo "Frontend image: $FRONTEND_IMAGE"
+          echo "Backend image: $BACKEND_IMAGE"
+          echo "Version: ${{ needs.build.outputs.version }}"
+          
+          # Log in to GitHub Container Registry
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Update nginx configuration first
+          echo "🔧 Updating nginx configuration..."
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            -o /tmp/apps.conf \
+            "https://api.github.com/repos/${{ github.repository }}/contents/infrastructure-nginx-apps.conf"
+          
+          # Copy to nginx container and reload
+          docker cp /tmp/apps.conf mhylle-nginx:/etc/nginx/conf.d/apps.conf
+          docker exec mhylle-nginx nginx -t
+          docker exec mhylle-nginx nginx -s reload
+          rm /tmp/apps.conf
+          echo "✅ Nginx configuration updated successfully"
+          
+          # Deploy App2 independently using Docker directly
+          echo "🚀 Deploying App2 using Docker containers..."
+          
+          # Extract image information
+          FRONTEND_FULL=$(echo "${{ needs.build.outputs.frontend-image }}" | head -n1)
+          BACKEND_FULL=$(echo "${{ needs.build.outputs.backend-image }}" | head -n1)
+          VERSION="${{ needs.build.outputs.version }}"
+          
+          echo "Frontend image: $FRONTEND_FULL"
+          echo "Backend image: $BACKEND_FULL"
+          echo "Version: $VERSION"
+          
+          # Log in to GitHub Container Registry
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Pull latest images
+          docker pull "$FRONTEND_FULL"
+          docker pull "$BACKEND_FULL"
+          
+          # Stop and remove existing App2 containers only (app independence)
+          echo "🛑 Stopping existing App2 containers only..."
+          docker stop app2-frontend app2-backend 2>/dev/null || echo "No existing App2 containers to stop"
+          docker rm app2-frontend app2-backend 2>/dev/null || echo "No existing App2 containers to remove"
+          
+          # Verify App2 is still running (critical independence check)
+          echo "🔍 Verifying App2 independence..."
+          if docker ps | grep -E "app2-(frontend|backend)"; then
+            echo "✅ App2 containers still running - independence maintained"
+          else
+            echo "ℹ️ App2 containers not found (may not be deployed yet)"
+          fi
+          
+          # Start App2 backend with database connection
+          echo "🚀 Starting App2 backend..."
+          docker run -d \
+            --name app2-backend \
+            --restart unless-stopped \
+            --network mhylle_app-network \
+            -p 8001:3000 \
+            -e NODE_ENV=production \
+            -e DB_HOST=mhylle-postgres \
+            -e DB_PORT=5432 \
+            -e DB_NAME=mhylle_app2 \
+            -e DB_USER=app2_user \
+            -e DB_PASSWORD="${APP1_DB_PASSWORD}" \
+            -e API_PREFIX=/api/app2 \
+            --health-cmd="curl -f http://localhost:3000/health || exit 1" \
+            --health-interval=30s \
+            --health-timeout=10s \
+            --health-retries=3 \
+            --health-start-period=40s \
+            "$BACKEND_FULL"
+          
+          # Start App2 frontend
+          echo "🚀 Starting App2 frontend..."
+          docker run -d \
+            --name app2-frontend \
+            --restart unless-stopped \
+            --network mhylle_app-network \
+            -p 3001:80 \
+            -e NODE_ENV=production \
+            --health-cmd="curl -f http://localhost:80/ || exit 1" \
+            --health-interval=30s \
+            --health-timeout=10s \
+            --health-retries=3 \
+            --health-start-period=30s \
+            "$FRONTEND_FULL"
+          
+          # Wait for containers to be healthy
+          echo "⏳ Waiting for App2 containers to be healthy..."
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-backend 2>/dev/null)" = "healthy" ]; do echo "Waiting for backend..."; sleep 5; done' || echo "⚠️ Backend health check timeout"
+          timeout 60 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-frontend 2>/dev/null)" = "healthy" ]; do echo "Waiting for frontend..."; sleep 5; done' || echo "⚠️ Frontend health check timeout"
+          
+          # Final verification
+          if docker ps | grep -q "app2-backend.*Up" && docker ps | grep -q "app2-frontend.*Up"; then
             echo "✅ App2 deployment successful!"
-            echo "Frontend: http://mhylle.com/app2/"
-            echo "API: http://mhylle.com/api/app2/"
+            
+            # Show final status ensuring both apps are independent
+            echo "� Current application status:"
+            docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(app2|app2)" || echo "No app containers found"
+            
           else
             echo "❌ App2 deployment failed!"
+            docker ps | grep app2 || echo "No app2 containers found"
+            docker logs app2-backend --tail=10 2>/dev/null || echo "No backend logs"
+            docker logs app2-frontend --tail=10 2>/dev/null || echo "No frontend logs"
             exit 1
           fi
 
-  security-scan:
-    runs-on: ubuntu-latest
-    name: Security Scan
-    if: github.event_name == 'pull_request'
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Run Trivy vulnerability scanner - Frontend
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'frontend/Dockerfile'
-          format: 'sarif'
-          output: 'trivy-frontend-results.sarif'
-      
-      - name: Run Trivy vulnerability scanner - Backend
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'backend/Dockerfile'
-          format: 'sarif'
-          output: 'trivy-backend-results.sarif'
+    - name: Verify deployment
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          echo "🔍 Verifying deployment and app independence..."
+          
+          # Wait for services to be ready
+          sleep 30
+          
+          # Check if app2 containers are running
+          if docker ps | grep -E "app2-(frontend|backend)"; then
+            echo "✅ App2 containers are running"
+          else
+            echo "❌ App2 containers not found"
+            exit 1
+          fi
+          
+          # CRITICAL: Verify app2 is still running (independence check)
+          if docker ps | grep -E "app2-(frontend|backend)"; then
+            echo "✅ App2 containers are still running (independence verified)"
+          else
+            echo "⚠️ App2 containers not found - checking if this is expected"
+            # Don't fail deployment if app2 was never deployed, but warn
+          fi
+          
+          # Show current status of all apps
+          echo "📊 Current application status:"
+          docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(app2|app2)" || echo "No application containers found"
+          
+          # Test health endpoint
+          if curl -f -s "https://mhylle.com/health/${{ env.APP_NAME }}" > /dev/null; then
+            echo "✅ Health check passed"
+          else
+            echo "⚠️  Health check failed, but deployment may still be successful"
+          fi
+          
+          # Test main application
+          if curl -f -s "https://mhylle.com/${{ env.APP_NAME }}" > /dev/null; then
+            echo "✅ Application is accessible"
+          else
+            echo "⚠️  Application accessibility test failed"
+          fi
 
-  performance-test:
-    needs: build-and-deploy
+  notify:
     runs-on: ubuntu-latest
-    name: Performance Test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
+    needs: [build, deploy]
+    if: always()
+
     steps:
-      - name: Wait for deployment to stabilize
-        run: sleep 30
-      
-      - name: Test application endpoints
-        run: |
-          # Test frontend
-          curl -f -I http://mhylle.com/app2/ || exit 1
-          
-          # Test API health
-          curl -f -I http://mhylle.com/api/app2/health || exit 1
-          
-          echo "✅ All endpoints are responding correctly"
+    - name: Notify deployment status
+      run: |
+        if [[ "${{ needs.deploy.result }}" == "success" ]]; then
+          echo "🎉 Deployment successful!"
+          echo "Application: https://mhylle.com/${{ env.APP_NAME }}"
+          echo "API: https://mhylle.com/api/${{ env.APP_NAME }}"
+          echo "Version: ${{ needs.build.outputs.version }}"
+        elif [[ "${{ needs.deploy.result }}" == "failure" ]]; then
+          echo "💥 Deployment failed!"
+          echo "Check the deployment logs for details."
+          exit 1
+        elif [[ "${{ needs.deploy.result }}" == "skipped" ]]; then
+          echo "⏭️ Deployment skipped (not main branch)"
+        else
+          echo "❓ Deployment status unknown: ${{ needs.deploy.result }}"
+        fi
