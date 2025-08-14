@@ -16,6 +16,9 @@ COPY frontend/ .
 # Build the Angular application (base-href already configured in angular.json)
 RUN npm run build
 
+# Debug: List the build output directory structure
+RUN find /app/dist -type f | head -20
+
 # Production stage with nginx
 FROM nginx:alpine
 
