@@ -53,7 +53,7 @@
       </div>
       
       <div class="tasks-list" *ngIf="messages.length > 0">
-        <div class="task-item" *ngFor="let task of messages; trackBy: task.id">
+        <div class="task-item" *ngFor="let task of messages; trackBy: trackByTaskId">
           <div class="task-content">
             <strong>{{ task.content }}</strong>
             <div class="task-meta">

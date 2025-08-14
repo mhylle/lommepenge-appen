@@ -85,4 +85,8 @@ export class HelloWorld implements OnInit {
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleString();
   }
+
+  trackByTaskId(index: number, task: Message): number | undefined {
+    return task.id;
+  }
 }
