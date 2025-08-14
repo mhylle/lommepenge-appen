@@ -32,10 +32,7 @@ import { HelloWorld } from './hello-world/hello-world';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    TaskListComponent,
-    TaskFormComponent,
-    DashboardComponent
+    // All components are now standalone
   ],
   imports: [
     BrowserModule,
@@ -65,6 +62,10 @@ import { HelloWorld } from './hello-world/hello-world';
     MatProgressSpinnerModule,
 
     // Standalone Components
+    AppComponent,
+    TaskListComponent,
+    TaskFormComponent,
+    DashboardComponent,
     HelloWorld
   ],
   providers: [],
