@@ -33,10 +33,10 @@ interface HealthStatus {
       </header>
 
       <nav class="app-nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-        <a routerLink="/about" routerLinkActive="active">About</a>
-        <a routerLink="/features" routerLinkActive="active">Features</a>
-        <a routerLink="/health" routerLinkActive="active">Health</a>
+        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+        <a routerLink="/tasks" routerLinkActive="active">Tasks</a>
+        <a routerLink="/tasks/new" routerLinkActive="active">New Task</a>
+        <a href="/api/app2/health" target="_blank">API Health</a>
       </nav>
 
       <main class="app-main">
