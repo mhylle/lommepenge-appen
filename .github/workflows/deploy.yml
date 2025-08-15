@@ -181,17 +181,6 @@ jobs:
           # Log in to GitHub Container Registry
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          # Update nginx configuration first
-          echo "🔧 Updating nginx configuration..."
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            -o /tmp/apps.conf \
-            "https://api.github.com/repos/${{ github.repository }}/contents/infrastructure-nginx-apps.conf"
-          
-          # Copy to nginx container and reload
-          docker cp /tmp/apps.conf mhylle-nginx:/etc/nginx/conf.d/apps.conf
-          docker exec mhylle-nginx nginx -t
-          docker exec mhylle-nginx nginx -s reload
           rm /tmp/apps.conf
           echo "✅ Nginx configuration updated successfully"
           
