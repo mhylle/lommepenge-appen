@@ -222,7 +222,7 @@ jobs:
             --name app2-backend \
             --restart unless-stopped \
             --network mhylle_app-network \
-            -p 8001:3000 \
+            -p 8002:3000 \
             -e NODE_ENV=production \
             -e DB_HOST=mhylle-postgres \
             -e DB_PORT=5432 \
@@ -243,7 +243,7 @@ jobs:
             --name app2-frontend \
             --restart unless-stopped \
             --network mhylle_app-network \
-            -p 3001:80 \
+            -p 3002:80 \
             -e NODE_ENV=production \
             --health-cmd="curl -f http://localhost:80/ || exit 1" \
             --health-interval=30s \
