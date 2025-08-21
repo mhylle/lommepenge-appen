@@ -1,11 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { setDefaultResultOrder } from 'dns';
+import { setDefaultResultOrder, lookup } from 'dns';
+import { promisify } from 'util';
 
 // Force DNS to resolve IPv4 first to avoid IPv6 localhost issues
 setDefaultResultOrder('ipv4first');
 
+// Additional DNS resolution fix - ensure hostname resolution works correctly
+const dnsLookup = promisify(lookup);
+async function ensureIPv4Resolution() {
+  try {
+    if (process.env.DB_HOST && process.env.DB_HOST !== 'localhost') {
+      const result = await dnsLookup(process.env.DB_HOST, { family: 4 });
+      console.log(`✅ DNS Resolution for ${process.env.DB_HOST}: ${result.address}`);
+    }
+  } catch (error) {
+    console.warn(`⚠️ DNS Resolution warning for ${process.env.DB_HOST}:`, error.message);
+  }
+}
+
 async function bootstrap() {
+  // Ensure DNS resolution is working correctly before starting the app
+  await ensureIPv4Resolution();
+  
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for development and production

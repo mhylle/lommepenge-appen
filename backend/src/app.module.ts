@@ -21,10 +21,16 @@ import { Message } from './message.entity';
       entities: [Message],
       synchronize: true, // Only for development
       logging: process.env.NODE_ENV === 'development',
-      // Force IPv4 connection to prevent Node.js IPv6 localhost resolution issues
+      // Force IPv4 connection and additional connection options
       extra: {
-        // PostgreSQL connection options
-        options: '--client-min-messages=warning'
+        // PostgreSQL connection options - force IPv4
+        options: '--client-min-messages=warning',
+        // Ensure connection uses IPv4
+        family: 4,
+        // Connection pool settings  
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000
       }
     }),
     TypeOrmModule.forFeature([Message]),
