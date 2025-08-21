@@ -1,5 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { setDefaultResultOrder } from 'dns';
+
+// Force DNS to resolve IPv4 first to avoid IPv6 localhost issues
+setDefaultResultOrder('ipv4first');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
