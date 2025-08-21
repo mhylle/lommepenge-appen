@@ -1,0 +1,11 @@
+{
+  "/api/app2/*": {
+    "target": "http://localhost:3001",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api/app2": ""
+    }
+  }
+}

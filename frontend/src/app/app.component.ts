@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthService, UserInfo } from './services/auth.service';
+import { LoginComponent } from './components/login/login.component';
 
 interface AppInfo {
   name: string;
@@ -21,7 +23,7 @@ interface HealthStatus {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule, HttpClientModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, HttpClientModule, LoginComponent],
   template: `
     <div class="app-container">
       <header class="app-header">
@@ -29,6 +31,10 @@ interface HealthStatus {
         <div class="app-info">
           <span class="version">v{{ appInfo.version }}</span>
           <span class="environment" [class]="appInfo.environment">{{ appInfo.environment }}</span>
+          <div class="user-info" *ngIf="currentUser">
+            <span>Welcome, {{ currentUser.firstName }}!</span>
+            <button (click)="logout()" class="logout-btn">Logout</button>
+          </div>
         </div>
       </header>
 
@@ -52,6 +58,8 @@ interface HealthStatus {
           </div>
         </div>
       </footer>
+      
+      <app-login (loginSuccess)="onLoginSuccess()"></app-login>
     </div>
   `,
   styles: [`
@@ -82,6 +90,27 @@ interface HealthStatus {
       display: flex;
       gap: 1rem;
       align-items: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logout-btn {
+      padding: 0.25rem 0.75rem;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 0.25rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
     }
 
     .version {
@@ -206,11 +235,30 @@ export class AppComponent implements OnInit {
     apiUrl: '/api/app2'
   };
 
-  constructor(private http: HttpClient) {}
+  currentUser: UserInfo | null = null;
+
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     // Load app configuration from environment or API
     this.loadAppInfo();
+    
+    // Subscribe to authentication state changes
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+
+  async logout(): Promise<void> {
+    await this.authService.logout();
+  }
+
+  onLoginSuccess(): void {
+    // User successfully logged in - router will handle navigation
+    console.log('Login successful for Task Management App!');
   }
 
   private loadAppInfo(): void {
