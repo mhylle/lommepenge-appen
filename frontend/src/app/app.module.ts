@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './interceptors/auth.interceptor';
 
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -29,13 +29,17 @@ import { AppComponent } from './app.component';
 import { TaskListComponent } from './components/task-list/task-list.component';
 import { TaskFormComponent } from './components/task-form/task-form.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { HelloWorld } from './hello-world/hello-world';
 import { LoginComponent } from './components/login/login.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 
 @NgModule({
   declarations: [
-    // All components are now standalone
+    AppComponent,
+    TaskListComponent,
+    TaskFormComponent,
+    DashboardComponent,
+    LoginComponent,
+    AccessDeniedComponent
   ],
   imports: [
     BrowserModule,
@@ -43,7 +47,6 @@ import { AccessDeniedComponent } from './components/access-denied/access-denied.
     BrowserAnimationsModule,
     ReactiveFormsModule,
     FormsModule,
-    HttpClientModule,
     
     // Angular Material Modules
     MatToolbarModule,
@@ -62,23 +65,10 @@ import { AccessDeniedComponent } from './components/access-denied/access-denied.
     MatPaginatorModule,
     MatSortModule,
     MatChipsModule,
-    MatProgressSpinnerModule,
-
-    // Standalone Components
-    AppComponent,
-    TaskListComponent,
-    TaskFormComponent,
-    DashboardComponent,
-    HelloWorld,
-    LoginComponent,
-    AccessDeniedComponent
+    MatProgressSpinnerModule
   ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
+    provideHttpClient(withInterceptors([authInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

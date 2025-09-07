@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterModule } from '@angular/router';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService, UserInfo } from './services/auth.service';
-import { LoginComponent } from './components/login/login.component';
 
 interface AppInfo {
   name: string;
@@ -22,8 +19,7 @@ interface HealthStatus {
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterModule, HttpClientModule, LoginComponent],
+  standalone: false,
   template: `
     <div class="app-container">
       <header class="app-header">
