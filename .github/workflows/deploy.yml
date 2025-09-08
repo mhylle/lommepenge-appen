@@ -18,6 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Free up disk space
+      run: |
+        echo "🧹 Cleaning up disk space before build..."
+        df -h
+        docker system prune -af --volumes || true
+        sudo apt-get clean || true
+        sudo rm -rf /usr/share/dotnet || true
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf "/usr/local/share/boost" || true
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+        echo "📊 Disk space after cleanup:"
+        df -h
+    
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -46,6 +59,19 @@ jobs:
       version: ${{ steps.version.outputs.version }}
 
     steps:
+    - name: Free up disk space
+      run: |
+        echo "🧹 Cleaning up disk space before build..."
+        df -h
+        docker system prune -af --volumes || true
+        sudo apt-get clean || true
+        sudo rm -rf /usr/share/dotnet || true
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf "/usr/local/share/boost" || true
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
+        echo "📊 Disk space after cleanup:"
+        df -h
+    
     - name: Checkout code
       uses: actions/checkout@v4
 
