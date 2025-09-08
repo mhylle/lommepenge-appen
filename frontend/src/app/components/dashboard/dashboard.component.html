@@ -1,1 +1,271 @@
-<p>dashboard works!</p>
+<div class="lommepenge-scrapbook" [class.loading]="!currentFamily">
+  
+  <!-- Family Welcome Message for new families -->
+  <div *ngIf="isNewFamily && currentFamily" class="family-welcome-banner scrapbook-card">
+    <div class="welcome-content">
+      <div class="decorative-tape tape-left"></div>
+      <div class="decorative-tape tape-right"></div>
+      <h2 class="handwritten-title">🎉 Tillykke {{userName}}!</h2>
+      <p>Din familie "<strong>{{currentFamily.name}}</strong>" er nu oprettet og klar til brug.</p>
+      <div class="family-settings scrapbook-note">
+        <p><strong>Standardlommepenge:</strong> {{formatCurrency(currentFamily.defaultAllowance, currentFamily.currency)}} {{getFrequencyText(currentFamily.allowanceFrequency)}}</p>
+        <p><strong>Valuta:</strong> {{currentFamily.currency}}</p>
+      </div>
+      <div class="welcome-actions">
+        <button class="scrapbook-button" (click)="dismissWelcome()">Kom i gang! 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="currentFamily && !isNewFamily" class="dashboard-content">
+    
+    <!-- Dashboard Header -->
+    <header class="dashboard-header scrapbook-card">
+      <div class="decorative-tape tape-center"></div>
+      <h1 class="handwritten-title main-title">Familiens Dagbog 📖</h1>
+      <p class="family-subtitle handwritten-subtitle">{{currentFamily.name}}'s lommepenge eventyr</p>
+      <div class="header-date">
+        <span class="date-stamp">{{ getCurrentDate() | date:'EEEE d. MMMM yyyy':'da' }}</span>
+      </div>
+    </header>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions scrapbook-card">
+      <div class="decorative-tape tape-left"></div>
+      <h2 class="handwritten-title section-title">Hurtige handlinger ⚡</h2>
+      <div class="actions-grid">
+        <button class="action-card" (click)="addMoney()">
+          <div class="action-icon">💰</div>
+          <div class="action-text">Tilføj penge</div>
+        </button>
+        <button class="action-card deduction-action" (click)="deductMoney()">
+          <div class="action-icon">💸</div>
+          <div class="action-text">Træk penge</div>
+        </button>
+        <button class="action-card" (click)="addChild()">
+          <div class="action-icon">👶</div>
+          <div class="action-text">Tilføj barn</div>
+        </button>
+        <button class="action-card" (click)="viewReports()">
+          <div class="action-icon">📊</div>
+          <div class="action-text">Se rapporter</div>
+        </button>
+        <button class="action-card" (click)="openSettings()">
+          <div class="action-icon">⚙️</div>
+          <div class="action-text">Indstillinger</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Family Statistics -->
+    <section class="family-overview scrapbook-card">
+      <div class="decorative-tape tape-right"></div>
+      <h2 class="handwritten-title section-title">Familieoversigt 👨‍👩‍👧‍👦</h2>
+      
+      <!-- Loading state for stats -->
+      <div *ngIf="isLoadingStats" class="loading-stats">
+        <div class="loading-spinner">🔄</div>
+        <p>Indlæser statistikker...</p>
+      </div>
+      
+      <div *ngIf="!isLoadingStats" class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">💳</div>
+          <div class="stat-content">
+            <span class="stat-number">{{formatCurrency(getRealTotalBalance())}}</span>
+            <span class="stat-label">Total opsparing</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👶</div>
+          <div class="stat-content">
+            <span class="stat-number">{{actualChildren.length}}</span>
+            <span class="stat-label">Børn i familien</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-content">
+            <span class="stat-number">{{formatCurrency(hasRealStats() ? getRealFamilyStats().weeklyAllowance : (currentFamily.defaultAllowance || 0))}}</span>
+            <span class="stat-label">Gennemsnitlig ugepenge</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-content">
+            <span class="stat-number">{{hasRealStats() ? getRealFamilyStats().transactionsThisMonth : 0}}</span>
+            <span class="stat-label">Transaktioner denne måned</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Children Overview - Polaroid Style -->
+    <section class="children-overview scrapbook-card">
+      <div class="decorative-tape tape-left"></div>
+      <h2 class="handwritten-title section-title">Vores børn 📸</h2>
+      
+      <!-- Loading state -->
+      <div *ngIf="isLoadingChildren" class="loading-children">
+        <div class="loading-spinner">🔄</div>
+        <p class="handwritten-text">Indlæser børn...</p>
+      </div>
+      
+      <!-- Real children data -->
+      <div *ngIf="!isLoadingChildren && hasChildren()" class="polaroid-grid">
+        <div *ngFor="let child of actualChildren" class="polaroid-card" [style.background-color]="child.cardColor">
+          
+          <!-- Quick action buttons (appear on hover) -->
+          <div class="quick-actions">
+            <button class="quick-action-btn add-money" 
+                    (click)="addMoneyToChild(child, $event)" 
+                    title="Tilføj penge til {{child.name}}">
+              💰
+            </button>
+            <button class="quick-action-btn view-details" 
+                    (click)="viewChildDetails(child)" 
+                    title="Se detaljer for {{child.name}}">
+              👁️
+            </button>
+            <button class="quick-action-btn edit-child" 
+                    (click)="editChild(child)" 
+                    title="Rediger {{child.name}}">
+              ✏️
+            </button>
+          </div>
+          
+          <div class="polaroid-photo">
+            <div class="profile-image">
+              <ng-container *ngIf="child.profilePicture; else initials">
+                <img [src]="child.profilePicture" [alt]="child.name" class="child-photo">
+              </ng-container>
+              <ng-template #initials>
+                <span class="child-initials">{{child.name.charAt(0)}}</span>
+              </ng-template>
+            </div>
+            <div class="photo-shadow"></div>
+          </div>
+          
+          <div class="polaroid-caption">
+            <!-- Activity status indicator -->
+            <div class="activity-status" [class]="getActivityStatusClass(child)"></div>
+            
+            <h3 class="child-name handwritten-text">{{child.name}}</h3>
+            <p class="child-age">{{getChildDisplayAge(child)}} år</p>
+            
+            <div class="child-balance">
+              <span class="balance-amount">{{getChildCardBalance(child)}}</span>
+            </div>
+            
+            <div class="child-allowance" *ngIf="child.weeklyAllowance > 0">
+              <div class="allowance-text">💰 {{formatCurrency(child.weeklyAllowance)}}/uge</div>
+            </div>
+            
+            <!-- Savings goal progress (if exists) -->
+            <div class="savings-goal" *ngIf="hasSavingsGoal(child)">
+              <div class="goal-title">💎 Opsparingsmål</div>
+              <div class="goal-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="getSavingsProgress(child)"></div>
+                </div>
+                <span class="progress-text">{{getSavingsProgress(child)}}%</span>
+              </div>
+            </div>
+            
+            <p class="last-activity handwritten-text">{{getChildLastActivity(child)}}</p>
+            
+            <!-- Child Dashboard Button -->
+            <div class="child-actions">
+              <button 
+                class="child-dashboard-button" 
+                (click)="openChildDashboard(child)"
+                title="Åbn {{child.name}}'s personlige dashboard">
+                🌈 Se {{child.name}}'s penge
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty state for no children -->
+      <div *ngIf="!isLoadingChildren && !hasChildren()" class="empty-children-state">
+        <div class="empty-illustration">👨‍👩‍👧‍👦</div>
+        <h3 class="handwritten-title">Ingen børn endnu</h3>
+        <p class="handwritten-text">Tilføj dit første barn for at komme i gang med lommepenge-eventyret!</p>
+        <button class="scrapbook-button add-first-child" (click)="addChild()">
+          <span>👶 Tilføj dit første barn</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Recent Transactions - Sticker Style -->
+    <section class="recent-transactions scrapbook-card">
+      <div class="decorative-tape tape-right"></div>
+      <h2 class="handwritten-title section-title">Seneste aktiviteter 🎯</h2>
+      
+      <!-- Loading state for transactions -->
+      <div *ngIf="isLoadingTransactions" class="loading-transactions">
+        <div class="loading-spinner">🔄</div>
+        <p>Indlæser aktiviteter...</p>
+      </div>
+      
+      <!-- Real transactions -->
+      <div *ngIf="!isLoadingTransactions && hasRealTransactions()" class="transaction-stickers">
+        <div *ngFor="let transaction of recentTransactions; let i = index" 
+             class="transaction-sticker" 
+             [style.background-color]="getRealTransactionColor(transaction)"
+             [style.transform]="'rotate(' + getRandomRotation() + 'deg)'">
+          <div class="sticker-icon">{{getRealTransactionIcon(transaction)}}</div>
+          <div class="sticker-content">
+            <div class="transaction-child">{{getTransactionChildName(transaction)}}</div>
+            <div class="transaction-amount" [class.negative]="transaction.amount < 0">
+              {{formatRealTransactionAmount(transaction)}}
+            </div>
+            <div class="transaction-description">{{transaction.description}}</div>
+            <div class="transaction-date">{{formatRealTransactionDate(transaction)}}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty state for no transactions -->
+      <div *ngIf="!isLoadingTransactions && !hasRealTransactions()" class="empty-transactions-state">
+        <div class="empty-illustration">🎯</div>
+        <h3 class="handwritten-title">Ingen aktiviteter endnu</h3>
+        <p class="handwritten-text">Når I begynder at bruge lommepengene, vil I se aktiviteterne her!</p>
+      </div>
+      
+      <div *ngIf="hasRealTransactions()" class="view-all-link">
+        <a (click)="openTransactionHistory()" class="handwritten-link" style="cursor: pointer;">Se alle transaktioner →</a>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Confetti Component -->
+  <app-confetti #confettiComponent theme="reward" [disabled]="false"></app-confetti>
+
+  <!-- Development Test Button (hidden in production) -->
+  <div *ngIf="!environment.production" class="test-controls" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    <button (click)="testConfetti($event)" 
+            style="background: #FFD700; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;"
+            title="Test Confetti">
+      🎉
+    </button>
+  </div>
+
+  <!-- Family creation pending message -->
+  <div *ngIf="!currentFamily" class="family-pending scrapbook-card">
+    <div class="decorative-tape tape-center"></div>
+    <h2 class="handwritten-title">Forbereder din familie... ⏳</h2>
+    <p class="handwritten-text">Vi sætter tingene op til dig. Det tager kun et øjeblik.</p>
+    <div class="loading-animation">
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+</div>

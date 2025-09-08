@@ -1,0 +1,105 @@
+<div class="transaction-history-modal">
+  <div class="modal-header">
+    <h2 class="handwritten-title modal-title">
+      📖 Transaktionshistorik
+      <span *ngIf="data.childName"> - {{data.childName}}</span>
+    </h2>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <span>✖️</span>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="filter-controls">
+        <mat-form-field appearance="outline" class="type-filter">
+          <mat-label>Filtrer efter type</mat-label>
+          <mat-select [(value)]="selectedType" (selectionChange)="onFilterChange()">
+            <mat-option value="">Alle typer</mat-option>
+            <mat-option *ngFor="let type of filterTypes" [value]="type">
+              {{getFilterLabel(type)}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-spinner">🔄</div>
+      <p>Indlæser transaktioner...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-state">
+      <div class="error-icon">⚠️</div>
+      <p>{{error}}</p>
+      <button mat-raised-button (click)="loadTransactions()" color="primary">
+        Prøv igen
+      </button>
+    </div>
+
+    <!-- Transactions List -->
+    <div *ngIf="!isLoading && !error && transactions.length > 0" class="transactions-list">
+      <div *ngFor="let transaction of transactions" 
+           class="transaction-item scrapbook-card"
+           [style.border-left-color]="getTransactionColor(transaction)">
+        
+        <div class="transaction-icon-wrapper">
+          <div class="transaction-icon" 
+               [style.background-color]="getTransactionColor(transaction)">
+            {{getTransactionIcon(transaction)}}
+          </div>
+        </div>
+
+        <div class="transaction-details">
+          <div class="transaction-header">
+            <div class="transaction-type">{{getTransactionTypeName(transaction)}}</div>
+            <div class="transaction-amount" 
+                 [class.positive]="transaction.amount > 0"
+                 [class.negative]="transaction.amount < 0">
+              {{formatTransactionAmount(transaction)}}
+            </div>
+          </div>
+
+          <div class="transaction-description">{{transaction.description}}</div>
+          
+          <div class="transaction-meta">
+            <span *ngIf="!data.childId" class="child-name">
+              <span class="meta-icon">👤</span>
+              {{getChildName(transaction)}}
+            </span>
+            <span class="transaction-date">
+              <span class="meta-icon">🗓️</span>
+              {{formatTransactionDate(transaction)}}
+            </span>
+            <span class="balance-after">
+              <span class="meta-icon">💰</span>
+              Balance: {{transaction.balanceAfter?.toFixed(2) || '0.00'}} DKK
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !error && transactions.length === 0" class="empty-state">
+      <div class="empty-illustration">📝</div>
+      <h3 class="handwritten-title">Ingen transaktioner fundet</h3>
+      <p class="handwritten-text">
+        <span *ngIf="selectedType">Der er ingen transaktioner af denne type endnu.</span>
+        <span *ngIf="!selectedType">Der er ingen transaktioner endnu.</span>
+      </p>
+      <button *ngIf="selectedType" mat-raised-button (click)="selectedType = ''; onFilterChange()" color="primary">
+        Vis alle transaktioner
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button mat-raised-button (click)="close()" color="primary">
+      Luk
+    </button>
+  </div>
+</div>

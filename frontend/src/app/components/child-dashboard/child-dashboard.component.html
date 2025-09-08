@@ -1,0 +1,319 @@
+<div class="child-dashboard" *ngIf="!isLoading && currentChild">
+  <!-- Header with child's name and back button -->
+  <div class="child-header">
+    <button class="scrapbook-back-button" (click)="goBack()" title="Tilbage til familiens dagbog">
+      <span class="back-icon">🏠</span>
+      <span class="back-text">Tilbage</span>
+    </button>
+    <div class="child-greeting">
+      <h1 class="child-name">Hej {{ currentChild.name }}! 👋</h1>
+      <p class="child-age">{{ getChildAge() }} år gammel</p>
+    </div>
+  </div>
+
+  <!-- Sticky Note Balance Display - Main Feature -->
+  <div class="balance-section">
+    <div 
+      class="sticky-note-balance" 
+      [style.background-color]="balanceColor"
+      [style.transform]="'rotate(' + stickyNoteRotation + 'deg)'"
+      [class.celebrating]="celebratingBalance"
+      (click)="bounceBalance()">
+      
+      <div class="sticky-note-content">
+        <div class="balance-title">{{ getRandomEmoji(balanceEmojis) }} Min Saldo</div>
+        <div 
+          class="balance-amount animated-balance" 
+          [appAnimatedCounter]="animatedBalance"
+          [counterConfig]="balanceAnimationConfig">
+        </div>
+        <div class="balance-message">{{ getEncouragementMessage() }}</div>
+      </div>
+      
+      <!-- Tape effect for sticky note -->
+      <div class="tape tape-top-left"></div>
+      <div class="tape tape-top-right"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="dashboard-grid">
+    
+    <!-- Mit Mål (My Goals) Section -->
+    <div class="dashboard-card goals-card">
+      <div class="card-header">
+        <h2>🎯 Mit Mål</h2>
+      </div>
+      <div class="card-content">
+        <div *ngIf="childGoals.length === 0 && !isLoadingGoals" class="no-goals">
+          <p class="fun-message">🌟 Få hjælp fra dine forældre til at sætte et mål!</p>
+        </div>
+        
+        <div *ngIf="isLoadingGoals" class="loading-goals">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Henter dine mål...</p>
+        </div>
+
+        <div *ngFor="let goal of childGoals" class="goal-item">
+          <div class="goal-header">
+            <span class="goal-emoji">{{ goal.emoji }}</span>
+            <span class="goal-name">{{ goal.name }}</span>
+          </div>
+          <div class="goal-progress">
+            <div class="progress-bar-container">
+              <div 
+                class="progress-bar" 
+                [style.width.%]="getGoalProgress(goal)"
+                [style.background-color]="goal.color">
+              </div>
+            </div>
+            <div class="progress-text">
+              <span>{{ formatCurrency(goal.currentAmount) }}</span>
+              <span>/</span>
+              <span>{{ formatCurrency(goal.targetAmount) }}</span>
+            </div>
+          </div>
+          <div class="progress-percentage" [style.color]="goal.color">
+            {{ getGoalProgress(goal).toFixed(0) }}% færdig! 🎉
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mine Penge (My Money) - Recent Transactions as Stickers -->
+    <div class="dashboard-card transactions-card">
+      <div class="card-header">
+        <h2>💸 Mine Penge</h2>
+      </div>
+      <div class="card-content">
+        <div *ngIf="recentTransactions.length === 0 && !isLoadingTransactions" class="no-transactions">
+          <p class="fun-message">🎈 Dine penge-aktiviteter vil vises her!</p>
+        </div>
+
+        <div *ngIf="isLoadingTransactions" class="loading-transactions">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Henter dine penge...</p>
+        </div>
+
+        <div class="transactions-stickers-scrapbook" *ngIf="recentTransactions.length > 0">
+          <div 
+            *ngFor="let transaction of recentTransactions; let i = index" 
+            class="authentic-sticker"
+            [class]="getStickerClass(transaction, i)"
+            [style.transform]="getStickerTransform(transaction, i)"
+            [style.z-index]="10 + i"
+            (click)="openTransactionDetails(transaction)"
+            (mouseenter)="playHoverEffect($event)"
+            (mouseleave)="stopHoverEffect($event)">
+            
+            <!-- Sticker Shadow for 3D effect -->
+            <div class="sticker-shadow" [style.background]="getStickerShadowColor(transaction)"></div>
+            
+            <!-- Main Sticker Content -->
+            <div class="sticker-body" [style.background]="getStickerGradient(transaction)">
+              
+              <!-- Sparkle effects for rewards -->
+              <div class="sparkle-effects" *ngIf="isSpecialTransaction(transaction)">
+                <div class="sparkle sparkle-1">✨</div>
+                <div class="sparkle sparkle-2">⭐</div>
+                <div class="sparkle sparkle-3">💫</div>
+                <div class="sparkle sparkle-4">🌟</div>
+              </div>
+
+              <!-- Sticker border/frame -->
+              <div class="sticker-border"></div>
+              
+              <!-- Main sticker content -->
+              <div class="sticker-main-content">
+                <div class="sticker-emoji-large">{{ getEnhancedStickerData(transaction).emoji }}</div>
+                
+                <div class="sticker-info">
+                  <div class="sticker-title">{{ getEnhancedStickerData(transaction).title }}</div>
+                  <div class="sticker-amount-display">{{ formatCurrency(Math.abs(transaction.amount)) }}</div>
+                  <div class="sticker-date-simple">{{ formatDateForChild(transaction.transactionDate) }}</div>
+                </div>
+                
+                <!-- Special badge for positive transactions -->
+                <div class="sticker-badge" *ngIf="transaction.amount > 0">
+                  <span class="badge-text">{{ getEnhancedStickerData(transaction).badge }}</span>
+                </div>
+                
+                <!-- Gentle indicator for deductions -->
+                <div class="sticker-gentle-indicator" *ngIf="transaction.amount < 0">
+                  <span class="gentle-text">{{ getEnhancedStickerData(transaction).gentleMessage }}</span>
+                </div>
+              </div>
+              
+              <!-- Paper texture effect -->
+              <div class="paper-texture"></div>
+              
+              <!-- Peeling corner effect for some stickers -->
+              <div class="peeling-corner" *ngIf="shouldShowPeelingCorner(i)"></div>
+              
+              <!-- Holographic/iridescent effect for special transactions -->
+              <div class="holographic-shine" *ngIf="isSpecialTransaction(transaction)"></div>
+            </div>
+            
+            <!-- Click animation overlay -->
+            <div class="click-animation-overlay"></div>
+          </div>
+          
+          <!-- Fun message encouraging interaction -->
+          <div class="sticker-interaction-hint" *ngIf="recentTransactions.length > 0">
+            <p class="hint-text">🎈 Tryk på dine klistermærker for at se mere! ⭐</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hvad kan jeg købe? (What can I buy?) -->
+    <div class="dashboard-card shopping-card">
+      <div class="card-header">
+        <h2>🛍️ Hvad kan jeg købe?</h2>
+      </div>
+      <div class="card-content">
+        <div class="purchase-suggestions">
+          <div 
+            *ngFor="let suggestion of purchaseSuggestions" 
+            class="purchase-item"
+            [class.can-afford]="suggestion.canAfford"
+            [class.stretch-goal]="!suggestion.canAfford"
+            (click)="celebrateClick(suggestion.canAfford ? 'Du har råd til det!' : 'Spar lidt mere!')">
+            
+            <div class="purchase-emoji">{{ suggestion.emoji }}</div>
+            <div class="purchase-details">
+              <div class="purchase-name">{{ suggestion.name }}</div>
+              <div class="purchase-price" [class.affordable]="suggestion.canAfford">
+                {{ formatCurrency(suggestion.price) }}
+              </div>
+              <div class="purchase-category">{{ suggestion.category }}</div>
+            </div>
+            <div class="purchase-status">
+              <span *ngIf="suggestion.canAfford" class="can-buy">✅ Du har råd!</span>
+              <span *ngIf="!suggestion.canAfford" class="need-more">💪 Spar mere!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shopping-tip">
+          <p class="tip-text">💡 Tip: Spar hver uge for at få råd til endnu flere ting!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fun Activity Section -->
+    <div class="dashboard-card activity-card">
+      <div class="card-header">
+        <h2>🎉 Mine Bedrifter</h2>
+      </div>
+      <div class="card-content">
+        <div class="achievements-grid">
+          <div class="achievement-badge" (click)="celebrateClick('Du er en spar-stjerne!')">
+            <div class="badge-emoji">⭐</div>
+            <div class="badge-text">Spar-stjerne</div>
+          </div>
+          
+          <div class="achievement-badge" (click)="celebrateClick('Du er god til at passe på dine penge!')">
+            <div class="badge-emoji">💰</div>
+            <div class="badge-text">Penge-passer</div>
+          </div>
+          
+          <div class="achievement-badge" (click)="celebrateClick('Du arbejder hårdt for dine penge!')">
+            <div class="badge-emoji">🏆</div>
+            <div class="badge-text">Hård Arbejder</div>
+          </div>
+          
+          <div class="achievement-badge" (click)="celebrateClick('Du er fantastisk!')">
+            <div class="badge-emoji">🌟</div>
+            <div class="badge-text">Superstjerne</div>
+          </div>
+        </div>
+
+        <div class="activity-message">
+          <p>🎈 Klik på dine bedrifter for at fejre dem!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fun Footer -->
+  <div class="child-footer">
+    <div class="footer-decoration">
+      <span>🌈</span>
+      <span>⭐</span>
+      <span>🎉</span>
+      <span>💫</span>
+      <span>🌟</span>
+    </div>
+    <p class="footer-message">Du klarer det fantastisk! Fortsæt det gode arbejde! 🎯</p>
+  </div>
+
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="transaction-modal-overlay" *ngIf="selectedTransaction" (click)="closeTransactionDetails()">
+  <div class="transaction-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <button class="close-button" (click)="closeTransactionDetails()">❌</button>
+      <h3>{{ getEnhancedStickerData(selectedTransaction).title }}</h3>
+    </div>
+    
+    <div class="modal-content">
+      <div class="transaction-emoji-big">{{ getEnhancedStickerData(selectedTransaction).emoji }}</div>
+      
+      <div class="transaction-details">
+        <div class="detail-row">
+          <span class="detail-label">💰 Beløb:</span>
+          <span class="detail-value" [class.positive]="selectedTransaction.amount > 0" [class.negative]="selectedTransaction.amount < 0">
+            {{ formatCurrency(selectedTransaction.amount) }}
+          </span>
+        </div>
+        
+        <div class="detail-row">
+          <span class="detail-label">📅 Dato:</span>
+          <span class="detail-value">{{ formatDateDetailedForChild(selectedTransaction.transactionDate) }}</span>
+        </div>
+        
+        <div class="detail-row" *ngIf="selectedTransaction.description">
+          <span class="detail-label">📝 Besked:</span>
+          <span class="detail-value">{{ selectedTransaction.description }}</span>
+        </div>
+        
+        <div class="transaction-story" *ngIf="getTransactionStory(selectedTransaction)">
+          <h4>🌟 Din Historie:</h4>
+          <p>{{ getTransactionStory(selectedTransaction) }}</p>
+        </div>
+        
+        <!-- Fun celebration for positive transactions -->
+        <div class="celebration-message" *ngIf="selectedTransaction.amount > 0">
+          <p>🎉 {{ getCelebrationMessage(selectedTransaction) }}</p>
+        </div>
+      </div>
+      
+      <button class="modal-ok-button" (click)="closeTransactionDetails()">
+        🎈 Fedt! Luk
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confetti Component for Child Dashboard -->
+<app-confetti #childConfettiComponent theme="celebration" [disabled]="false"></app-confetti>
+
+<!-- Loading State -->
+<div class="loading-container" *ngIf="isLoading">
+  <mat-spinner diameter="60"></mat-spinner>
+  <h2 class="loading-text">Henter dine penge-oplysninger... 🌟</h2>
+  <p class="loading-message">Et øjeblik, {{ currentChild?.name || 'lille stjerne' }}!</p>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="!isLoading && !currentChild">
+  <div class="error-content">
+    <h2>😔 Ups! Noget gik galt</h2>
+    <p>Vi kunne ikke finde dine penge-oplysninger.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      🏠 Tilbage til startsiden
+    </button>
+  </div>
+</div>

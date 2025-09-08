@@ -1,0 +1,268 @@
+<!-- Deduction Modal with Living Scrapbook Theme (More Subdued) -->
+<div class="deduction-modal" [class.warning]="showWarning" [class.confirming]="showConfirmation">
+  
+  <!-- Confirmation Overlay -->
+  <div class="confirmation-overlay" 
+       [@confirmation]="showConfirmation ? 'visible' : 'hidden'"
+       *ngIf="showConfirmation">
+    <div class="confirmation-content">
+      <div class="confirmation-icon">✅</div>
+      <h3 class="confirmation-title">Fradrag Gennemført</h3>
+      <p class="confirmation-message">{{confirmationMessage}}</p>
+      <div class="confirmation-decoration">💰📝💰</div>
+    </div>
+  </div>
+
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2 class="handwritten-title">💸 Træk Fra Kontoen</h2>
+    <p class="modal-subtitle">Registrer et fradrag eller køb</p>
+    <button mat-icon-button (click)="cancel()" class="close-button">
+      <span>❌</span>
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <form [formGroup]="deductionForm" (ngSubmit)="onSubmit()" class="modal-content">
+    
+    <!-- Decorative tape (more subdued) -->
+    <div class="decorative-tape tape-1">📎</div>
+    <div class="decorative-tape tape-2">📌</div>
+    
+    <!-- Child Selection with Current Balance Display -->
+    <div class="form-section polaroid-section">
+      <label class="section-label handwritten">👶 Vælg barnet</label>
+      <mat-form-field appearance="outline" class="full-width child-select">
+        <mat-label>Hvilket barn skal have fradrag?</mat-label>
+        <mat-select formControlName="childId">
+          <mat-option *ngFor="let child of data.children" [value]="child.id">
+            <div class="child-option">
+              <span class="child-name">{{child.name}}</span>
+              <span class="child-balance">({{child.currentBalance?.toFixed(2) || '0.00'}} DKK)</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('childId')">
+          Du skal vælge et barn 👶
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Current Balance and Warning -->
+      <div class="balance-info" *ngIf="getSelectedChild()">
+        <div class="current-balance">
+          <span class="balance-label">Nuværende saldo:</span>
+          <span class="balance-amount">{{getSelectedChild()?.currentBalance?.toFixed(2) || '0.00'}} DKK</span>
+        </div>
+        <div class="remaining-balance" [class.negative]="getRemainingBalance() < 0">
+          <span class="balance-label">Efter fradrag:</span>
+          <span class="balance-amount">{{getRemainingBalance().toFixed(2)}} DKK</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Balance Warning -->
+    <div class="balance-warning" 
+         [@warning]="showWarning ? 'visible' : 'hidden'"
+         *ngIf="showWarning">
+      <div class="warning-content">
+        <div class="warning-icon">⚠️</div>
+        <h4 class="warning-title">Advarsel: Ikke nok penge</h4>
+        <p class="warning-message">
+          Dette fradrag vil give {{getChildName(deductionForm.get('childId')?.value)}} 
+          en negativ saldo på {{getRemainingBalance().toFixed(2)}} DKK.
+        </p>
+        <div class="warning-actions">
+          <button type="button" 
+                  mat-stroked-button 
+                  color="warn" 
+                  (click)="proceedWithNegativeBalance()"
+                  class="proceed-button">
+            Fortsæt Alligevel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deduction Type Selection -->
+    <div class="form-section">
+      <label class="section-label handwritten">🏷️ Type af fradrag</label>
+      <div class="deduction-type-grid">
+        <button *ngFor="let deductionType of deductionTypes" 
+                type="button"
+                class="deduction-type-card"
+                [class.selected]="deductionForm.get('deductionType')?.value === deductionType.type"
+                [style.border-color]="deductionForm.get('deductionType')?.value === deductionType.type ? deductionType.color : '#ccc'"
+                [style.background]="deductionForm.get('deductionType')?.value === deductionType.type ? deductionType.color + '10' : '#fafafa'"
+                (click)="setDeductionType(deductionType.type)">
+          <div class="deduction-card-content">
+            <div class="deduction-icon">{{deductionType.icon}}</div>
+            <h4 class="deduction-name">{{deductionType.name}}</h4>
+            <p class="deduction-description">{{deductionType.description}}</p>
+            <div class="deduction-examples">
+              <small *ngFor="let example of deductionType.examples.slice(0, 2)" class="example-tag">
+                {{example}}
+              </small>
+            </div>
+          </div>
+          <div class="deduction-card-check" *ngIf="deductionForm.get('deductionType')?.value === deductionType.type">
+            ✓ Valgt
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Amount Selection with Subdued Coins -->
+    <div class="form-section">
+      <label class="section-label handwritten">💰 Beløb til fradrag</label>
+      
+      <!-- Quick amount buttons (more subdued styling) -->
+      <div class="coin-amounts">
+        <button *ngFor="let amount of quickAmounts"
+                type="button" 
+                class="amount-button"
+                [class.selected]="deductionForm.get('amount')?.value === amount"
+                (click)="setQuickAmount(amount)">
+          <div class="amount-face">
+            <div class="amount-value">{{amount}}</div>
+            <div class="amount-currency">DKK</div>
+          </div>
+        </button>
+      </div>
+      
+      <!-- Custom amount -->
+      <div class="custom-amount-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Eller skriv dit eget beløb</mat-label>
+          <input matInput 
+                 type="number" 
+                 formControlName="amount" 
+                 min="1" 
+                 max="5000"
+                 step="1"
+                 placeholder="25">
+          <span matSuffix>DKK 💸</span>
+          <mat-error *ngIf="isFieldInvalid('amount')">
+            {{getFieldError('amount')}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Description with Auto-suggestions -->
+    <div class="form-section">
+      <label class="section-label handwritten">📝 Hvad blev pengene brugt til?</label>
+      <div class="description-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Beskriv købet eller fradraget</mat-label>
+          <input matInput 
+                 formControlName="description" 
+                 maxlength="200"
+                 placeholder="F.eks. Slik fra butikken">
+          <button matSuffix 
+                  type="button" 
+                  mat-icon-button 
+                  (click)="getRandomSuggestion()"
+                  matTooltip="Få et forslag">
+            🎲
+          </button>
+          <mat-hint align="end">{{deductionForm.get('description')?.value?.length || 0}}/200</mat-hint>
+          <mat-error *ngIf="isFieldInvalid('description')">
+            Beskriv hvad pengene blev brugt til! 📝
+          </mat-error>
+        </mat-form-field>
+        
+        <!-- Suggestion chips -->
+        <div class="suggestion-chips">
+          <span class="suggestion-label">💡 Forslag til {{getSelectedTypeInfo().name.toLowerCase()}}:</span>
+          <button *ngFor="let suggestion of getCurrentDeductionExamples().slice(0, 3)" 
+                  type="button"
+                  class="suggestion-chip"
+                  (click)="deductionForm.patchValue({description: suggestion})">
+            {{suggestion}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional Extra Reason -->
+    <div class="form-section optional-section">
+      <label class="section-label handwritten">💬 Ekstra noter (valgfrit)</label>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ekstra detaljer om fradraget</mat-label>
+        <textarea matInput 
+                  formControlName="reason" 
+                  maxlength="300"
+                  rows="2"
+                  placeholder="F.eks. Særlig anledning eller grund"></textarea>
+        <mat-hint align="end">{{deductionForm.get('reason')?.value?.length || 0}}/300</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <!-- Deduction Preview Card -->
+    <div class="deduction-preview-card" *ngIf="deductionForm.valid">
+      <div class="preview-header">
+        <span class="preview-sticker">💸</span>
+        <h4 class="preview-title handwritten">Fradrag Oversigt</h4>
+        <span class="preview-decoration">📝</span>
+      </div>
+      <div class="preview-content">
+        <div class="preview-child">
+          <strong>{{getChildName(deductionForm.get('childId')?.value)}}</strong>
+          får fradrag på kontoen
+        </div>
+        <div class="preview-amount">
+          <span class="amount-value">-{{deductionForm.get('amount')?.value}} DKK</span>
+          <span class="deduction-type-badge" [style.background-color]="getSelectedTypeInfo().color">
+            {{getSelectedTypeInfo().icon}} {{getSelectedTypeInfo().name}}
+          </span>
+        </div>
+        <div class="preview-reason">
+          <em>"{{deductionForm.get('description')?.value}}"</em>
+          <span *ngIf="deductionForm.get('reason')?.value?.trim()">
+            <br><small>{{deductionForm.get('reason')?.value}}</small>
+          </span>
+        </div>
+        <div class="preview-balance" [class.negative]="getRemainingBalance() < 0">
+          Ny saldo: <strong>{{getRemainingBalance().toFixed(2)}} DKK</strong>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer">
+    <button mat-raised-button 
+            type="button" 
+            (click)="cancel()" 
+            class="cancel-button">
+      ❌ Annuller
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            [disabled]="!deductionForm.valid || isSubmitting || (showWarning && getRemainingBalance() < 0)"
+            (click)="onSubmit()"
+            class="deduction-button"
+            [style.background-color]="getSelectedTypeInfo().color">
+      <span *ngIf="!isSubmitting" class="deduction-button-content">
+        <span class="deduction-icon">{{getSelectedTypeInfo().icon}}</span>
+        <span class="deduction-text">Træk {{deductionForm.get('amount')?.value}} DKK</span>
+        <span class="arrow">→</span>
+      </span>
+      <span *ngIf="isSubmitting" class="submitting-content">
+        <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+        Trækker fra konto... 💸
+      </span>
+    </button>
+  </div>
+
+  <!-- Decorative elements (more subdued than rewards) -->
+  <div class="decorative-stickers">
+    <div class="sticker sticker-1">💰</div>
+    <div class="sticker sticker-2">📝</div>
+    <div class="sticker sticker-3">💸</div>
+    <div class="sticker sticker-4">🏦</div>
+    <div class="sticker sticker-5">📊</div>
+    <div class="sticker sticker-6">✓</div>
+  </div>
+</div>

@@ -1,0 +1,342 @@
+// Animated Counter Styles for Child-Friendly Balance Displays
+
+// Base animation classes for the animated counter directive
+.animating-counter {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Scale effect for significant balance changes
+.counter-scale-effect {
+  animation: counterScale 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes counterScale {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Bounce effect for the balance sticky note
+.balance-bounce {
+  animation: balanceBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes balanceBounce {
+  0% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+  25% {
+    transform: rotate(var(--rotation)) scale(1.1) translateY(-5px);
+  }
+  50% {
+    transform: rotate(var(--rotation)) scale(1.15) translateY(-8px);
+  }
+  75% {
+    transform: rotate(var(--rotation)) scale(1.05) translateY(-3px);
+  }
+  100% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+}
+
+// Pulse effect for positive balance changes
+.balance-pulse {
+  animation: balancePulse 1.5s ease-in-out;
+}
+
+@keyframes balancePulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 4px 20px rgba(76, 175, 80, 0.3),
+      0 0 0 4px rgba(76, 175, 80, 0.1);
+  }
+}
+
+// Gentle shake for balance decreases (supportive, not alarming)
+.balance-gentle-shake {
+  animation: gentleShake 0.5s ease-in-out;
+}
+
+@keyframes gentleShake {
+  0%, 100% {
+    transform: rotate(var(--rotation)) translateX(0);
+  }
+  25% {
+    transform: rotate(var(--rotation)) translateX(-2px);
+  }
+  75% {
+    transform: rotate(var(--rotation)) translateX(2px);
+  }
+}
+
+// Milestone celebration glow effect
+.balance-milestone-glow {
+  animation: milestoneGlow 2s ease-in-out;
+}
+
+@keyframes milestoneGlow {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 60px rgba(255, 215, 0, 0.3),
+      0 4px 20px rgba(0, 0, 0, 0.1);
+    filter: brightness(1.1);
+  }
+}
+
+// Sparkle effects for special occasions
+.balance-sparkles {
+  position: relative;
+  
+  &::before,
+  &::after {
+    content: '✨';
+    position: absolute;
+    font-size: 0.8rem;
+    animation: sparkleFloat 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  
+  &::before {
+    top: -10px;
+    left: -15px;
+    animation-delay: 0s;
+  }
+  
+  &::after {
+    bottom: -10px;
+    right: -15px;
+    animation-delay: 1s;
+  }
+}
+
+@keyframes sparkleFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+// Color transition animations for different balance ranges
+.balance-color-transition {
+  transition: color 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+// Enhanced sticky note balance animations
+.sticky-note-balance {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  
+  &.celebrating {
+    animation: balanceCelebration 1.5s ease-in-out;
+  }
+  
+  &.milestone-achieved {
+    animation: milestoneAchieved 2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  &.balance-increased {
+    animation: balanceIncrease 1s ease-out;
+  }
+  
+  &.balance-decreased {
+    animation: balanceDecrease 0.8s ease-out;
+  }
+}
+
+@keyframes balanceCelebration {
+  0% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+  15% {
+    transform: rotate(calc(var(--rotation) + 5deg)) scale(1.05);
+  }
+  30% {
+    transform: rotate(calc(var(--rotation) - 5deg)) scale(1.1);
+  }
+  45% {
+    transform: rotate(calc(var(--rotation) + 3deg)) scale(1.08);
+  }
+  60% {
+    transform: rotate(calc(var(--rotation) - 3deg)) scale(1.03);
+  }
+  75% {
+    transform: rotate(calc(var(--rotation) + 1deg)) scale(1.01);
+  }
+  100% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+}
+
+@keyframes milestoneAchieved {
+  0% {
+    transform: rotate(var(--rotation)) scale(1);
+    filter: brightness(1);
+  }
+  20% {
+    transform: rotate(var(--rotation)) scale(1.2);
+    filter: brightness(1.2);
+  }
+  40% {
+    transform: rotate(var(--rotation)) scale(0.9);
+    filter: brightness(1.1);
+  }
+  60% {
+    transform: rotate(var(--rotation)) scale(1.15);
+    filter: brightness(1.15);
+  }
+  80% {
+    transform: rotate(var(--rotation)) scale(0.95);
+    filter: brightness(1.05);
+  }
+  100% {
+    transform: rotate(var(--rotation)) scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes balanceIncrease {
+  0% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+  30% {
+    transform: rotate(var(--rotation)) scale(1.1) translateY(-3px);
+  }
+  60% {
+    transform: rotate(var(--rotation)) scale(1.05) translateY(-1px);
+  }
+  100% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+}
+
+@keyframes balanceDecrease {
+  0% {
+    transform: rotate(var(--rotation)) scale(1);
+  }
+  50% {
+    transform: rotate(var(--rotation)) scale(0.95);
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(var(--rotation)) scale(1);
+    opacity: 1;
+  }
+}
+
+// Counter digit flip animation (for more dramatic changes)
+.counter-digit-flip {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.counter-digit {
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  &.flipping-up {
+    animation: digitFlipUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  &.flipping-down {
+    animation: digitFlipDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+@keyframes digitFlipUp {
+  0% {
+    transform: rotateX(0deg);
+  }
+  50% {
+    transform: rotateX(-90deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+@keyframes digitFlipDown {
+  0% {
+    transform: rotateX(0deg);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .counter-scale-effect {
+    animation-duration: 0.4s;
+  }
+  
+  .balance-bounce {
+    animation-duration: 0.6s;
+  }
+  
+  .balanceCelebration {
+    animation-duration: 1s;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .animating-counter {
+    text-shadow: none;
+    border: 1px solid currentColor;
+    padding: 2px 4px;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .counter-scale-effect,
+  .balance-bounce,
+  .balance-pulse,
+  .balance-gentle-shake,
+  .balance-milestone-glow,
+  .balance-sparkles::before,
+  .balance-sparkles::after,
+  .sticky-note-balance.celebrating,
+  .sticky-note-balance.milestone-achieved,
+  .sticky-note-balance.balance-increased,
+  .sticky-note-balance.balance-decreased,
+  .counter-digit.flipping-up,
+  .counter-digit.flipping-down {
+    animation: none !important;
+  }
+  
+  .animating-counter,
+  .balance-color-transition,
+  .sticky-note-balance {
+    transition: none !important;
+  }
+}

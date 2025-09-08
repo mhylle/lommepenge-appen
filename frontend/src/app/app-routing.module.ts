@@ -1,36 +1,70 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { TaskListComponent } from './components/task-list/task-list.component';
-import { TaskFormComponent } from './components/task-form/task-form.component';
+import { ChildDashboardComponent } from './components/child-dashboard/child-dashboard.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
+import { AdminGuard } from './guards/admin.guard';
+import { ChildGuard } from './guards/child.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { 
     path: 'dashboard', 
     component: DashboardComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    data: { 
+      title: 'Dashboard - Lommepenge App\'en',
+      description: 'Oversigt over dine lommepenge opgaver'
+    }
   },
   { 
-    path: 'tasks', 
-    component: TaskListComponent,
-    canActivate: [AuthGuard]
-  },
-  { 
-    path: 'tasks/new', 
-    component: TaskFormComponent,
-    canActivate: [AuthGuard]
-  },
-  { 
-    path: 'tasks/edit/:id', 
-    component: TaskFormComponent,
-    canActivate: [AuthGuard]
+    path: 'child/:childId', 
+    component: ChildDashboardComponent,
+    canActivate: [AuthGuard, ChildGuard],
+    data: { 
+      title: 'Børne Dashboard - Lommepenge App\'en',
+      description: 'Barnets personlige lommepenge dashboard'
+    }
   },
   { 
     path: 'access-denied', 
-    component: AccessDeniedComponent 
+    component: AccessDeniedComponent,
+    data: { 
+      title: 'Adgang Nægtet - Lommepenge App\'en',
+      description: 'Du har ikke tilladelse til at få adgang til denne ressource'
+    }
+  },
+  // Example routes demonstrating different guard levels
+  {
+    path: 'tasks',
+    component: DashboardComponent, // Using dashboard as placeholder
+    canActivate: [AuthGuard],
+    data: { 
+      title: 'Opgaver - Lommepenge App\'en',
+      description: 'Administrer dine lommepenge opgaver'
+    }
+  },
+  {
+    path: 'profile',
+    component: DashboardComponent, // Using dashboard as placeholder  
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['user', 'admin'],
+      appId: 'app2',
+      title: 'Profil - Lommepenge App\'en',
+      description: 'Din brugerprofil og indstillinger'
+    }
+  },
+  {
+    path: 'admin',
+    component: DashboardComponent, // Using dashboard as placeholder
+    canActivate: [AuthGuard, AdminGuard],
+    data: { 
+      title: 'Administration - Lommepenge App\'en',
+      description: 'Administrative funktioner (kun for administratorer)'
+    }
   },
   { path: '**', redirectTo: '/dashboard' }
 ];

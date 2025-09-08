@@ -1,0 +1,179 @@
+<div class="modal-overlay scrapbook-modal">
+  <div class="modal-container">
+    <!-- Paper texture background -->
+    <div class="paper-texture"></div>
+    
+    <!-- Decorative tape in corners -->
+    <div class="tape tape-top-left"></div>
+    <div class="tape tape-top-right"></div>
+    <div class="tape tape-bottom-left"></div>
+    
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2 class="modal-title handwritten">Tilføj nyt barn</h2>
+      <div class="sticker-decoration">🌟</div>
+    </div>
+
+    <!-- Form Content -->
+    <form [formGroup]="childForm" (ngSubmit)="onSubmit()" class="child-form">
+      
+      <!-- Child Name Field -->
+      <div class="form-group">
+        <label class="form-label handwritten" for="name">
+          Barnets navn
+          <span class="required">*</span>
+        </label>
+        <mat-form-field appearance="outline" class="full-width scrapbook-field">
+          <input 
+            matInput 
+            id="name"
+            formControlName="name" 
+            placeholder="F.eks. Emma, Lukas, Sofia..."
+            maxlength="50">
+          <mat-error>{{ getFieldError('name') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Age Field -->
+      <div class="form-group">
+        <label class="form-label handwritten" for="age">
+          Alder
+          <span class="required">*</span>
+        </label>
+        <mat-form-field appearance="outline" class="age-field scrapbook-field">
+          <input 
+            matInput 
+            type="number" 
+            id="age"
+            formControlName="age"
+            min="3" 
+            max="17"
+            (input)="suggestAllowance()">
+          <span matTextSuffix class="age-suffix">år</span>
+          <mat-error>{{ getFieldError('age') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Card Color Selection -->
+      <div class="form-group color-selection">
+        <label class="form-label handwritten">
+          Vælg kortfarve
+        </label>
+        <div class="color-grid">
+          <div 
+            *ngFor="let color of cardColors"
+            class="color-option"
+            [class.selected]="childForm.get('cardColor')?.value === color.value"
+            (click)="childForm.patchValue({cardColor: color.value})">
+            <div 
+              class="color-preview"
+              [style.background-color]="color.preview">
+            </div>
+            <span class="color-name">{{ color.name }}</span>
+          </div>
+        </div>
+        <div class="selected-color-display">
+          <span class="handwritten">Valgt farve: {{ getSelectedColorName() }}</span>
+        </div>
+      </div>
+
+      <!-- Initial Balance -->
+      <div class="form-group">
+        <label class="form-label handwritten" for="initialBalance">
+          Start balance
+          <span class="helper-text">(valgfrit)</span>
+        </label>
+        <mat-form-field appearance="outline" class="full-width scrapbook-field">
+          <input 
+            matInput 
+            type="number" 
+            id="initialBalance"
+            formControlName="initialBalance"
+            min="0" 
+            max="10000"
+            step="0.01"
+            placeholder="0">
+          <span matTextSuffix>DKK</span>
+          <mat-hint>Hvor mange penge skal barnet starte med?</mat-hint>
+          <mat-error>{{ getFieldError('initialBalance') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Weekly Allowance -->
+      <div class="form-group allowance-group">
+        <label class="form-label handwritten" for="weeklyAllowance">
+          Ugentlige lommepenge
+          <span class="helper-text">(valgfrit)</span>
+        </label>
+        <div class="allowance-container">
+          <mat-form-field appearance="outline" class="allowance-field scrapbook-field">
+            <input 
+              matInput 
+              type="number" 
+              id="weeklyAllowance"
+              formControlName="weeklyAllowance"
+              min="0" 
+              max="500"
+              step="5"
+              [placeholder]="getRecommendedAllowance().toString()">
+            <span matTextSuffix>DKK/uge</span>
+            <mat-error>{{ getFieldError('weeklyAllowance') }}</mat-error>
+          </mat-form-field>
+          <button 
+            type="button" 
+            class="suggest-btn scrapbook-btn-small"
+            (click)="suggestAllowance()">
+            💡 Forslag: {{ getRecommendedAllowance() }} kr
+          </button>
+        </div>
+        <mat-hint class="allowance-hint">
+          Anbefalet for {{ childForm.get('age')?.value }} år: {{ getRecommendedAllowance() }} kr/uge
+        </mat-hint>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="cancel-btn scrapbook-btn-outline"
+          (click)="onCancel()"
+          [disabled]="isSubmitting">
+          Annuller
+        </button>
+        <button 
+          type="submit" 
+          class="submit-btn scrapbook-btn-primary"
+          [disabled]="childForm.invalid || isSubmitting">
+          <mat-spinner 
+            *ngIf="isSubmitting" 
+            diameter="20" 
+            class="submit-spinner">
+          </mat-spinner>
+          <span *ngIf="!isSubmitting">Opret barn</span>
+          <span *ngIf="isSubmitting">Opretter...</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Decorative elements -->
+    <div class="polaroid-preview" *ngIf="childForm.get('name')?.value">
+      <div 
+        class="preview-card"
+        [style.background-color]="childForm.get('cardColor')?.value">
+        <div class="preview-photo">📷</div>
+        <div class="preview-name handwritten">
+          {{ childForm.get('name')?.value }}
+        </div>
+        <div class="preview-balance">
+          {{ (childForm.get('initialBalance')?.value || 0) | currency:'DKK':'symbol':'1.2-2':'da' }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

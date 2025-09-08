@@ -1,0 +1,963 @@
+// Import Google Fonts for handwritten style
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Comic+Neue:wght@300;400;700&display=swap');
+
+// Living Scrapbook Color Palette
+$primary-green: #8FBC8F;
+$warm-yellow: #FFEAA7;
+$soft-pink: #FD79A8;
+$sky-blue: #74b9ff;
+$lavender: #a29bfe;
+$mint: #55efc4;
+$peach: #fd7f6f;
+$paper-cream: #fefefe;
+$ink-dark: #2d3436;
+$shadow: rgba(0,0,0,0.15);
+
+.reward-modal {
+  width: 100%;
+  max-width: 750px;
+  max-height: 95vh;
+  position: relative;
+  background: $paper-cream;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1);
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 234, 167, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(116, 185, 255, 0.1) 0%, transparent 50%),
+    linear-gradient(45deg, transparent 40%, rgba(253, 121, 168, 0.03) 50%, transparent 60%);
+
+  &.celebrating {
+    animation: celebration-pulse 2s ease-in-out infinite alternate;
+  }
+
+  // Confetti canvas overlay
+  .confetti-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  // Celebration overlay
+  .celebration-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 234, 167, 0.95) 0%, rgba(116, 185, 255, 0.95) 100%);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+
+    .celebration-content {
+      text-align: center;
+      padding: 40px;
+      animation: bounce 1s ease-out;
+
+      .celebration-stars, .celebration-sparkles {
+        font-size: 2rem;
+        animation: twinkle 2s ease-in-out infinite;
+        margin: 10px 0;
+      }
+
+      .celebration-title {
+        font-family: 'Kalam', cursive;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: $ink-dark;
+        text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        margin: 20px 0;
+        animation: celebration-text 1.5s ease-out;
+      }
+
+      .celebration-icon {
+        font-size: 4rem;
+        animation: celebration-spin 2s ease-in-out infinite;
+      }
+    }
+  }
+
+  // Header with scrapbook style
+  .modal-header {
+    background: linear-gradient(135deg, $warm-yellow 0%, #f9ca24 100%);
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 15px,
+        rgba(0,0,0,0.1) 15px,
+        rgba(0,0,0,0.1) 16px
+      );
+    }
+
+    .handwritten-title {
+      font-family: 'Kalam', cursive;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: $ink-dark;
+      margin: 0;
+      transform: rotate(-1deg);
+      text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+    }
+
+    .modal-subtitle {
+      font-family: 'Comic Neue', cursive;
+      font-size: 1.1rem;
+      color: $ink-dark;
+      margin: 8px 0 0 0;
+      font-weight: 400;
+      transform: rotate(0.5deg);
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid $ink-dark;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+
+      &:hover {
+        background: #fff;
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+      }
+    }
+  }
+
+  // Main content with paper texture
+  .modal-content {
+    padding: 30px;
+    max-height: 70vh;
+    overflow-y: auto;
+    position: relative;
+
+    // Decorative tape elements
+    .decorative-tape {
+      position: absolute;
+      font-size: 1.5rem;
+      z-index: 10;
+      
+      &.tape-1 {
+        top: 20px;
+        left: 20px;
+        transform: rotate(-15deg);
+        color: $soft-pink;
+      }
+      
+      &.tape-2 {
+        top: 20px;
+        right: 20px;
+        transform: rotate(15deg);
+        color: $sky-blue;
+      }
+    }
+
+    .form-section {
+      margin-bottom: 35px;
+      position: relative;
+
+      &.polaroid-section {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: rotate(-0.5deg);
+        margin-bottom: 30px;
+
+        &::before {
+          content: '=ø';
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          font-size: 1.5rem;
+          background: $warm-yellow;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+      }
+
+      &.optional-section {
+        opacity: 0.8;
+        border-left: 4px dashed $lavender;
+        padding-left: 20px;
+      }
+      
+      .section-label {
+        font-family: 'Kalam', cursive;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: $ink-dark;
+        margin-bottom: 15px;
+        display: block;
+        transform: rotate(-0.3deg);
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+
+        &.handwritten {
+          position: relative;
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 50%;
+            height: 2px;
+            background: $soft-pink;
+            border-radius: 2px;
+            transform: rotate(-0.5deg);
+          }
+        }
+      }
+      
+      .full-width {
+        width: 100%;
+      }
+
+      // Child selection styling
+      .child-select {
+        .child-option {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .child-name {
+            font-weight: 600;
+            color: $ink-dark;
+          }
+          
+          .child-balance {
+            font-size: 0.9rem;
+            color: $primary-green;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+
+    // Reward type grid with beautiful cards
+    .reward-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      
+      .reward-type-card {
+        background: white;
+        border: 3px solid #ddd;
+        border-radius: 15px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        font-family: 'Comic Neue', cursive;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transform: rotate(0deg);
+
+        &:hover {
+          transform: translateY(-5px) rotate(1deg);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        &.selected {
+          transform: translateY(-3px) rotate(-1deg);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+        
+        .reward-card-content {
+          text-align: center;
+          
+          .reward-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+          }
+          
+          .reward-name {
+            font-family: 'Kalam', cursive;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: $ink-dark;
+            margin: 10px 0 8px 0;
+          }
+          
+          .reward-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+          }
+          
+          .reward-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            
+            .example-tag {
+              background: rgba(0,0,0,0.05);
+              padding: 4px 8px;
+              border-radius: 12px;
+              font-size: 0.75rem;
+              color: #666;
+              border: 1px solid rgba(0,0,0,0.1);
+            }
+          }
+        }
+        
+        .reward-card-sticker {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: $warm-yellow;
+          color: $ink-dark;
+          padding: 5px 10px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          transform: rotate(15deg);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          animation: wiggle 2s ease-in-out infinite;
+        }
+      }
+    }
+
+    // Coin amounts with realistic Danish coins
+    .coin-amounts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+      justify-content: center;
+      
+      .coin-button {
+        width: 80px;
+        height: 80px;
+        border: none;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #f9c22e, #e6a82a);
+        box-shadow: 
+          0 6px 15px rgba(0,0,0,0.2),
+          inset 0 2px 4px rgba(255,255,255,0.3),
+          inset 0 -2px 4px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        position: relative;
+        
+        .coin-face {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          font-weight: 600;
+          color: $ink-dark;
+          text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+          
+          .coin-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1;
+          }
+          
+          .coin-currency {
+            font-size: 0.7rem;
+            opacity: 0.8;
+          }
+        }
+        
+        &:hover {
+          transform: translateY(-3px) scale(1.05);
+          box-shadow: 
+            0 8px 20px rgba(0,0,0,0.3),
+            inset 0 2px 4px rgba(255,255,255,0.4);
+        }
+        
+        &.selected {
+          background: linear-gradient(145deg, #55efc4, #00b894);
+          animation: coin-celebration 0.6s ease-out;
+          
+          .coin-face {
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+          }
+          
+          &::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: $warm-yellow;
+            color: $ink-dark;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          }
+        }
+      }
+    }
+
+    .custom-amount-section {
+      background: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      border-radius: 12px;
+      border: 2px dashed $primary-green;
+    }
+
+    // Description section with suggestions
+    .description-section {
+      .suggestion-chips {
+        margin-top: 15px;
+        
+        .suggestion-label {
+          font-family: 'Comic Neue', cursive;
+          font-size: 0.9rem;
+          color: $ink-dark;
+          display: block;
+          margin-bottom: 10px;
+          font-weight: 500;
+        }
+        
+        .suggestion-chip {
+          background: rgba(255, 234, 167, 0.8);
+          border: 1px solid #ddd;
+          border-radius: 20px;
+          padding: 6px 12px;
+          margin: 4px 6px 4px 0;
+          font-size: 0.85rem;
+          color: $ink-dark;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-family: 'Comic Neue', cursive;
+          
+          &:hover {
+            background: $warm-yellow;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          }
+        }
+      }
+    }
+
+    // Reward preview card
+    .reward-preview-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+      border: 3px solid $primary-green;
+      border-radius: 20px;
+      padding: 25px;
+      margin-top: 25px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, $warm-yellow, $soft-pink, $sky-blue, $mint);
+        z-index: -1;
+        border-radius: 22px;
+        animation: rainbow-border 3s linear infinite;
+      }
+      
+      .preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        
+        .preview-sticker {
+          font-size: 2rem;
+          animation: pulse 2s infinite;
+        }
+        
+        .preview-title {
+          font-family: 'Kalam', cursive;
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: $ink-dark;
+          margin: 0;
+          transform: rotate(-1deg);
+        }
+        
+        .preview-decoration {
+          font-size: 1.5rem;
+          animation: sparkle-rotate 2s linear infinite;
+        }
+      }
+      
+      .preview-content {
+        text-align: center;
+        
+        .preview-child {
+          font-family: 'Comic Neue', cursive;
+          font-size: 1.3rem;
+          color: $ink-dark;
+          margin-bottom: 15px;
+        }
+        
+        .preview-amount {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 15px;
+          margin-bottom: 15px;
+          
+          .amount-value {
+            font-family: 'Kalam', cursive;
+            font-size: 2rem;
+            font-weight: 700;
+            color: $primary-green;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+          }
+          
+          .reward-type-badge {
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          }
+        }
+        
+        .preview-reason {
+          font-family: 'Comic Neue', cursive;
+          font-size: 1.1rem;
+          color: #666;
+          font-style: italic;
+          line-height: 1.4;
+        }
+      }
+    }
+  }
+
+  // Footer with celebration buttons
+  .modal-footer {
+    padding: 25px 30px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 3px solid $primary-green;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+    
+    .cancel-button {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 25px;
+      font-family: 'Comic Neue', cursive;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      
+      &:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      }
+    }
+    
+    .reward-button {
+      flex: 1;
+      border: none;
+      padding: 18px 30px;
+      border-radius: 25px;
+      font-family: 'Kalam', cursive;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: white;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+      }
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        
+        &::before {
+          left: 100%;
+        }
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .reward-button-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        
+        .reward-icon {
+          font-size: 1.3rem;
+          animation: bounce-gentle 2s infinite;
+        }
+        
+        .sparkle {
+          animation: twinkle 1.5s infinite;
+        }
+      }
+      
+      .submitting-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        
+        .inline-spinner {
+          color: white !important;
+        }
+      }
+    }
+  }
+
+  // Decorative stickers
+  .decorative-stickers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    
+    .sticker {
+      position: absolute;
+      font-size: 1.5rem;
+      animation: float 4s ease-in-out infinite;
+      
+      &.sticker-1 {
+        top: 15%;
+        left: 5%;
+        animation-delay: 0s;
+      }
+      
+      &.sticker-2 {
+        top: 25%;
+        right: 8%;
+        animation-delay: 1s;
+      }
+      
+      &.sticker-3 {
+        bottom: 30%;
+        left: 3%;
+        animation-delay: 2s;
+      }
+      
+      &.sticker-4 {
+        bottom: 45%;
+        right: 5%;
+        animation-delay: 0.5s;
+      }
+      
+      &.sticker-5 {
+        top: 55%;
+        left: 2%;
+        animation-delay: 1.5s;
+      }
+      
+      &.sticker-6 {
+        top: 70%;
+        right: 3%;
+        animation-delay: 2.5s;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes celebration-pulse {
+  0%, 100% {
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.1);
+  }
+  50% {
+    box-shadow: 0 25px 80px rgba(255, 234, 167, 0.4), 0 0 30px rgba(116, 185, 255, 0.3);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+@keyframes celebration-text {
+  0% { 
+    transform: scale(0) rotate(-10deg); 
+    opacity: 0; 
+  }
+  50% { 
+    transform: scale(1.1) rotate(5deg); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: scale(1) rotate(-2deg); 
+    opacity: 1; 
+  }
+}
+
+@keyframes celebration-spin {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-10deg) scale(1.1); }
+  75% { transform: rotate(10deg) scale(1.1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-5px) rotate(1deg); }
+  66% { transform: translateY(-3px) rotate(-1deg); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(15deg) scale(1); }
+  25% { transform: rotate(12deg) scale(1.05); }
+  75% { transform: rotate(18deg) scale(1.05); }
+}
+
+@keyframes coin-celebration {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.2); }
+  100% { transform: translateY(0) scale(1.05); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes sparkle-rotate {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.1); }
+  50% { transform: rotate(180deg) scale(1); }
+  75% { transform: rotate(270deg) scale(1.1); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes rainbow-border {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+// Material Design Overrides
+::ng-deep {
+  .reward-modal {
+    .mat-mdc-form-field {
+      font-family: 'Comic Neue', cursive !important;
+      
+      .mat-mdc-form-field-outline {
+        border-color: $primary-green !important;
+        border-width: 2px !important;
+        border-radius: 12px !important;
+      }
+      
+      &.mat-focused .mat-mdc-form-field-outline {
+        border-color: $sky-blue !important;
+        border-width: 3px !important;
+      }
+      
+      .mat-mdc-form-field-label {
+        color: $ink-dark !important;
+        font-weight: 500 !important;
+      }
+      
+      .mat-mdc-input-element {
+        font-family: 'Comic Neue', cursive !important;
+        color: $ink-dark !important;
+        font-weight: 500 !important;
+      }
+      
+      .mat-mdc-form-field-error {
+        font-family: 'Comic Neue', cursive !important;
+        font-weight: 500 !important;
+        color: $soft-pink !important;
+      }
+    }
+    
+    .mat-mdc-select-panel {
+      border-radius: 12px !important;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+    }
+    
+    .mat-mdc-option {
+      font-family: 'Comic Neue', cursive !important;
+      
+      &.mat-mdc-option-selected {
+        background-color: rgba(143, 188, 143, 0.15) !important;
+      }
+      
+      &:hover {
+        background-color: rgba(116, 185, 255, 0.1) !important;
+      }
+    }
+    
+    .mat-mdc-snack-bar-container.celebration-snackbar {
+      background: linear-gradient(135deg, $warm-yellow 0%, $mint 100%) !important;
+      color: $ink-dark !important;
+      font-family: 'Kalam', cursive !important;
+      font-weight: 600 !important;
+      font-size: 1.1rem !important;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .reward-modal {
+    max-width: 95vw;
+    max-height: 98vh;
+    margin: 0;
+    border-radius: 15px;
+    
+    .modal-header {
+      padding: 20px;
+      
+      .handwritten-title {
+        font-size: 2rem;
+      }
+      
+      .modal-subtitle {
+        font-size: 1rem;
+      }
+    }
+    
+    .modal-content {
+      padding: 20px;
+      
+      .reward-type-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        
+        .reward-type-card {
+          padding: 15px;
+          
+          .reward-card-content {
+            .reward-icon {
+              font-size: 2.5rem;
+            }
+            
+            .reward-name {
+              font-size: 1.1rem;
+            }
+            
+            .reward-description {
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
+      
+      .coin-amounts {
+        .coin-button {
+          width: 70px;
+          height: 70px;
+          
+          .coin-face .coin-value {
+            font-size: 1rem;
+          }
+        }
+      }
+      
+      .reward-preview-card {
+        padding: 20px;
+        
+        .preview-content .preview-amount .amount-value {
+          font-size: 1.8rem;
+        }
+      }
+    }
+    
+    .modal-footer {
+      padding: 20px;
+      flex-direction: column;
+      
+      .cancel-button, .reward-button {
+        width: 100%;
+        margin: 5px 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .reward-modal {
+    .reward-type-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    
+    .coin-amounts {
+      .coin-button {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  }
+}

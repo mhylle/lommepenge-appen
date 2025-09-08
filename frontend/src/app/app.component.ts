@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService, UserInfo } from './services/auth.service';
+import { SessionTrackingService, SessionState } from './services/session-tracking.service';
+import { ErrorHandlerService } from './services/error-handler.service';
+import { BreadcrumbService } from './services/breadcrumb.service';
 
 interface AppInfo {
   name: string;
@@ -21,204 +24,277 @@ interface HealthStatus {
   selector: 'app-root',
   standalone: false,
   template: `
-    <div class="app-container">
-      <header class="app-header">
-        <h1>{{ appInfo.name }}</h1>
-        <div class="app-info">
-          <span class="version">v{{ appInfo.version }}</span>
-          <span class="environment" [class]="appInfo.environment">{{ appInfo.environment }}</span>
-          <div class="user-info" *ngIf="currentUser">
-            <span>Welcome, {{ currentUser.firstName }}!</span>
-            <button (click)="logout()" class="logout-btn">Logout</button>
+    <div class="lommepenge-app">
+      <!-- Main Header -->
+      <header class="lommepenge-header">
+        <div class="header-content">
+          <div class="app-branding">
+            <h1 class="app-title">💰 Lommepenge App'en</h1>
+            <p class="app-subtitle">Familiens levende scrapbog</p>
+          </div>
+          <div class="header-user-area" *ngIf="currentUser">
+            <div class="user-welcome">
+              <span class="welcome-text">Hej, {{currentUser.firstName}}! 👋</span>
+              <div class="user-actions">
+                <button (click)="logout()" class="logout-btn">
+                  <span>🚪 Log ud</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      <nav class="app-nav">
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a routerLink="/tasks" routerLinkActive="active">Tasks</a>
-        <a routerLink="/tasks/new" routerLinkActive="active">New Task</a>
-        <a href="/api/app2/health" target="_blank">API Health</a>
-      </nav>
+      <!-- Navigation Breadcrumbs -->
+      <app-breadcrumb></app-breadcrumb>
 
-      <main class="app-main">
+      <!-- Main Content Area -->
+      <main class="lommepenge-main">
         <router-outlet></router-outlet>
       </main>
 
-      <footer class="app-footer">
+      <!-- Footer with family-friendly decorations -->
+      <footer class="lommepenge-footer" *ngIf="currentUser">
+        <div class="footer-decoration">
+          <span class="footer-emoji">🌈</span>
+          <span class="footer-emoji">⭐</span>
+          <span class="footer-emoji">🎉</span>
+          <span class="footer-emoji">💫</span>
+          <span class="footer-emoji">🌟</span>
+        </div>
         <div class="footer-content">
-          <p>&copy; 2025 mhylle.com - Infrastructure Demo Application</p>
-          <div class="footer-links">
-            <a href="https://github.com/mhylle" target="_blank">GitHub</a>
-            <a href="/api/app2/health" target="_blank">API Health</a>
-          </div>
+          <p class="footer-text">© 2025 Lommepenge App'en - Hvor pengeventure begynder! ✨</p>
         </div>
       </footer>
       
+      <!-- Login Modal -->
       <app-login (loginSuccess)="onLoginSuccess()"></app-login>
     </div>
   `,
   styles: [`
-    .app-container {
+    .lommepenge-app {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8f6f0 0%, #f0efe8 50%, #ede9e0 100%);
+      font-family: 'Comic Neue', 'Kalam', cursive, 'Segoe UI', sans-serif;
+      position: relative;
     }
 
-    .app-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+    .lommepenge-app::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255, 182, 193, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(144, 238, 144, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .lommepenge-header {
+      background: linear-gradient(145deg, #fff3e0 0%, #ffe4b5 50%, #ffd700 100%);
+      border-bottom: 3px solid #d4af37;
+      box-shadow: 
+        0 4px 12px rgba(139, 69, 19, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .app-header h1 {
-      margin: 0;
-      font-size: 2rem;
-      font-weight: 300;
-    }
-
-    .app-info {
-      display: flex;
+      flex-wrap: wrap;
       gap: 1rem;
-      align-items: center;
     }
 
-    .user-info {
+    .app-branding {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #8b4513;
+      text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.2);
+      font-family: 'Comic Neue', 'Kalam', cursive;
+      line-height: 1.2;
+    }
+
+    .app-subtitle {
+      margin: 0;
+      font-size: 1rem;
+      color: #654321;
+      font-style: italic;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .header-user-area {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 1rem;
+    }
+
+    .user-welcome {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 0.75rem 1.25rem;
+      border-radius: 25px;
+      border: 2px solid rgba(139, 69, 19, 0.2);
+      box-shadow: 0 2px 6px rgba(139, 69, 19, 0.1);
+    }
+
+    .welcome-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #8b4513;
     }
 
     .logout-btn {
-      padding: 0.25rem 0.75rem;
-      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      background: linear-gradient(145deg, #ff6b6b, #ee5a52);
       color: white;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 0.25rem;
-      font-size: 0.875rem;
+      border: 2px solid #c44847;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(196, 72, 71, 0.3);
+      font-family: 'Comic Neue', cursive;
     }
 
     .logout-btn:hover {
-      background: rgba(255,255,255,0.3);
+      background: linear-gradient(145deg, #ee5a52, #dd4b47);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(196, 72, 71, 0.4);
     }
 
-    .version {
-      background: rgba(255,255,255,0.2);
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.875rem;
+    .logout-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(196, 72, 71, 0.4);
     }
 
-    .environment {
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .environment.production {
-      background: #28a745;
-      color: white;
-    }
-
-    .environment.development {
-      background: #ffc107;
-      color: #212529;
-    }
-
-    .app-nav {
-      background: #f8f9fa;
-      padding: 0 2rem;
-      border-bottom: 1px solid #dee2e6;
-      display: flex;
-      gap: 2rem;
-    }
-
-    .app-nav a {
-      padding: 1rem 0;
-      text-decoration: none;
-      color: #495057;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s ease;
-    }
-
-    .app-nav a:hover {
-      color: #667eea;
-      border-bottom-color: rgba(102, 126, 234, 0.3);
-    }
-
-    .app-nav a.active {
-      color: #667eea;
-      border-bottom-color: #667eea;
-    }
-
-    .app-main {
-      flex: 1;
-      padding: 2rem;
+    .lommepenge-main {
       max-width: 1200px;
       margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
+      padding: 1.5rem 2rem 3rem;
+      min-height: calc(100vh - 200px);
     }
 
-    .app-footer {
-      background: #343a40;
-      color: white;
-      padding: 2rem;
+    .lommepenge-footer {
       margin-top: auto;
+      background: linear-gradient(145deg, #fff9e6 0%, #f7f2e0 100%);
+      border-top: 2px solid #e8dcc0;
+      padding: 1.5rem 2rem;
+      position: relative;
     }
+
+    .footer-decoration {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-emoji {
+      font-size: 1.5rem;
+      animation: gentle-bounce 3s ease-in-out infinite;
+    }
+
+    .footer-emoji:nth-child(2) { animation-delay: 0.5s; }
+    .footer-emoji:nth-child(3) { animation-delay: 1s; }
+    .footer-emoji:nth-child(4) { animation-delay: 1.5s; }
+    .footer-emoji:nth-child(5) { animation-delay: 2s; }
 
     .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
     }
 
-    .footer-links {
-      display: flex;
-      gap: 1rem;
+    .footer-text {
+      margin: 0;
+      color: #8b4513;
+      font-size: 0.95rem;
+      font-weight: 500;
+      font-family: 'Comic Neue', cursive;
     }
 
-    .footer-links a {
-      color: #adb5bd;
-      text-decoration: none;
-      transition: color 0.3s ease;
+    @keyframes gentle-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
     }
 
-    .footer-links a:hover {
-      color: white;
-    }
-
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .app-header {
+      .header-content {
+        padding: 1rem 1.5rem;
+      }
+
+      .app-title {
+        font-size: 1.8rem;
+      }
+
+      .app-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .user-welcome {
+        padding: 0.5rem 1rem;
         flex-direction: column;
-        gap: 1rem;
-        text-align: center;
+        gap: 0.5rem;
       }
 
-      .app-nav {
-        flex-wrap: wrap;
+      .welcome-text {
+        font-size: 0.95rem;
+      }
+
+      .logout-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+      }
+
+      .lommepenge-main {
+        padding: 1rem 1.5rem 2rem;
+      }
+
+      .footer-decoration {
         gap: 1rem;
       }
 
-      .app-main {
+      .footer-emoji {
+        font-size: 1.25rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-content {
         padding: 1rem;
       }
 
-      .footer-content {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
+      .app-title {
+        font-size: 1.6rem;
+      }
+
+      .user-welcome {
+        padding: 0.5rem 0.75rem;
+      }
+
+      .lommepenge-main {
+        padding: 0.75rem 1rem 1.5rem;
       }
     }
   `]
@@ -232,10 +308,14 @@ export class AppComponent implements OnInit {
   };
 
   currentUser: UserInfo | null = null;
+  sessionState: SessionState | null = null;
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private sessionTracking: SessionTrackingService,
+    private errorHandler: ErrorHandlerService,
+    private breadcrumbService: BreadcrumbService
   ) {}
 
   ngOnInit(): void {
@@ -246,15 +326,32 @@ export class AppComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
+    
+    // Subscribe to session state changes
+    this.sessionTracking.sessionState$.subscribe(sessionState => {
+      this.sessionState = sessionState;
+    });
   }
 
   async logout(): Promise<void> {
-    await this.authService.logout();
+    try {
+      await this.authService.logout();
+      this.errorHandler.showSuccess('Du er nu logget ud af Lommepenge App\'en.');
+    } catch (error) {
+      this.errorHandler.handleError(error, {
+        userMessage: 'Der opstod en fejl ved logout.'
+      });
+    }
   }
 
   onLoginSuccess(): void {
     // User successfully logged in - router will handle navigation
     console.log('Login successful for Task Management App!');
+  }
+
+  isAdmin(): boolean {
+    return this.authService.hasRole('app2', 'admin') || 
+           this.authService.hasRole('app2', 'super-admin');
   }
 
   private loadAppInfo(): void {

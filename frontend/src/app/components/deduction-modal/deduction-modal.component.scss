@@ -1,0 +1,688 @@
+// Deduction Modal - More Subdued Living Scrapbook Theme
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Caveat:wght@400;600;700&display=swap');
+
+.deduction-modal {
+  position: relative;
+  max-width: 650px;
+  max-height: 85vh;
+  background: linear-gradient(145deg, #f8f6f3 0%, #f4f2ed 100%);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(139, 74, 107, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  overflow-y: auto;
+  font-family: 'Kalam', cursive;
+
+  // Subdued paper texture
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(120, 119, 108, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(139, 74, 107, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(184, 84, 80, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    border-radius: 20px;
+  }
+
+  &.warning {
+    animation: subtle-pulse 0.5s ease-in-out;
+  }
+
+  &.confirming {
+    .modal-content {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  }
+}
+
+// Header with more professional tone
+.modal-header {
+  text-align: center;
+  padding: 25px 30px 15px;
+  border-bottom: 2px dashed rgba(139, 74, 107, 0.2);
+  position: relative;
+
+  .handwritten-title {
+    font-family: 'Caveat', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: #8B4A6B;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    transform: rotate(-0.5deg);
+  }
+
+  .modal-subtitle {
+    font-size: 16px;
+    color: #6B6B6B;
+    margin: 8px 0 0;
+    font-weight: 400;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(184, 84, 80, 0.1);
+    }
+  }
+}
+
+// Main content area
+.modal-content {
+  padding: 20px 30px;
+  position: relative;
+  z-index: 2;
+}
+
+// Form sections with subdued styling
+.form-section {
+  margin-bottom: 25px;
+  position: relative;
+
+  &.optional-section {
+    opacity: 0.85;
+  }
+
+  .section-label {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    font-weight: 600;
+    color: #7A6B5B;
+    display: block;
+    margin-bottom: 12px;
+    transform: rotate(-0.3deg);
+
+    &.handwritten {
+      text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .full-width {
+    width: 100%;
+  }
+}
+
+// Child selection with balance display
+.child-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  .child-name {
+    font-weight: 600;
+    color: #4A4A4A;
+  }
+
+  .child-balance {
+    color: #6B8B47;
+    font-weight: 500;
+  }
+}
+
+.balance-info {
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  border-left: 3px solid #6B8B47;
+
+  .current-balance,
+  .remaining-balance {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.negative {
+      color: #B85450;
+      
+      .balance-amount {
+        font-weight: 700;
+      }
+    }
+
+    .balance-label {
+      font-weight: 500;
+      color: #5A5A5A;
+    }
+
+    .balance-amount {
+      font-weight: 600;
+      color: #2A2A2A;
+    }
+  }
+}
+
+// Warning section
+.balance-warning {
+  margin-bottom: 20px;
+  
+  .warning-content {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFECB3 100%);
+    border: 2px solid #B85450;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+
+    .warning-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .warning-title {
+      color: #B85450;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+
+    .warning-message {
+      color: #6B4423;
+      margin: 0 0 15px 0;
+      line-height: 1.4;
+    }
+
+    .proceed-button {
+      background: #B85450 !important;
+      color: white !important;
+      border: none !important;
+    }
+  }
+}
+
+// Deduction type grid (more subdued than reward grid)
+.deduction-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+
+  .deduction-type-card {
+    background: #fafafa;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    text-align: center;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &.selected {
+      border-width: 2px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .deduction-card-content {
+      flex: 1;
+
+      .deduction-icon {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .deduction-name {
+        font-weight: 700;
+        margin: 0 0 6px 0;
+        color: #4A4A4A;
+        font-size: 16px;
+      }
+
+      .deduction-description {
+        font-size: 13px;
+        color: #666;
+        margin: 0 0 8px 0;
+        line-height: 1.3;
+      }
+
+      .deduction-examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        justify-content: center;
+
+        .example-tag {
+          background: rgba(107, 107, 107, 0.1);
+          padding: 2px 6px;
+          border-radius: 10px;
+          font-size: 10px;
+          color: #666;
+        }
+      }
+    }
+
+    .deduction-card-check {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #4A4A4A;
+      font-weight: 600;
+    }
+  }
+}
+
+// Amount selection with subdued styling
+.coin-amounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .amount-button {
+    background: #f5f5f5;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &.selected {
+      background: #e8e8e8;
+      border-color: #8B4A6B;
+      box-shadow: 0 0 0 2px rgba(139, 74, 107, 0.3);
+    }
+
+    .amount-face {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+
+      .amount-value {
+        font-weight: 700;
+        font-size: 16px;
+        color: #4A4A4A;
+      }
+
+      .amount-currency {
+        font-size: 10px;
+        color: #666;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+// Suggestion system
+.suggestion-chips {
+  margin-top: 10px;
+
+  .suggestion-label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  .suggestion-chip {
+    background: rgba(139, 74, 107, 0.08);
+    border: 1px solid rgba(139, 74, 107, 0.2);
+    border-radius: 15px;
+    padding: 4px 10px;
+    margin: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 12px;
+    color: #8B4A6B;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(139, 74, 107, 0.15);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Preview card with more professional styling
+.deduction-preview-card {
+  background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+  border: 2px dashed rgba(139, 74, 107, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  position: relative;
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    gap: 8px;
+
+    .preview-title {
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      font-weight: 600;
+      color: #6B4A3A;
+      margin: 0;
+    }
+
+    .preview-sticker,
+    .preview-decoration {
+      font-size: 16px;
+    }
+  }
+
+  .preview-content {
+    text-align: center;
+
+    .preview-child {
+      margin-bottom: 8px;
+      color: #4A4A4A;
+    }
+
+    .preview-amount {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+
+      .amount-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #B85450;
+      }
+
+      .deduction-type-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: white;
+        font-weight: 600;
+      }
+    }
+
+    .preview-reason {
+      color: #666;
+      font-style: italic;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .preview-balance {
+      font-size: 16px;
+      color: #4A4A4A;
+
+      &.negative {
+        color: #B85450;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Modal footer
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-top: 2px dashed rgba(139, 74, 107, 0.2);
+  gap: 15px;
+
+  .cancel-button {
+    background: #f5f5f5 !important;
+    color: #666 !important;
+    border: 2px solid #ddd !important;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #e8e8e8 !important;
+      border-color: #bbb !important;
+    }
+  }
+
+  .deduction-button {
+    flex: 1;
+    max-width: 300px;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    &:not(:disabled):hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .deduction-button-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      .deduction-icon {
+        font-size: 18px;
+      }
+
+      .arrow {
+        font-weight: 700;
+        font-size: 16px;
+      }
+    }
+
+    .submitting-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      .inline-spinner {
+        width: 16px !important;
+        height: 16px !important;
+
+        ::ng-deep circle {
+          stroke: white;
+        }
+      }
+    }
+  }
+}
+
+// Confirmation overlay
+.confirmation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  z-index: 10;
+
+  .confirmation-content {
+    text-align: center;
+    padding: 40px;
+
+    .confirmation-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .confirmation-title {
+      font-family: 'Caveat', cursive;
+      font-size: 28px;
+      font-weight: 700;
+      color: #6B8B47;
+      margin: 0 0 12px 0;
+    }
+
+    .confirmation-message {
+      font-size: 16px;
+      color: #4A4A4A;
+      margin: 0 0 16px 0;
+      line-height: 1.4;
+    }
+
+    .confirmation-decoration {
+      font-size: 18px;
+      opacity: 0.7;
+    }
+  }
+}
+
+// Decorative elements (more subdued)
+.decorative-tape {
+  position: absolute;
+  font-size: 14px;
+  opacity: 0.6;
+  z-index: 1;
+
+  &.tape-1 {
+    top: 60px;
+    left: -5px;
+    transform: rotate(-8deg);
+  }
+
+  &.tape-2 {
+    top: 60px;
+    right: -5px;
+    transform: rotate(8deg);
+  }
+}
+
+.decorative-stickers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+
+  .sticker {
+    position: absolute;
+    font-size: 14px;
+    opacity: 0.4;
+    transform-origin: center;
+
+    &.sticker-1 { top: 15%; left: 2%; transform: rotate(-15deg); }
+    &.sticker-2 { top: 25%; right: 3%; transform: rotate(20deg); }
+    &.sticker-3 { bottom: 30%; left: 1%; transform: rotate(-10deg); }
+    &.sticker-4 { bottom: 20%; right: 2%; transform: rotate(15deg); }
+    &.sticker-5 { top: 45%; left: -1%; transform: rotate(-20deg); }
+    &.sticker-6 { bottom: 45%; right: -1%; transform: rotate(10deg); }
+  }
+}
+
+// Animations
+@keyframes subtle-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+  .deduction-modal {
+    max-width: 95vw;
+    margin: 10px;
+  }
+
+  .modal-content {
+    padding: 15px 20px;
+  }
+
+  .deduction-type-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .coin-amounts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 12px;
+
+    .deduction-button {
+      max-width: none;
+      width: 100%;
+    }
+  }
+}
+
+// Angular Material overrides for consistent theming
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+.mat-mdc-select-panel {
+  background: white !important;
+  border-radius: 8px !important;
+}
+
+.mat-mdc-snack-bar-container {
+  &.deduction-snackbar {
+    background: #6B8B47 !important;
+    color: white !important;
+  }
+}

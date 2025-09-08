@@ -26,20 +26,29 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TaskListComponent } from './components/task-list/task-list.component';
-import { TaskFormComponent } from './components/task-form/task-form.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ChildDashboardComponent } from './components/child-dashboard/child-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
+import { ChildRegistrationModalComponent } from './components/child-registration-modal/child-registration-modal.component';
+import { DeductionModalComponent } from './components/deduction-modal/deduction-modal.component';
+import { TransactionHistoryModalComponent } from './components/transaction-history-modal/transaction-history-modal.component';
+import { AddMoneyModalComponent } from './components/add-money-modal/add-money-modal.component';
+import { RewardModalComponent } from './components/reward-modal/reward-modal.component';
+import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
+import { ConfettiComponent } from './components/confetti/confetti.component';
+import { AnimatedCounterDirective } from './directives/animated-counter.directive';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TaskListComponent,
-    TaskFormComponent,
     DashboardComponent,
+    ChildDashboardComponent,
     LoginComponent,
-    AccessDeniedComponent
+    AccessDeniedComponent,
+    TransactionHistoryModalComponent,
+    AddMoneyModalComponent,
+    RewardModalComponent
   ],
   imports: [
     BrowserModule,
@@ -47,6 +56,11 @@ import { AccessDeniedComponent } from './components/access-denied/access-denied.
     BrowserAnimationsModule,
     ReactiveFormsModule,
     FormsModule,
+    ChildRegistrationModalComponent,
+    DeductionModalComponent,
+    BreadcrumbComponent,
+    ConfettiComponent,
+    AnimatedCounterDirective,
     
     // Angular Material Modules
     MatToolbarModule,

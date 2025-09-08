@@ -1,0 +1,1890 @@
+// Child Dashboard - Enhanced Living Scrapbook Theme for Kids
+
+// Main container with magical scrapbook background
+.child-dashboard {
+  min-height: 100vh;
+  background: 
+    // Magical watercolor splatters for children
+    radial-gradient(circle at 20% 30%, rgba(255, 182, 193, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(173, 216, 230, 0.12) 0%, transparent 35%),
+    radial-gradient(circle at 40% 80%, rgba(152, 251, 152, 0.1) 0%, transparent 30%),
+    radial-gradient(circle at 70% 20%, rgba(255, 218, 185, 0.13) 0%, transparent 35%),
+    radial-gradient(circle at 10% 60%, rgba(221, 160, 221, 0.08) 0%, transparent 25%),
+    // Playful crayon texture
+    linear-gradient(45deg, 
+      rgba(255, 255, 255, 0.3) 25%, 
+      transparent 25%, 
+      transparent 75%, 
+      rgba(255, 255, 255, 0.3) 75%
+    ),
+    linear-gradient(-45deg, 
+      rgba(255, 240, 245, 0.4) 25%, 
+      transparent 25%, 
+      transparent 75%, 
+      rgba(255, 240, 245, 0.4) 75%
+    ),
+    // Base cream color
+    #fefcf8;
+  background-size: 
+    180px 180px, 200px 200px, 160px 160px, 220px 220px, 140px 140px,
+    8px 8px, 6px 6px, auto;
+  background-position: 
+    0 0, 100px 50px, 200px 80px, 50px 150px, 300px 200px,
+    0 0, 3px 3px, 0 0;
+  background-attachment: fixed;
+  padding: 20px;
+  font-family: 'Kalam', 'Comic Sans MS', cursive, sans-serif;
+  position: relative;
+
+  // Add playful doodles and child-friendly elements
+  &::before {
+    content: '';
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 100px;
+    height: 100px;
+    background-image: 
+      // Happy sun doodle
+      radial-gradient(circle at center, rgba(255, 215, 0, 0.2) 12px, transparent 12px),
+      // Sun rays
+      linear-gradient(0deg, rgba(255, 215, 0, 0.15) 2px, transparent 2px),
+      linear-gradient(45deg, rgba(255, 215, 0, 0.15) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(255, 215, 0, 0.15) 2px, transparent 2px),
+      linear-gradient(135deg, rgba(255, 215, 0, 0.15) 2px, transparent 2px),
+      // Rainbow arc
+      linear-gradient(90deg, 
+        rgba(255, 0, 0, 0.1) 0%, 
+        rgba(255, 165, 0, 0.1) 16%, 
+        rgba(255, 255, 0, 0.1) 32%, 
+        rgba(0, 255, 0, 0.1) 48%, 
+        rgba(0, 0, 255, 0.1) 64%, 
+        rgba(75, 0, 130, 0.1) 80%, 
+        rgba(148, 0, 211, 0.1) 100%
+      );
+    background-size: 
+      50px 50px, 30px 50px, 50px 30px, 50px 30px, 30px 50px, 80px 20px;
+    background-position: 
+      center, center, center, center, center, 10px 80px;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 50%;
+  }
+  
+  &::after {
+    content: '';
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 80px;
+    height: 80px;
+    background-image: 
+      // Flower doodles
+      radial-gradient(circle at 30% 30%, rgba(255, 105, 180, 0.15) 6px, transparent 6px),
+      radial-gradient(circle at 70% 30%, rgba(135, 206, 235, 0.15) 6px, transparent 6px),
+      radial-gradient(circle at 50% 70%, rgba(152, 251, 152, 0.15) 6px, transparent 6px),
+      // Butterfly wings
+      radial-gradient(ellipse at 45% 40%, rgba(255, 182, 193, 0.12) 8px, transparent 8px),
+      radial-gradient(ellipse at 55% 40%, rgba(221, 160, 221, 0.12) 8px, transparent 8px);
+    background-size: 
+      40px 40px, 40px 40px, 40px 40px, 30px 20px, 30px 20px;
+    background-position: 
+      0 0, 20px 0, 10px 30px, 25px 10px, 35px 10px;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Animated background gradient
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gentle-hover-bounce {
+  0%, 100% { transform: translateY(0px) scale(1.05) rotate(0deg); }
+  50% { transform: translateY(-3px) scale(1.06) rotate(0deg); }
+}
+
+@keyframes sticky-note-glow {
+  0%, 100% { box-shadow: 0 12px 24px rgba(0,0,0,0.2), 0 0 15px rgba(255, 215, 0, 0.3); }
+  50% { box-shadow: 0 15px 30px rgba(0,0,0,0.3), 0 0 25px rgba(255, 215, 0, 0.5); }
+}
+
+@keyframes balance-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(1deg); }
+  75% { transform: rotate(-1deg); }
+}
+
+@keyframes card-lift-dance {
+  0%, 100% { transform: translateY(0px) scale(1.02) rotate(0deg); }
+  50% { transform: translateY(-5px) scale(1.04) rotate(0deg); }
+}
+
+@keyframes card-rainbow-glow {
+  0%, 100% { box-shadow: 0 12px 30px rgba(0,0,0,0.15), 0 0 20px rgba(255, 182, 193, 0.4); }
+  25% { box-shadow: 0 12px 30px rgba(0,0,0,0.15), 0 0 20px rgba(135, 206, 235, 0.4); }
+  50% { box-shadow: 0 12px 30px rgba(0,0,0,0.15), 0 0 20px rgba(152, 251, 152, 0.4); }
+  75% { box-shadow: 0 12px 30px rgba(0,0,0,0.15), 0 0 20px rgba(255, 165, 0, 0.4); }
+}
+
+@keyframes badge-star-twinkle {
+  0%, 100% { transform: scale(1.05) rotate(0deg); box-shadow: 0 8px 16px rgba(0,0,0,0.2), 0 0 15px rgba(255, 215, 0, 0.4); }
+  50% { transform: scale(1.08) rotate(5deg); box-shadow: 0 12px 24px rgba(0,0,0,0.3), 0 0 25px rgba(255, 215, 0, 0.6); }
+}
+
+@keyframes badge-gentle-pulse {
+  0%, 100% { transform: scale(1) rotate(var(--badge-rotation, 0deg)); }
+  50% { transform: scale(1.03) rotate(var(--badge-rotation, 0deg)); }
+}
+
+@keyframes purchase-item-excited-bounce {
+  0%, 100% { transform: translateY(0px) scale(1.02); }
+  25% { transform: translateY(-2px) scale(1.03); }
+  75% { transform: translateY(-1px) scale(1.025); }
+}
+
+@keyframes purchase-glow-affordable {
+  0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 0 15px rgba(76, 175, 80, 0.3); }
+  50% { box-shadow: 0 8px 20px rgba(0,0,0,0.2), 0 0 25px rgba(76, 175, 80, 0.5); }
+}
+
+@keyframes purchase-glow-stretch {
+  0%, 100% { box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 0 15px rgba(255, 152, 0, 0.3); }
+  50% { box-shadow: 0 8px 20px rgba(0,0,0,0.2), 0 0 25px rgba(255, 152, 0, 0.5); }
+}
+
+@keyframes navigation-button-playful-wiggle {
+  0%, 100% { transform: scale(1.05) rotate(0deg); }
+  25% { transform: scale(1.07) rotate(2deg); }
+  75% { transform: scale(1.06) rotate(-2deg); }
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(300%) rotate(45deg); }
+}
+
+@keyframes card-gentle-bounce {
+  0%, 100% { transform: rotate(0deg) scale(0.98); }
+  50% { transform: rotate(0deg) scale(0.99); }
+}
+
+@keyframes sparkle-drift {
+  0% { transform: translateX(-20px) translateY(-20px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateX(20px) translateY(20px); opacity: 0; }
+}
+
+@keyframes emoji-celebration {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(10deg); }
+}
+
+@keyframes emoji-dance {
+  0%, 100% { transform: scale(1) rotate(0deg) translateY(0px); }
+  25% { transform: scale(1.05) rotate(5deg) translateY(-2px); }
+  75% { transform: scale(1.03) rotate(-5deg) translateY(-1px); }
+}
+
+@keyframes emoji-hopeful-wiggle {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.02) rotate(3deg); }
+  75% { transform: scale(1.02) rotate(-3deg); }
+}
+
+@keyframes slide-shine {
+  0% { left: -100%; opacity: 0; }
+  50% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@keyframes navigation-shimmer {
+  0% { left: -100%; opacity: 0; }
+  50% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+@keyframes navigation-icon-dance {
+  0%, 100% { transform: scale(1.1) rotate(0deg); }
+  25% { transform: scale(1.15) rotate(5deg); }
+  75% { transform: scale(1.12) rotate(-5deg); }
+}
+
+// Header Section
+.child-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  
+  .back-button {
+    background: #FF6B6B;
+    color: white;
+    margin-right: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transform: rotate(-2deg);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: rotate(0deg) scale(1.1);
+      background: #FF5252;
+    }
+    
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+
+  .scrapbook-back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(145deg, #4CAF50, #45A049);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 18px;
+    margin-right: 15px;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 
+      0 4px 8px rgba(76, 175, 80, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.3);
+    transform: rotate(-1.5deg);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    // Tape effect with enhanced animation
+    &::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 16px;
+      height: 8px;
+      background: linear-gradient(45deg, transparent 30%, #FFD700 30%, #FFD700 70%, transparent 70%);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      border-radius: 2px;
+      transform: rotate(45deg);
+      transition: all 0.3s ease;
+    }
+
+    // Add shimmer effect for excitement
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      opacity: 0;
+      transition: all 0.6s ease;
+      pointer-events: none;
+    }
+
+    .back-icon {
+      font-size: 18px;
+      animation: gentle-bounce 2s ease-in-out infinite;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+
+    .back-text {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+    }
+
+    &:hover {
+      transform: rotate(0deg) scale(1.05);
+      animation: navigation-button-playful-wiggle 1.2s ease-in-out infinite;
+      background: linear-gradient(145deg, #45A049, #3E8E41);
+      box-shadow: 
+        0 8px 16px rgba(76, 175, 80, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(76, 175, 80, 0.3);
+
+      &::before {
+        transform: rotate(45deg) scale(1.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      }
+
+      &::after {
+        opacity: 1;
+        left: 100%;
+        animation: navigation-shimmer 1s ease-in-out infinite;
+      }
+
+      .back-icon {
+        animation: navigation-icon-dance 0.8s ease-in-out infinite;
+        transform: scale(1.1);
+      }
+
+      .back-text {
+        transform: scale(1.02);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      }
+    }
+
+    &:active {
+      transform: rotate(0deg) scale(0.95);
+      animation: none;
+      box-shadow: 
+        0 3px 6px rgba(76, 175, 80, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
+    }
+  }
+  
+  .child-greeting {
+    .child-name {
+      font-size: 2.5em;
+      color: #FF6B6B;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      transform: rotate(-1deg);
+    }
+    
+    .child-age {
+      font-size: 1.3em;
+      color: #4ECDC4;
+      margin: 5px 0;
+      font-weight: bold;
+    }
+  }
+}
+
+// Sticky Note Balance - Main Feature
+.balance-section {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0 50px 0;
+  
+  .sticky-note-balance {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    background: #FFD700;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      background: rgba(255, 215, 0, 0.3);
+      border-radius: 12px;
+      z-index: -1;
+    }
+    
+    &:hover {
+      animation: gentle-hover-bounce 1.5s ease-in-out infinite, sticky-note-glow 2s ease-in-out infinite;
+      transform: rotate(0deg) scale(1.08) !important;
+    }
+    
+    &:active {
+      animation: balance-wiggle 0.5s ease-in-out;
+      transform: rotate(0deg) scale(1.06) !important;
+    }
+    
+    &.celebrating {
+      animation: celebrate 2s ease-in-out;
+    }
+    
+    .sticky-note-content {
+      padding: 30px;
+      text-align: center;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      
+      .balance-title {
+        font-size: 1.4em;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+      }
+      
+      .balance-amount {
+        font-size: 3em;
+        font-weight: 900;
+        color: #2C3E50;
+        margin: 15px 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        line-height: 1;
+        transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        
+        // Enhanced animated balance styling
+        &.animated-balance {
+          position: relative;
+          display: inline-block;
+          font-feature-settings: 'tnum'; // Tabular numbers for smooth transitions
+          
+          // Color transitions during animation
+          &.animating-counter {
+            text-shadow: 
+              2px 2px 4px rgba(0,0,0,0.1),
+              0 0 10px rgba(76, 175, 80, 0.3);
+            font-weight: 700;
+            transform: scale(1.02);
+          }
+          
+          // Scale effect for significant changes
+          &.counter-scale-effect {
+            transform-origin: center;
+            animation: none; // Override default, use custom
+            animation: balanceScaleBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+          }
+        }
+      }
+      
+      .balance-message {
+        font-size: 1.1em;
+        color: #E74C3C;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+    }
+    
+    // Tape effect for realistic sticky note look
+    .tape {
+      position: absolute;
+      width: 60px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(0,0,0,0.1);
+      
+      &.tape-top-left {
+        top: -10px;
+        left: 20px;
+        transform: rotate(-15deg);
+      }
+      
+      &.tape-top-right {
+        top: -10px;
+        right: 20px;
+        transform: rotate(15deg);
+      }
+    }
+  }
+}
+
+// Enhanced balance animations
+@keyframes balanceScaleBounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Bounce animation for sticky note
+.sticky-note-balance.bounce {
+  animation: bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounce {
+  0%, 20%, 60%, 100% { transform: translateY(0) rotate(var(--rotation, 0deg)); }
+  40% { transform: translateY(-20px) rotate(var(--rotation, 0deg)); }
+  80% { transform: translateY(-5px) rotate(var(--rotation, 0deg)); }
+}
+
+@keyframes celebrate {
+  0%, 100% { transform: scale(1) rotate(var(--rotation, 0deg)); }
+  25% { transform: scale(1.1) rotate(calc(var(--rotation, 0deg) + 5deg)); }
+  50% { transform: scale(1.05) rotate(calc(var(--rotation, 0deg) - 3deg)); }
+  75% { transform: scale(1.08) rotate(calc(var(--rotation, 0deg) + 2deg)); }
+}
+
+// Dashboard Grid
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Dashboard Cards with sophisticated micro-interactions
+.dashboard-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  padding: 25px;
+  transform: rotate(-0.5deg);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border: 3px solid #F0F8FF;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #FFB6C1, #87CEEB, #98FB98, #DDA0DD);
+    border-radius: 22px;
+    z-index: -1;
+    transition: all 0.4s ease;
+  }
+  
+  // Add shimmer effect overlay
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    pointer-events: none;
+  }
+  
+  &:nth-child(odd) {
+    transform: rotate(1deg);
+    --card-rotation: 1deg;
+  }
+  
+  &:nth-child(even) {
+    transform: rotate(-1deg);
+    --card-rotation: -1deg;
+  }
+  
+  &:hover {
+    transform: rotate(0deg) scale(1.02);
+    animation: card-lift-dance 2s ease-in-out infinite, card-rainbow-glow 3s ease-in-out infinite;
+    z-index: 10;
+    
+    &::after {
+      opacity: 1;
+      animation: shimmer-sweep 1.5s ease-in-out infinite;
+    }
+  }
+  
+  &:active {
+    transform: rotate(0deg) scale(0.98);
+    animation: card-gentle-bounce 0.4s ease-out;
+  }
+  
+  .card-header {
+    margin-bottom: 20px;
+    position: relative;
+    
+    h2 {
+      font-size: 1.8em;
+      margin: 0;
+      color: #2C3E50;
+      text-align: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+  }
+  
+  .card-content {
+    color: #333;
+    transition: all 0.3s ease;
+  }
+  
+  // Enhanced hover effects for card content
+  &:hover {
+    .card-header h2 {
+      transform: scale(1.05);
+      color: #1A252F;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.15);
+    }
+    
+    .card-content {
+      color: #222;
+    }
+  }
+}
+
+// Specific card styling
+.goals-card {
+  background: linear-gradient(135deg, #FFE5F1 0%, #FFF0F8 100%);
+}
+
+.transactions-card {
+  background: linear-gradient(135deg, #E5F3FF 0%, #F0F8FF 100%);
+}
+
+.shopping-card {
+  background: linear-gradient(135deg, #F0FFE5 0%, #F8FFF0 100%);
+}
+
+.activity-card {
+  background: linear-gradient(135deg, #FFF5E5 0%, #FFF8F0 100%);
+}
+
+// Goals Section
+.goal-item {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 2px solid #FFB6C1;
+  
+  .goal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    
+    .goal-emoji {
+      font-size: 1.5em;
+      margin-right: 10px;
+    }
+    
+    .goal-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #2C3E50;
+    }
+  }
+  
+  .goal-progress {
+    margin: 10px 0;
+    
+    .progress-bar-container {
+      background: #E0E0E0;
+      border-radius: 15px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      
+      .progress-bar {
+        height: 100%;
+        border-radius: 15px;
+        transition: width 0.8s ease;
+      }
+    }
+    
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      color: #666;
+    }
+  }
+  
+  .progress-percentage {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+  }
+}
+
+// Enhanced Authentic Transaction Stickers
+.transactions-stickers-scrapbook {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    border-radius: 20px;
+    pointer-events: none;
+  }
+}
+
+// Base authentic sticker styles
+.authentic-sticker {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: float 6s ease-in-out infinite;
+  
+  &:nth-child(odd) {
+    animation-delay: 0.5s;
+  }
+  
+  &:nth-child(even) {
+    animation-delay: 1s;
+  }
+  
+  &:hover {
+    transform: rotate(0deg) scale(1.1) !important;
+    z-index: 100 !important;
+    
+    .sticker-shadow {
+      transform: translate(8px, 8px);
+      opacity: 0.6;
+    }
+    
+    .sparkle-effects .sparkle {
+      animation-play-state: running;
+    }
+    
+    .holographic-shine {
+      opacity: 0.8;
+      animation-play-state: running;
+    }
+  }
+  
+  &.hover-wiggle {
+    animation: wiggle 0.5s ease-in-out infinite;
+  }
+  
+  // Click animation
+  &:active {
+    transform: scale(0.95) !important;
+    
+    .click-animation-overlay {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+}
+
+// 3D Shadow effect
+.sticker-shadow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  top: 4px;
+  left: 4px;
+  z-index: -1;
+  transition: all 0.3s ease;
+  opacity: 0.3;
+  filter: blur(4px);
+}
+
+// Main sticker body
+.sticker-body {
+  position: relative;
+  width: 160px;
+  height: 140px;
+  border-radius: 20px;
+  padding: 15px;
+  color: white;
+  text-align: center;
+  box-shadow: 
+    0 8px 16px rgba(0,0,0,0.15),
+    0 2px 4px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+  
+  // Different shapes
+  &.circle { border-radius: 50%; }
+  &.star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+  &.heart { 
+    transform-origin: center;
+    &::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 90%;
+      background: inherit;
+      border-radius: 50px 50px 0 0;
+      clip-path: polygon(50% 100%, 0 75%, 0 25%, 25% 0, 75% 0, 100% 25%, 100% 75%);
+    }
+  }
+  &.hexagon { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+  &.rectangle { border-radius: 15px; }
+  &.diamond { transform: rotate(45deg); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+  &.flower { 
+    border-radius: 50% 10% 50% 10%;
+    transform: rotate(45deg);
+  }
+}
+
+// Sparkle effects for rewards
+.sparkle-effects {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  
+  .sparkle {
+    position: absolute;
+    font-size: 1.2em;
+    animation: sparkle 2s linear infinite;
+    animation-play-state: paused;
+    
+    &.sparkle-1 {
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+    
+    &.sparkle-2 {
+      top: 20%;
+      right: 15%;
+      animation-delay: 0.5s;
+    }
+    
+    &.sparkle-3 {
+      bottom: 25%;
+      left: 20%;
+      animation-delay: 1s;
+    }
+    
+    &.sparkle-4 {
+      bottom: 15%;
+      right: 10%;
+      animation-delay: 1.5s;
+    }
+  }
+}
+
+// Sticker border/frame
+.sticker-border {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+// Main content area
+.sticker-main-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sticker-emoji-large {
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  margin-bottom: 5px;
+}
+
+.sticker-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.sticker-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.sticker-amount-display {
+  font-size: 1.3em;
+  font-weight: 900;
+  margin: 5px 0;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.sticker-date-simple {
+  font-size: 0.8em;
+  opacity: 0.9;
+  font-weight: normal;
+}
+
+// Special badges for positive transactions
+.sticker-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 0.7em;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transform: rotate(15deg);
+  
+  .badge-text {
+    text-shadow: none;
+  }
+}
+
+// Gentle indicator for deductions
+.sticker-gentle-indicator {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 0.65em;
+  color: #666;
+  font-weight: normal;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  .gentle-text {
+    text-shadow: none;
+  }
+}
+
+// Paper texture effect
+.paper-texture {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 20px 20px, 15px 15px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+// Peeling corner effect
+.peeling-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, transparent 45%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.6) 100%);
+  border-radius: 0 inherit 0 100%;
+  pointer-events: none;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15px;
+    height: 15px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 0 inherit 0 100%;
+  }
+}
+
+// Holographic/iridescent effect
+.holographic-shine {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    rgba(255,0,255,0.2) 0%, 
+    rgba(0,255,255,0.2) 25%, 
+    rgba(255,255,0,0.2) 50%, 
+    rgba(0,255,0,0.2) 75%, 
+    rgba(255,0,255,0.2) 100%);
+  border-radius: inherit;
+  opacity: 0;
+  animation: holographic-shift 3s linear infinite;
+  animation-play-state: paused;
+  pointer-events: none;
+}
+
+// Click animation overlay
+.click-animation-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+// Size variations
+.sticker-large .sticker-body {
+  width: 180px;
+  height: 160px;
+  
+  .sticker-emoji-large {
+    font-size: 3em;
+  }
+}
+
+.sticker-medium .sticker-body {
+  width: 170px;
+  height: 150px;
+  
+  .sticker-emoji-large {
+    font-size: 2.7em;
+  }
+}
+
+.sticker-small .sticker-body {
+  width: 150px;
+  height: 130px;
+  
+  .sticker-emoji-large {
+    font-size: 2.3em;
+  }
+}
+
+// Interaction hint
+.sticker-interaction-hint {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 10px;
+  
+  .hint-text {
+    background: rgba(156, 39, 176, 0.1);
+    border: 2px dashed #9C27B0;
+    border-radius: 15px;
+    padding: 10px 20px;
+    margin: 0;
+    color: #7B1FA2;
+    font-weight: bold;
+    font-size: 1.1em;
+    display: inline-block;
+    animation: pulse-hint 2s ease-in-out infinite;
+  }
+}
+
+// Purchase Suggestions
+.purchase-suggestions {
+  display: grid;
+  gap: 15px;
+}
+
+.purchase-item {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  
+  // Add excitement effect for affordable items
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    opacity: 0;
+    transition: all 0.6s ease;
+    pointer-events: none;
+  }
+  
+  &.can-afford {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+    
+    &:hover {
+      animation: purchase-item-excited-bounce 1.5s ease-in-out infinite, purchase-glow-affordable 2s ease-in-out infinite;
+      
+      &::before {
+        opacity: 1;
+        left: 100%;
+        animation: slide-shine 1.2s ease-in-out infinite;
+      }
+      
+      .purchase-emoji {
+        animation: emoji-dance 0.6s ease-in-out infinite;
+      }
+    }
+  }
+  
+  &.stretch-goal {
+    border-color: #FF9800;
+    background: rgba(255, 152, 0, 0.1);
+    
+    &:hover {
+      animation: purchase-item-excited-bounce 1.5s ease-in-out infinite, purchase-glow-stretch 2s ease-in-out infinite;
+      
+      .purchase-emoji {
+        animation: emoji-hopeful-wiggle 0.8s ease-in-out infinite;
+      }
+    }
+  }
+  
+  &:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    z-index: 3;
+  }
+  
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+  
+  .purchase-emoji {
+    font-size: 2em;
+    margin-right: 15px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+  
+  .purchase-details {
+    flex: 1;
+    transition: all 0.3s ease;
+    
+    .purchase-name {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #2C3E50;
+      margin-bottom: 3px;
+      transition: all 0.3s ease;
+    }
+    
+    .purchase-price {
+      font-size: 1.2em;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      
+      &.affordable {
+        color: #4CAF50;
+      }
+      
+      &:not(.affordable) {
+        color: #FF9800;
+      }
+    }
+    
+    .purchase-category {
+      font-size: 0.9em;
+      color: #666;
+      font-style: italic;
+      transition: all 0.3s ease;
+    }
+  }
+  
+  .purchase-status {
+    font-weight: bold;
+    transition: all 0.3s ease;
+    
+    .can-buy {
+      color: #4CAF50;
+    }
+    
+    .need-more {
+      color: #FF9800;
+    }
+  }
+  
+  // Enhanced hover effects for content
+  &:hover {
+    .purchase-details {
+      .purchase-name {
+        color: #1A252F;
+        transform: scale(1.02);
+      }
+      
+      .purchase-price {
+        transform: scale(1.05);
+        
+        &.affordable {
+          color: #2E7D32;
+        }
+        
+        &:not(.affordable) {
+          color: #E65100;
+        }
+      }
+      
+      .purchase-category {
+        color: #555;
+      }
+    }
+    
+    .purchase-status {
+      transform: scale(1.03);
+    }
+  }
+}
+
+.shopping-tip {
+  background: rgba(255, 193, 7, 0.2);
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 20px;
+  border: 2px dashed #FFC107;
+  
+  .tip-text {
+    margin: 0;
+    font-weight: bold;
+    color: #E65100;
+    text-align: center;
+  }
+}
+
+// Achievement Badges
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.achievement-badge {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA000 100%);
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: rotate(-1deg);
+  position: relative;
+  overflow: hidden;
+  
+  // Add sparkling effect overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    right: -50%;
+    bottom: -50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0;
+    animation: sparkle-drift 4s linear infinite;
+    pointer-events: none;
+  }
+  
+  &:nth-child(even) {
+    transform: rotate(1deg);
+    --badge-rotation: 1deg;
+  }
+  
+  &:nth-child(odd) {
+    --badge-rotation: -1deg;
+  }
+  
+  &:hover {
+    transform: rotate(0deg) scale(1.05);
+    animation: badge-star-twinkle 1.5s ease-in-out infinite;
+    z-index: 5;
+    
+    &::before {
+      opacity: 1;
+      animation-play-state: running;
+    }
+    
+    .badge-emoji {
+      animation: emoji-celebration 0.6s ease-in-out infinite alternate;
+    }
+    
+    .badge-text {
+      transform: scale(1.05);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+  }
+  
+  &:active {
+    transform: rotate(0deg) scale(0.95);
+    animation: badge-gentle-pulse 0.3s ease-out;
+  }
+  
+  // Gentle idle animation
+  animation: badge-gentle-pulse 4s ease-in-out infinite;
+  
+  .badge-emoji {
+    font-size: 2em;
+    margin-bottom: 8px;
+    display: block;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+  
+  .badge-text {
+    font-weight: bold;
+    color: #333;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+  }
+}
+
+.activity-message {
+  background: rgba(233, 30, 99, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  border: 2px dashed #E91E63;
+  
+  p {
+    margin: 0;
+    color: #C2185B;
+    font-weight: bold;
+  }
+}
+
+// Footer
+.child-footer {
+  text-align: center;
+  margin-top: 50px;
+  
+  .footer-decoration {
+    font-size: 2em;
+    margin-bottom: 15px;
+    
+    span {
+      margin: 0 10px;
+      display: inline-block;
+      animation: float 3s ease-in-out infinite;
+      
+      &:nth-child(1) { animation-delay: 0s; }
+      &:nth-child(2) { animation-delay: 0.5s; }
+      &:nth-child(3) { animation-delay: 1s; }
+      &:nth-child(4) { animation-delay: 1.5s; }
+      &:nth-child(5) { animation-delay: 2s; }
+    }
+  }
+  
+  .footer-message {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #E74C3C;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+// Loading and Error States
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  
+  .loading-text,
+  .error-content h2 {
+    font-size: 2em;
+    color: #FF6B6B;
+    margin: 20px 0;
+  }
+  
+  .loading-message,
+  .error-content p {
+    font-size: 1.2em;
+    color: #4ECDC4;
+    margin-bottom: 30px;
+  }
+  
+  mat-spinner {
+    margin-bottom: 20px;
+  }
+}
+
+// Fun messages and empty states
+.fun-message {
+  text-align: center;
+  font-size: 1.2em;
+  color: #9C27B0;
+  font-weight: bold;
+  padding: 20px;
+  background: rgba(156, 39, 176, 0.1);
+  border-radius: 15px;
+  border: 2px dashed #9C27B0;
+  margin: 20px 0;
+}
+
+// Loading spinners in cards
+.loading-goals,
+.loading-transactions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  
+  mat-spinner {
+    margin-bottom: 15px;
+  }
+  
+  p {
+    color: #666;
+    font-weight: bold;
+  }
+}
+
+// Transaction Details Modal
+.transaction-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.transaction-modal {
+  background: linear-gradient(135deg, #FFF 0%, #F8F9FA 100%);
+  border-radius: 25px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  max-width: 400px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  .modal-header {
+    background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 25px 25px 0 0;
+    text-align: center;
+    position: relative;
+    
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.1);
+      }
+    }
+    
+    h3 {
+      margin: 0;
+      font-size: 1.5em;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+  
+  .modal-content {
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .transaction-emoji-big {
+    font-size: 4em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .transaction-details {
+    margin-bottom: 30px;
+  }
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #EEEEEE;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      font-weight: bold;
+      color: #666;
+      font-size: 1em;
+    }
+    
+    .detail-value {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #333;
+      
+      &.positive {
+        color: #4CAF50;
+      }
+      
+      &.negative {
+        color: #FF9800;
+      }
+    }
+  }
+  
+  .transaction-story {
+    background: linear-gradient(135deg, #E8F5E8 0%, #F0FFF0 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid #4CAF50;
+    
+    h4 {
+      color: #2E7D32;
+      margin: 0 0 10px 0;
+      font-size: 1.2em;
+    }
+    
+    p {
+      color: #388E3C;
+      margin: 0;
+      font-size: 1em;
+      line-height: 1.4;
+    }
+  }
+  
+  .celebration-message {
+    background: linear-gradient(135deg, #FFF3E0 0%, #FFF8F1 100%);
+    border-radius: 15px;
+    padding: 15px;
+    margin: 20px 0;
+    border: 2px solid #FF9800;
+    
+    p {
+      color: #F57C00;
+      margin: 0;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+  }
+  
+  .modal-ok-button {
+    background: linear-gradient(135deg, #4CAF50 0%, #45A049 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from { 
+    transform: scale(0.8) translateY(-50px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1) translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(0) rotate(0deg); 
+    opacity: 0; 
+  }
+  50% { 
+    transform: scale(1) rotate(180deg); 
+    opacity: 1; 
+  }
+}
+
+@keyframes holographic-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+@keyframes pulse-hint {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(1.05); 
+    opacity: 0.8; 
+  }
+}
+
+// Custom snackbar for child celebrations
+:host ::ng-deep .child-celebration-snackbar {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  color: white;
+  font-weight: bold;
+  font-size: 1.1em;
+  border-radius: 25px !important;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .child-dashboard {
+    padding: 15px;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .sticky-note-balance {
+    width: 240px !important;
+    height: 240px !important;
+    
+    .sticky-note-content {
+      padding: 20px !important;
+      
+      .balance-amount {
+        font-size: 2.5em !important;
+      }
+    }
+  }
+  
+  .child-header .child-name {
+    font-size: 2em !important;
+  }
+  
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  // Enhanced sticker responsive styles
+  .transactions-stickers-scrapbook {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .sticker-body {
+    width: 140px !important;
+    height: 120px !important;
+    padding: 12px !important;
+    
+    .sticker-emoji-large {
+      font-size: 2em !important;
+    }
+    
+    .sticker-title {
+      font-size: 0.95em !important;
+    }
+    
+    .sticker-amount-display {
+      font-size: 1.1em !important;
+    }
+  }
+  
+  .sticker-large .sticker-body {
+    width: 160px !important;
+    height: 140px !important;
+  }
+  
+  .sticker-medium .sticker-body {
+    width: 150px !important;
+    height: 130px !important;
+  }
+  
+  .sticker-small .sticker-body {
+    width: 130px !important;
+    height: 110px !important;
+  }
+  
+  .transaction-modal {
+    max-width: 350px;
+    
+    .modal-content {
+      padding: 20px;
+    }
+    
+    .transaction-emoji-big {
+      font-size: 3em;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .balance-section {
+    margin: 20px 0 30px 0;
+  }
+  
+  .sticky-note-balance {
+    width: 200px !important;
+    height: 200px !important;
+    
+    .sticky-note-content {
+      padding: 15px !important;
+      
+      .balance-title {
+        font-size: 1.1em !important;
+      }
+      
+      .balance-amount {
+        font-size: 2em !important;
+      }
+      
+      .balance-message {
+        font-size: 0.9em !important;
+      }
+    }
+  }
+  
+  .dashboard-card {
+    padding: 20px;
+  }
+  
+  .purchase-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+    
+    .purchase-emoji {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+  }
+  
+  // Mobile sticker styles
+  .transactions-stickers-scrapbook {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .sticker-body {
+    width: 120px !important;
+    height: 100px !important;
+    padding: 10px !important;
+    
+    .sticker-emoji-large {
+      font-size: 1.8em !important;
+    }
+    
+    .sticker-title {
+      font-size: 0.85em !important;
+    }
+    
+    .sticker-amount-display {
+      font-size: 1em !important;
+    }
+    
+    .sticker-date-simple {
+      font-size: 0.7em !important;
+    }
+  }
+  
+  .transaction-modal {
+    max-width: 320px;
+    margin: 10px;
+    
+    .modal-content {
+      padding: 15px;
+    }
+    
+    .transaction-emoji-big {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+    
+    .detail-row {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 5px;
+      padding: 8px 0;
+    }
+    
+    .transaction-story, .celebration-message {
+      padding: 15px;
+      margin: 15px 0;
+      
+      p {
+        font-size: 0.9em;
+      }
+    }
+    
+    .modal-ok-button {
+      padding: 12px 25px;
+      font-size: 1em;
+    }
+  }
+  
+  .sticker-interaction-hint .hint-text {
+    font-size: 0.95em;
+    padding: 8px 15px;
+  }
+}

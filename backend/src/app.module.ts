@@ -3,7 +3,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Message } from './message.entity';
+import { AppInitService } from './app-init.service';
+import { Family, PocketMoneyUser, Transaction } from './entities';
+import { User } from './entities/user.entity';
+import { MigrationsModule } from './migrations/migrations.module';
+import { FamiliesModule } from './families/families.module';
+import { PocketMoneyUsersModule } from './pocket-money-users/pocket-money-users.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { AuthProxyModule } from './auth-proxy/auth-proxy.module';
 
 @Module({
   imports: [
@@ -12,30 +19,19 @@ import { Message } from './message.entity';
       envFilePath: ['.env.local', '.env'],
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'password',
-      database: process.env.DB_NAME || 'app2_db',
-      entities: [Message],
+      type: 'sqlite',
+      database: process.env.NODE_ENV === 'production' ? 'data/lommepenge.db' : 'dev-lommepenge.db',
+      entities: [User, Family, PocketMoneyUser, Transaction],
       synchronize: true, // Only for development
       logging: process.env.NODE_ENV === 'development',
-      // Force IPv4 connection and additional connection options
-      extra: {
-        // PostgreSQL connection options - force IPv4
-        options: '--client-min-messages=warning',
-        // Ensure connection uses IPv4
-        family: 4,
-        // Connection pool settings  
-        max: 10,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 2000
-      }
     }),
-    TypeOrmModule.forFeature([Message]),
+    MigrationsModule,
+    FamiliesModule,
+    PocketMoneyUsersModule,
+    TransactionsModule,
+    AuthProxyModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppInitService],
 })
 export class AppModule {}

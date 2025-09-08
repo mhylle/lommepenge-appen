@@ -1,1 +1,98 @@
-<p>login works!</p>
+<!-- Login Modal Overlay -->
+<div class="login-overlay" [class.show]="showModal" (click)="closeModal()">
+  <div class="login-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="login-header">
+      <div class="welcome-section">
+        <div class="family-icon">
+          <mat-icon>family_restroom</mat-icon>
+        </div>
+        <h2>Lommepenge App'en</h2>
+        <p class="subtitle">Log ind for at administrere familiens lommepenge</p>
+      </div>
+      <button mat-icon-button class="close-button" (click)="closeModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-content">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Welcome Message -->
+        <div class="form-welcome">
+          <h3>Velkommen tilbage!</h3>
+          <p>Indtast dine login-oplysninger for at fortsætte</p>
+        </div>
+
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email adresse</mat-label>
+          <input 
+            matInput 
+            type="email" 
+            formControlName="email" 
+            placeholder="din@email.dk"
+            autocomplete="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+            {{ getEmailErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Adgangskode</mat-label>
+          <input 
+            matInput 
+            [type]="hidePassword ? 'password' : 'text'" 
+            formControlName="password"
+            placeholder="Din adgangskode"
+            autocomplete="current-password">
+          <button 
+            mat-icon-button 
+            matSuffix 
+            type="button"
+            (click)="hidePassword = !hidePassword"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hidePassword">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+            {{ getPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Login Button -->
+        <div class="form-actions">
+          <button 
+            mat-raised-button 
+            type="submit"
+            color="primary"
+            class="login-button"
+            [disabled]="isLoading || loginForm.invalid">
+            <mat-icon *ngIf="!isLoading">login</mat-icon>
+            <mat-spinner *ngIf="isLoading" diameter="20" class="login-spinner"></mat-spinner>
+            <span *ngIf="!isLoading">Log ind</span>
+            <span *ngIf="isLoading">Logger ind...</span>
+          </button>
+        </div>
+
+        <!-- Helper Text -->
+        <div class="form-footer">
+          <p class="help-text">
+            <mat-icon class="info-icon">info</mat-icon>
+            Har du problemer med at logge ind? Kontakt en voksen i familien.
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Decorative Elements -->
+    <div class="decorative-corners">
+      <div class="corner top-left"></div>
+      <div class="corner top-right"></div>
+      <div class="corner bottom-left"></div>
+      <div class="corner bottom-right"></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,143 @@
+<div class="add-money-modal">
+  <div class="modal-header">
+    <h2 class="handwritten-title modal-title">💰 Tilføj Penge</h2>
+    <button mat-icon-button (click)="cancel()" class="close-button">
+      <span>✖️</span>
+    </button>
+  </div>
+
+  <form [formGroup]="addMoneyForm" (ngSubmit)="onSubmit()" class="modal-content">
+    
+    <!-- Child Selection -->
+    <div class="form-section">
+      <label class="section-label">👶 Vælg barn</label>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Barn</mat-label>
+        <mat-select formControlName="childId">
+          <mat-option *ngFor="let child of data.children" [value]="child.id">
+            {{child.name}} ({{child.currentBalance.toFixed(2)}} DKK)
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('childId')">
+          {{getFieldError('childId')}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Transaction Type Selection -->
+    <div class="form-section">
+      <label class="section-label">🎯 Type</label>
+      <div class="type-buttons">
+        <button *ngFor="let typeOption of transactionTypes" 
+                type="button"
+                class="type-button"
+                [class.selected]="addMoneyForm.get('type')?.value === typeOption.type"
+                [style.background-color]="addMoneyForm.get('type')?.value === typeOption.type ? typeOption.color : '#f8f9fa'"
+                [style.color]="addMoneyForm.get('type')?.value === typeOption.type ? 'white' : '#333'"
+                (click)="setTransactionType(typeOption.type)">
+          <span class="type-icon">{{typeOption.icon}}</span>
+          <span class="type-name">{{typeOption.name}}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Amount Selection -->
+    <div class="form-section">
+      <label class="section-label">💵 Beløb</label>
+      
+      <!-- Quick amount buttons -->
+      <div class="quick-amounts">
+        <button *ngFor="let amount of quickAmounts"
+                type="button" 
+                class="quick-amount-btn"
+                [class.selected]="addMoneyForm.get('amount')?.value === amount"
+                (click)="setQuickAmount(amount)">
+          {{amount}} kr.
+        </button>
+      </div>
+      
+      <!-- Custom amount input -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Beløb i DKK</mat-label>
+        <input matInput 
+               type="number" 
+               formControlName="amount" 
+               min="0.01" 
+               max="10000"
+               step="0.01"
+               placeholder="0.00">
+        <span matSuffix>DKK</span>
+        <mat-error *ngIf="isFieldInvalid('amount')">
+          {{getFieldError('amount')}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Description -->
+    <div class="form-section">
+      <label class="section-label">📝 Beskrivelse</label>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Beskrivelse</mat-label>
+        <input matInput 
+               formControlName="description" 
+               maxlength="200"
+               placeholder="F.eks. Ugepenge for uge 36">
+        <mat-hint align="end">{{addMoneyForm.get('description')?.value?.length || 0}}/200</mat-hint>
+        <mat-error *ngIf="isFieldInvalid('description')">
+          {{getFieldError('description')}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Preview -->
+    <div class="transaction-preview" *ngIf="addMoneyForm.valid">
+      <div class="preview-header">
+        <span class="preview-icon">👀</span>
+        <span class="preview-title">Forhåndsvisning</span>
+      </div>
+      <div class="preview-content">
+        <div class="preview-item">
+          <span class="preview-label">Barn:</span>
+          <span class="preview-value">{{getChildName(addMoneyForm.get('childId')?.value)}}</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-label">Type:</span>
+          <span class="preview-value">
+            {{getSelectedTypeInfo()?.icon}} {{getSelectedTypeInfo()?.name}}
+          </span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-label">Beløb:</span>
+          <span class="preview-value positive">+{{addMoneyForm.get('amount')?.value}} DKK</span>
+        </div>
+        <div class="preview-item">
+          <span class="preview-label">Beskrivelse:</span>
+          <span class="preview-value">{{addMoneyForm.get('description')?.value}}</span>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <div class="modal-footer">
+    <button mat-raised-button 
+            type="button" 
+            (click)="cancel()" 
+            class="cancel-button">
+      Annuller
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            [disabled]="!addMoneyForm.valid || isSubmitting"
+            (click)="onSubmit()"
+            class="submit-button">
+      <span *ngIf="!isSubmitting">
+        {{getSelectedTypeInfo()?.icon}} Tilføj {{addMoneyForm.get('amount')?.value}} DKK
+      </span>
+      <span *ngIf="isSubmitting">
+        <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+        Tilføjer...
+      </span>
+    </button>
+  </div>
+</div>

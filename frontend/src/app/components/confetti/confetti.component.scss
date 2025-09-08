@@ -1,0 +1,148 @@
+// Confetti Component Styles - Danish Pocket Money App
+.confetti-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+
+  &.active {
+    animation: confetti-active 3s ease-out forwards;
+  }
+}
+
+.celebration-message {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #333;
+  padding: 16px 32px;
+  border-radius: 25px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 90%;
+  z-index: 10001;
+
+  // Danish theme colors
+  background: linear-gradient(135deg, 
+    #C8102E 0%,     // Danish red
+    #FF6B6B 30%,    // Warm red
+    #FFD700 60%,    // Gold
+    #FFA500 100%    // Orange
+  );
+  
+  // Text gradient for better readability
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #333;
+  -webkit-text-fill-color: #333;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+    animation: celebration-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  // Mobile responsiveness
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 12px 24px;
+    top: 15%;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    top: 10%;
+  }
+}
+
+// Animation keyframes
+@keyframes confetti-active {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes celebration-bounce {
+  0% {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+// Accessibility considerations
+@media (prefers-reduced-motion: reduce) {
+  .confetti-overlay {
+    &.active {
+      animation: none;
+    }
+  }
+
+  .celebration-message {
+    animation: none !important;
+    
+    &.show {
+      transform: translateX(-50%) scale(1);
+      transition: opacity 0.3s ease;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .celebration-message {
+    background: #FFD700;
+    color: #000;
+    -webkit-text-fill-color: #000;
+    border: 2px solid #000;
+  }
+}
+
+// Dark mode support (if needed)
+@media (prefers-color-scheme: dark) {
+  .celebration-message {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #333;
+    -webkit-text-fill-color: #333;
+    box-shadow: 0 8px 32px rgba(255, 215, 0, 0.4);
+  }
+}
+
+// Focus states for accessibility (even though not interactive)
+.celebration-message:focus-visible {
+  outline: 3px solid #0066CC;
+  outline-offset: 2px;
+}

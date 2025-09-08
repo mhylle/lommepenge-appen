@@ -1,0 +1,234 @@
+<!-- Reward Modal with Living Scrapbook Theme -->
+<div class="reward-modal" [class.celebrating]="showCelebration">
+  
+  <!-- Confetti Canvas for Celebration -->
+  <canvas #confettiCanvas class="confetti-canvas" 
+          [style.display]="showCelebration ? 'block' : 'none'"></canvas>
+  
+  <!-- Celebration Overlay -->
+  <div class="celebration-overlay" 
+       [@celebration]="showCelebration ? 'visible' : 'hidden'"
+       *ngIf="showCelebration">
+    <div class="celebration-content">
+      <div class="celebration-stars">✨⭐🌟💫⭐✨</div>
+      <h2 class="celebration-title">{{celebrationMessage}}</h2>
+      <div class="celebration-icon">{{getSelectedTypeInfo().icon}}</div>
+      <div class="celebration-sparkles">✨💖✨🎊✨💖✨</div>
+    </div>
+  </div>
+
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2 class="handwritten-title">🏆 Giv Belønning</h2>
+    <p class="modal-subtitle">Tid til at fejre en god gerning! ✨</p>
+    <button mat-icon-button (click)="cancel()" class="close-button">
+      <span>❌</span>
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <form [formGroup]="rewardForm" (ngSubmit)="onSubmit()" class="modal-content">
+    
+    <!-- Decorative tape -->
+    <div class="decorative-tape tape-1">📎</div>
+    <div class="decorative-tape tape-2">🌸</div>
+    
+    <!-- Child Selection with Polaroid Style -->
+    <div class="form-section polaroid-section">
+      <label class="section-label handwritten">👶 Vælg det stjernebarn</label>
+      <mat-form-field appearance="outline" class="full-width child-select">
+        <mat-label>Hvilket barn fortjener belønningen?</mat-label>
+        <mat-select formControlName="childId">
+          <mat-option *ngFor="let child of data.children" [value]="child.id">
+            <div class="child-option">
+              <span class="child-name">{{child.name}}</span>
+              <span class="child-balance">({{child.currentBalance.toFixed(2)}} DKK)</span>
+            </div>
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('childId')">
+          Du skal vælge et barn 👶
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Reward Type Selection with Beautiful Cards -->
+    <div class="form-section">
+      <label class="section-label handwritten">🎯 Hvad er grunden til belønningen?</label>
+      <div class="reward-type-grid">
+        <button *ngFor="let rewardType of rewardTypes" 
+                type="button"
+                class="reward-type-card"
+                [class.selected]="rewardForm.get('rewardType')?.value === rewardType.type"
+                [style.border-color]="rewardForm.get('rewardType')?.value === rewardType.type ? rewardType.color : '#ddd'"
+                [style.background]="rewardForm.get('rewardType')?.value === rewardType.type ? rewardType.color + '15' : '#fff'"
+                (click)="setRewardType(rewardType.type)">
+          <div class="reward-card-content">
+            <div class="reward-icon">{{rewardType.icon}}</div>
+            <h4 class="reward-name">{{rewardType.name}}</h4>
+            <p class="reward-description">{{rewardType.description}}</p>
+            <div class="reward-examples">
+              <small *ngFor="let example of rewardType.examples.slice(0, 2)" class="example-tag">
+                {{example}}
+              </small>
+            </div>
+          </div>
+          <div class="reward-card-sticker" *ngIf="rewardForm.get('rewardType')?.value === rewardType.type">
+            ⭐ Valgt
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Amount Selection with Danish Coins -->
+    <div class="form-section">
+      <label class="section-label handwritten">💰 Hvor meget har de fortjent?</label>
+      
+      <!-- Quick amount coins -->
+      <div class="coin-amounts">
+        <button *ngFor="let amount of quickAmounts"
+                type="button" 
+                class="coin-button"
+                [class.selected]="rewardForm.get('amount')?.value === amount"
+                (click)="setQuickAmount(amount)">
+          <div class="coin-face">
+            <div class="coin-value">{{amount}}</div>
+            <div class="coin-currency">DKK</div>
+          </div>
+        </button>
+      </div>
+      
+      <!-- Custom amount with paper texture -->
+      <div class="custom-amount-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Eller skriv dit eget beløb</mat-label>
+          <input matInput 
+                 type="number" 
+                 formControlName="amount" 
+                 min="1" 
+                 max="10000"
+                 step="1"
+                 placeholder="50">
+          <span matSuffix>DKK 💰</span>
+          <mat-error *ngIf="isFieldInvalid('amount')">
+            {{getFieldError('amount')}}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Description with Auto-suggestions -->
+    <div class="form-section">
+      <label class="section-label handwritten">📝 Hvad gjorde de godt?</label>
+      <div class="description-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Beskriv den gode gerning</mat-label>
+          <input matInput 
+                 formControlName="description" 
+                 maxlength="200"
+                 placeholder="F.eks. Hjalp med opvasken uden at blive spurgt">
+          <button matSuffix 
+                  type="button" 
+                  mat-icon-button 
+                  (click)="getRandomSuggestion()"
+                  matTooltip="Få et forslag">
+            🎲
+          </button>
+          <mat-hint align="end">{{rewardForm.get('description')?.value?.length || 0}}/200</mat-hint>
+          <mat-error *ngIf="isFieldInvalid('description')">
+            Fortæl hvad de gjorde godt! 📝
+          </mat-error>
+        </mat-form-field>
+        
+        <!-- Suggestion chips -->
+        <div class="suggestion-chips">
+          <span class="suggestion-label">💡 Forslag til {{getSelectedTypeInfo().name.toLowerCase()}}:</span>
+          <button *ngFor="let suggestion of getCurrentRewardExamples().slice(0, 3)" 
+                  type="button"
+                  class="suggestion-chip"
+                  (click)="rewardForm.patchValue({description: suggestion})">
+            {{suggestion}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional Custom Reason -->
+    <div class="form-section optional-section">
+      <label class="section-label handwritten">💬 Ekstra kommentar (valgfrit)</label>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Noget særligt du vil tilføje?</mat-label>
+        <textarea matInput 
+                  formControlName="customReason" 
+                  maxlength="300"
+                  rows="2"
+                  placeholder="F.eks. Var ekstra hjælpsom i dag"></textarea>
+        <mat-hint align="end">{{rewardForm.get('customReason')?.value?.length || 0}}/300</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <!-- Reward Preview Card -->
+    <div class="reward-preview-card" *ngIf="rewardForm.valid">
+      <div class="preview-header">
+        <span class="preview-sticker">🎁</span>
+        <h4 class="preview-title handwritten">Belønning Klar!</h4>
+        <span class="preview-decoration">✨</span>
+      </div>
+      <div class="preview-content">
+        <div class="preview-child">
+          <strong>{{getChildName(rewardForm.get('childId')?.value)}}</strong>
+          får en belønning! 🎉
+        </div>
+        <div class="preview-amount">
+          <span class="amount-value">{{rewardForm.get('amount')?.value}} DKK</span>
+          <span class="reward-type-badge" [style.background-color]="getSelectedTypeInfo().color">
+            {{getSelectedTypeInfo().icon}} {{getSelectedTypeInfo().name}}
+          </span>
+        </div>
+        <div class="preview-reason">
+          <em>"{{rewardForm.get('description')?.value}}"</em>
+          <span *ngIf="rewardForm.get('customReason')?.value?.trim()">
+            <br><small>{{rewardForm.get('customReason')?.value}}</small>
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Modal Footer with Celebration Buttons -->
+  <div class="modal-footer">
+    <button mat-raised-button 
+            type="button" 
+            (click)="cancel()" 
+            class="cancel-button">
+      ❌ Annuller
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            [disabled]="!rewardForm.valid || isSubmitting"
+            (click)="onSubmit()"
+            class="reward-button"
+            [style.background-color]="getSelectedTypeInfo().color">
+      <span *ngIf="!isSubmitting" class="reward-button-content">
+        <span class="reward-icon">{{getSelectedTypeInfo().icon}}</span>
+        <span class="reward-text">Giv {{rewardForm.get('amount')?.value}} DKK belønning!</span>
+        <span class="sparkle">✨</span>
+      </span>
+      <span *ngIf="isSubmitting" class="submitting-content">
+        <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+        Giver belønning... 🎁
+      </span>
+    </button>
+  </div>
+
+  <!-- Decorative stickers around the modal -->
+  <div class="decorative-stickers">
+    <div class="sticker sticker-1">🌟</div>
+    <div class="sticker sticker-2">💖</div>
+    <div class="sticker sticker-3">🎈</div>
+    <div class="sticker sticker-4">🦄</div>
+    <div class="sticker sticker-5">🌈</div>
+    <div class="sticker sticker-6">✨</div>
+  </div>
+</div>
