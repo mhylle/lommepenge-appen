@@ -10,6 +10,7 @@ export interface RegisterDto {
     password: string;
     firstName: string;
     lastName: string;
+    familyName?: string;
 }
 export interface AuthResponse {
     success: boolean;

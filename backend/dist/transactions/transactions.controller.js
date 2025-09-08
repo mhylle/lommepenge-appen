@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionsController = void 0;
 const common_1 = require("@nestjs/common");
@@ -91,7 +90,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [transaction_dto_1.CreateTransactionDto]),
-    __metadata("design:returntype", typeof (_a = typeof Promise !== "undefined" && Promise) === "function" ? _a : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
@@ -101,7 +100,7 @@ __decorate([
     __param(3, (0, common_1.Query)('status')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String, String]),
-    __metadata("design:returntype", typeof (_b = typeof Promise !== "undefined" && Promise) === "function" ? _b : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)('stats/:userId'),
@@ -115,28 +114,28 @@ __decorate([
     __param(0, (0, common_1.Param)('userId', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findByUserId", null);
 __decorate([
     (0, common_1.Get)('by-family/:familyId'),
     __param(0, (0, common_1.Param)('familyId', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findByFamilyId", null);
 __decorate([
     (0, common_1.Get)('by-type/:type'),
     __param(0, (0, common_1.Param)('type', new common_1.ParseEnumPipe(transaction_entity_1.TransactionType))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findByType", null);
 __decorate([
     (0, common_1.Get)('by-status/:status'),
     __param(0, (0, common_1.Param)('status', new common_1.ParseEnumPipe(transaction_entity_1.TransactionStatus))),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findByStatus", null);
 __decorate([
     (0, common_1.Get)('date-range/:userId'),
@@ -145,7 +144,7 @@ __decorate([
     __param(2, (0, common_1.Query)('endDate')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
-    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findByDateRange", null);
 __decorate([
     (0, common_1.Get)('family-stats/:familyId'),
@@ -160,7 +159,7 @@ __decorate([
     __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "getRecentTransactions", null);
 __decorate([
     (0, common_1.Get)('family-paginated/:familyId'),
@@ -183,7 +182,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
@@ -191,14 +190,14 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, transaction_dto_1.UpdateTransactionDto]),
-    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", typeof (_l = typeof Promise !== "undefined" && Promise) === "function" ? _l : Object)
+    __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "remove", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, common_1.Controller)('transactions'),

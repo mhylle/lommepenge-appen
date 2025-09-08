@@ -12,7 +12,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var FamiliesService_1;
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FamiliesService = void 0;
 const common_1 = require("@nestjs/common");
@@ -82,14 +81,14 @@ let FamiliesService = FamiliesService_1 = class FamiliesService {
         });
         return family;
     }
-    async createOrGetDefaultFamily(parentUserId, parentName) {
+    async createOrGetDefaultFamily(parentUserId, parentName, customFamilyName) {
         this.logger.log(`Checking for existing family for parent: ${parentUserId}`);
         const existingFamily = await this.getPrimaryFamily(parentUserId);
         if (existingFamily) {
             this.logger.log(`Family already exists for parent ${parentUserId}: ${existingFamily.id}`);
             return existingFamily;
         }
-        const defaultFamilyName = parentName ? `${parentName}s Familie` : 'Min Familie';
+        const defaultFamilyName = customFamilyName || (parentName ? `${parentName}s Familie` : 'Min Familie');
         const createFamilyDto = {
             name: defaultFamilyName,
             description: 'Oprettet automatisk ved første login',
@@ -119,6 +118,6 @@ exports.FamiliesService = FamiliesService;
 exports.FamiliesService = FamiliesService = FamiliesService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(family_entity_1.Family)),
-    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [typeorm_2.Repository])
 ], FamiliesService);
 //# sourceMappingURL=families.service.js.map

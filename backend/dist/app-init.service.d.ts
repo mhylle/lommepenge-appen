@@ -4,5 +4,5 @@ export declare class AppInitService implements OnApplicationBootstrap {
     private localAuthService;
     private readonly logger;
     constructor(localAuthService: LocalAuthService);
-    onApplicationBootstrap(): any;
+    onApplicationBootstrap(): Promise<void>;
 }

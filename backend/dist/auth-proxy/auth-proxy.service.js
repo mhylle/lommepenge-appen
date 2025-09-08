@@ -9,7 +9,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var AuthProxyService_1;
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthProxyService = void 0;
 const common_1 = require("@nestjs/common");
@@ -119,6 +118,7 @@ let AuthProxyService = AuthProxyService_1 = class AuthProxyService {
 exports.AuthProxyService = AuthProxyService;
 exports.AuthProxyService = AuthProxyService = AuthProxyService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof axios_1.HttpService !== "undefined" && axios_1.HttpService) === "function" ? _a : Object, typeof (_b = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _b : Object])
+    __metadata("design:paramtypes", [axios_1.HttpService,
+        config_1.ConfigService])
 ], AuthProxyService);
 //# sourceMappingURL=auth-proxy.service.js.map

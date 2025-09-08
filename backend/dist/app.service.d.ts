@@ -6,11 +6,11 @@ export declare class AppService {
         version: string;
         description: string;
         message: string;
-        features: {};
+        features: string[];
         endpoints: {
             health: string;
             api: string;
         };
-        timestamp: any;
+        timestamp: string;
     };
 }

@@ -93,7 +93,7 @@ export class FamiliesService {
    * Create a default family for a first-time parent login
    * This method is idempotent - it won't create duplicate families
    */
-  async createOrGetDefaultFamily(parentUserId: string, parentName: string): Promise<Family> {
+  async createOrGetDefaultFamily(parentUserId: string, parentName: string, customFamilyName?: string): Promise<Family> {
     this.logger.log(`Checking for existing family for parent: ${parentUserId}`);
 
     // Check if family already exists
@@ -103,8 +103,8 @@ export class FamiliesService {
       return existingFamily;
     }
 
-    // Create default family name in Danish
-    const defaultFamilyName = parentName ? `${parentName}s Familie` : 'Min Familie';
+    // Create default family name in Danish or use custom name
+    const defaultFamilyName = customFamilyName || (parentName ? `${parentName}s Familie` : 'Min Familie');
 
     const createFamilyDto: CreateFamilyDto = {
       name: defaultFamilyName,

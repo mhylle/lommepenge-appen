@@ -4,7 +4,7 @@ export declare class DatabaseMigrationService implements OnApplicationBootstrap 
     private dataSource;
     private readonly logger;
     constructor(dataSource: DataSource);
-    onApplicationBootstrap(): any;
+    onApplicationBootstrap(): Promise<void>;
     private runMigrations;
     private ensureMigrationsTable;
     private migration001_InitialSchema;
