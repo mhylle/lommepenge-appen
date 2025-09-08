@@ -12,9 +12,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var AuthProxyController_1;
+var _a, _b, _c, _d, _e, _f, _g, _h;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthProxyController = void 0;
 const common_1 = require("@nestjs/common");
+const express_1 = require("express");
 const passport_1 = require("@nestjs/passport");
 const local_auth_service_1 = require("./local-auth.service");
 const families_service_1 = require("../families/families.service");
@@ -65,6 +67,32 @@ let AuthProxyController = AuthProxyController_1 = class AuthProxyController {
     async register(registerDto, req, res) {
         try {
             const result = await this.localAuthService.register(registerDto);
+            if (result.success && result.user) {
+                try {
+                    const parentName = `${result.user.firstName} ${result.user.lastName}`.trim();
+                    const familyName = registerDto.familyName || `${parentName} Familie`;
+                    const family = await this.familiesService.createOrGetDefaultFamily(result.user.id, parentName || result.user.firstName, familyName);
+                    this.logger.log(`Family created for new user ${result.user.id}: ${family.id}`);
+                    const enrichedResult = {
+                        ...result,
+                        family: {
+                            id: family.id,
+                            name: family.name,
+                            currency: family.currency,
+                            isFirstTime: true,
+                        },
+                    };
+                    return res.status(common_1.HttpStatus.CREATED).json(enrichedResult);
+                }
+                catch (familyError) {
+                    this.logger.warn(`Failed to create family for new user ${result.user.id}:`, familyError);
+                    const resultWithWarning = {
+                        ...result,
+                        warnings: ['Familie kunne ikke oprettes automatisk. Du kan oprette en senere.'],
+                    };
+                    return res.status(common_1.HttpStatus.CREATED).json(resultWithWarning);
+                }
+            }
             return res.status(common_1.HttpStatus.CREATED).json(result);
         }
         catch (error) {
@@ -138,7 +166,7 @@ __decorate([
     __param(1, (0, common_1.Req)()),
     __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:paramtypes", [Object, typeof (_a = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _a : Object, typeof (_b = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _b : Object]),
     __metadata("design:returntype", Promise)
 ], AuthProxyController.prototype, "login", null);
 __decorate([
@@ -147,7 +175,7 @@ __decorate([
     __param(1, (0, common_1.Req)()),
     __param(2, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:paramtypes", [Object, typeof (_c = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _c : Object, typeof (_d = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _d : Object]),
     __metadata("design:returntype", Promise)
 ], AuthProxyController.prototype, "register", null);
 __decorate([
@@ -163,7 +191,7 @@ __decorate([
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [typeof (_f = typeof express_1.Request !== "undefined" && express_1.Request) === "function" ? _f : Object, typeof (_g = typeof express_1.Response !== "undefined" && express_1.Response) === "function" ? _g : Object]),
     __metadata("design:returntype", Promise)
 ], AuthProxyController.prototype, "logout", null);
 __decorate([

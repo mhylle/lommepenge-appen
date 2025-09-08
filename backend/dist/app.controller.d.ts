@@ -8,11 +8,11 @@ export declare class AppController {
         version: string;
         description: string;
         message: string;
-        features: string[];
+        features: {};
         endpoints: {
             health: string;
             api: string;
         };
-        timestamp: string;
+        timestamp: any;
     };
 }

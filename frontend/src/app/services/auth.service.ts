@@ -18,6 +18,14 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  familyName?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -97,6 +105,40 @@ export class AuthService {
     if (result.warnings && result.warnings.length > 0) {
       console.warn('Login warnings:', result.warnings);
       // You could emit these warnings to a notification service here
+    }
+
+    return user;
+  }
+
+  async register(registrationData: RegisterRequest): Promise<UserInfo> {
+    const response = await fetch('/api/app2/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(registrationData)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || error.message || 'Registration failed');
+    }
+
+    const result = await response.json();
+    
+    // Handle response format
+    const user = result.data || result.user;
+    
+    if (!user) {
+      throw new Error('Invalid registration response');
+    }
+
+    this.currentUserSubject.next(user);
+    
+    // Initialize family context if available
+    if (result.family) {
+      this.familyService.initializeFamilyFromAuth(result.family);
     }
 
     return user;

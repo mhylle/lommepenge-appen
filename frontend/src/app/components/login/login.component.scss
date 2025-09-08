@@ -193,20 +193,22 @@ $warning-orange: #f4a261; // Warm orange
   }
 
   h2 {
-    color: $text-dark;
+    color: #2c3e50;
     font-size: 28px;
-    font-weight: 600;
+    font-weight: 700;
     margin: 0 0 8px 0;
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
   }
 
   .subtitle {
-    color: $text-medium;
-    font-size: 14px;
+    color: #34495e;
+    font-size: 15px;
     margin: 0;
-    font-style: italic;
-    font-weight: 400;
+    font-style: normal;
+    font-weight: 500;
+    font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
   }
 
   .close-button {
@@ -235,6 +237,32 @@ $warning-orange: #f4a261; // Warm orange
   padding: 32px 32px 24px 32px;
 }
 
+// Mode Toggle
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  
+  .toggle-button {
+    color: #34495e;
+    border-color: rgba(212, 148, 74, 0.3);
+    font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    
+    &:hover {
+      background: rgba(212, 148, 74, 0.05);
+      border-color: $primary-warm;
+      color: $primary-warm;
+    }
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
 // Login Form
 .login-form {
   .form-welcome {
@@ -242,16 +270,19 @@ $warning-orange: #f4a261; // Warm orange
     margin-bottom: 32px;
 
     h3 {
-      color: $text-dark;
+      color: #2c3e50;
       font-size: 24px;
-      font-weight: 500;
+      font-weight: 600;
       margin: 0 0 8px 0;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
     }
 
     p {
-      color: $text-medium;
-      font-size: 14px;
+      color: #34495e;
+      font-size: 15px;
       margin: 0;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+      font-weight: 400;
     }
   }
 
@@ -259,6 +290,18 @@ $warning-orange: #f4a261; // Warm orange
   ::ng-deep .mat-mdc-form-field {
     width: 100%;
     margin-bottom: 24px;
+    
+    &.half-width {
+      width: calc(50% - 8px);
+      
+      &:first-child {
+        margin-right: 16px;
+      }
+    }
+    
+    &.full-width {
+      width: 100%;
+    }
 
     .mat-mdc-text-field-wrapper {
       background: $background-cream;
@@ -301,8 +344,9 @@ $warning-orange: #f4a261; // Warm orange
     }
 
     .mat-mdc-form-field-label {
-      color: $text-medium;
-      font-weight: 500;
+      color: #34495e;
+      font-weight: 600;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
     }
 
     &.mat-focused .mat-mdc-form-field-label {
@@ -310,12 +354,14 @@ $warning-orange: #f4a261; // Warm orange
     }
 
     .mat-mdc-input-element {
-      color: $text-dark;
-      font-weight: 400;
+      color: #2c3e50;
+      font-weight: 500;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+      font-size: 15px;
 
       &::placeholder {
-        color: $text-light;
-        opacity: 0.8;
+        color: #7f8c8d;
+        opacity: 0.9;
       }
     }
 
@@ -343,7 +389,8 @@ $warning-orange: #f4a261; // Warm orange
       font-size: 16px;
       font-weight: 600;
       text-transform: none;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
       box-shadow: 0 4px 16px rgba(212, 148, 74, 0.4);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border: none;
@@ -386,10 +433,12 @@ $warning-orange: #f4a261; // Warm orange
       align-items: center;
       justify-content: center;
       gap: 8px;
-      color: $text-medium;
-      font-size: 13px;
+      color: #34495e;
+      font-size: 14px;
       margin: 0;
       text-align: center;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+      font-weight: 500;
       background: rgba(212, 148, 74, 0.05);
       padding: 12px 16px;
       border-radius: 12px;
@@ -401,6 +450,16 @@ $warning-orange: #f4a261; // Warm orange
         height: 18px;
         color: $primary-warm;
       }
+    }
+  }
+  
+  // Registration form specific styles
+  &.register-form {
+    .name-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 0;
     }
   }
 }

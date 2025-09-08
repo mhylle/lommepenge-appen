@@ -12,6 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var LocalAuthService_1;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocalAuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -198,7 +199,6 @@ exports.LocalAuthService = LocalAuthService;
 exports.LocalAuthService = LocalAuthService = LocalAuthService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
-        jwt_1.JwtService])
+    __metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _b : Object])
 ], LocalAuthService);
 //# sourceMappingURL=local-auth.service.js.map

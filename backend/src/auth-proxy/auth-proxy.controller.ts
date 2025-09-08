@@ -79,6 +79,46 @@ export class AuthProxyController {
     try {
       const result = await this.localAuthService.register(registerDto);
       
+      // If registration is successful and we have user data, create family
+      if (result.success && result.user) {
+        try {
+          const parentName = `${result.user.firstName} ${result.user.lastName}`.trim();
+          const familyName = registerDto.familyName || `${parentName} Familie`;
+          
+          const family = await this.familiesService.createOrGetDefaultFamily(
+            result.user.id,
+            parentName || result.user.firstName,
+            familyName,
+          );
+          
+          this.logger.log(`Family created for new user ${result.user.id}: ${family.id}`);
+          
+          // Add family info to the response
+          const enrichedResult = {
+            ...result,
+            family: {
+              id: family.id,
+              name: family.name,
+              currency: family.currency,
+              isFirstTime: true, // Always first time for registration
+            },
+          };
+          
+          return res.status(HttpStatus.CREATED).json(enrichedResult);
+        } catch (familyError) {
+          // Don't fail registration if family creation fails
+          this.logger.warn(`Failed to create family for new user ${result.user.id}:`, familyError);
+          
+          // Return original registration result with family creation warning
+          const resultWithWarning = {
+            ...result,
+            warnings: ['Familie kunne ikke oprettes automatisk. Du kan oprette en senere.'],
+          };
+          
+          return res.status(HttpStatus.CREATED).json(resultWithWarning);
+        }
+      }
+      
       // Note: Cookie forwarding will be handled by the auth service response
       // The auth service should set cookies directly in its response
       

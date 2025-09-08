@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PocketMoneyUsersController = void 0;
 const common_1 = require("@nestjs/common");
@@ -68,35 +69,35 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pocket_money_user_dto_1.CreatePocketMoneyUserDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_a = typeof Promise !== "undefined" && Promise) === "function" ? _a : Object)
 ], PocketMoneyUsersController.prototype, "create", null);
 __decorate([
     (0, common_1.Post)('children'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pocket_money_user_dto_1.CreateChildDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_b = typeof Promise !== "undefined" && Promise) === "function" ? _b : Object)
 ], PocketMoneyUsersController.prototype, "createChild", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('familyId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_c = typeof Promise !== "undefined" && Promise) === "function" ? _c : Object)
 ], PocketMoneyUsersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)('active'),
     __param(0, (0, common_1.Query)('familyId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
 ], PocketMoneyUsersController.prototype, "findActive", null);
 __decorate([
     (0, common_1.Get)('children/:familyId'),
     __param(0, (0, common_1.Param)('familyId', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
 ], PocketMoneyUsersController.prototype, "getChildrenForFamily", null);
 __decorate([
     (0, common_1.Get)('validate-name/:familyId/:name'),
@@ -105,21 +106,21 @@ __decorate([
     __param(2, (0, common_1.Query)('excludeId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], PocketMoneyUsersController.prototype, "validateChildName", null);
 __decorate([
     (0, common_1.Get)('by-auth-user/:authUserId'),
     __param(0, (0, common_1.Param)('authUserId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
 ], PocketMoneyUsersController.prototype, "findByAuthUserId", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], PocketMoneyUsersController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
@@ -127,7 +128,7 @@ __decorate([
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, pocket_money_user_dto_1.UpdatePocketMoneyUserDto]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
 ], PocketMoneyUsersController.prototype, "update", null);
 __decorate([
     (0, common_1.Patch)(':id/balance'),
@@ -135,7 +136,7 @@ __decorate([
     __param(1, (0, common_1.Body)('balance')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
 ], PocketMoneyUsersController.prototype, "updateBalance", null);
 __decorate([
     (0, common_1.Patch)(':id/adjust-balance'),
@@ -143,14 +144,14 @@ __decorate([
     __param(1, (0, common_1.Body)('amount')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_l = typeof Promise !== "undefined" && Promise) === "function" ? _l : Object)
 ], PocketMoneyUsersController.prototype, "adjustBalance", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
 ], PocketMoneyUsersController.prototype, "remove", null);
 exports.PocketMoneyUsersController = PocketMoneyUsersController = __decorate([
     (0, common_1.Controller)('pocket-money-users'),

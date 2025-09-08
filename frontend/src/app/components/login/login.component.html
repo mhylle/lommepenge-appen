@@ -8,16 +8,29 @@
           <mat-icon>family_restroom</mat-icon>
         </div>
         <h2>Lommepenge App'en</h2>
-        <p class="subtitle">Log ind for at administrere familiens lommepenge</p>
+        <p class="subtitle">{{ isRegistering ? 'Opret ny familie konto' : 'Log ind for at administrere familiens lommepenge' }}</p>
       </div>
       <button mat-icon-button class="close-button" (click)="closeModal()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
 
-    <!-- Login Form -->
+    <!-- Login/Register Form -->
     <div class="login-content">
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Mode Toggle -->
+      <div class="mode-toggle">
+        <button 
+          type="button" 
+          mat-stroked-button 
+          (click)="toggleRegistrationMode()" 
+          class="toggle-button">
+          <mat-icon>{{ isRegistering ? 'login' : 'person_add' }}</mat-icon>
+          {{ isRegistering ? 'Har du allerede en konto? Log ind her' : 'Ny familie? Opret konto her' }}
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form *ngIf="!isRegistering" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <!-- Welcome Message -->
         <div class="form-welcome">
           <h3>Velkommen tilbage!</h3>
@@ -82,6 +95,141 @@
           <p class="help-text">
             <mat-icon class="info-icon">info</mat-icon>
             Har du problemer med at logge ind? Kontakt en voksen i familien.
+          </p>
+        </div>
+      </form>
+
+      <!-- Registration Form -->
+      <form *ngIf="isRegistering" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form register-form">
+        <!-- Welcome Message -->
+        <div class="form-welcome">
+          <h3>Velkommen til familien!</h3>
+          <p>Opret en konto for at komme i gang med lommepenge</p>
+        </div>
+
+        <!-- Name Fields -->
+        <div class="name-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Fornavn</mat-label>
+            <input 
+              matInput 
+              type="text" 
+              formControlName="firstName" 
+              placeholder="Dit fornavn"
+              autocomplete="given-name">
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error *ngIf="firstName?.invalid && (firstName?.dirty || firstName?.touched)">
+              {{ getFirstNameErrorMessage() }}
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Efternavn</mat-label>
+            <input 
+              matInput 
+              type="text" 
+              formControlName="lastName" 
+              placeholder="Dit efternavn"
+              autocomplete="family-name">
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error *ngIf="lastName?.invalid && (lastName?.dirty || lastName?.touched)">
+              {{ getLastNameErrorMessage() }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email adresse</mat-label>
+          <input 
+            matInput 
+            type="email" 
+            formControlName="email" 
+            placeholder="din@email.dk"
+            autocomplete="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="registerEmail?.invalid && (registerEmail?.dirty || registerEmail?.touched)">
+            {{ getRegisterEmailErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password Fields -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Adgangskode</mat-label>
+          <input 
+            matInput 
+            [type]="hidePassword ? 'password' : 'text'" 
+            formControlName="password"
+            placeholder="Din adgangskode"
+            autocomplete="new-password">
+          <button 
+            mat-icon-button 
+            matSuffix 
+            type="button"
+            (click)="hidePassword = !hidePassword">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="registerPassword?.invalid && (registerPassword?.dirty || registerPassword?.touched)">
+            {{ getRegisterPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Bekræft adgangskode</mat-label>
+          <input 
+            matInput 
+            [type]="hideConfirmPassword ? 'password' : 'text'" 
+            formControlName="confirmPassword"
+            placeholder="Gentag din adgangskode"
+            autocomplete="new-password">
+          <button 
+            mat-icon-button 
+            matSuffix 
+            type="button"
+            (click)="hideConfirmPassword = !hideConfirmPassword">
+            <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
+            {{ getConfirmPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Family Name Field (Optional) -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Familienavn (valgfrit)</mat-label>
+          <input 
+            matInput 
+            type="text" 
+            formControlName="familyName" 
+            placeholder="f.eks. Hansen familien"
+            autocomplete="organization">
+          <mat-icon matSuffix>home</mat-icon>
+          <mat-error *ngIf="familyName?.invalid && (familyName?.dirty || familyName?.touched)">
+            {{ getFamilyNameErrorMessage() }}
+          </mat-error>
+          <mat-hint>Dette hjælper med at identificere jeres familie i systemet</mat-hint>
+        </mat-form-field>
+
+        <!-- Register Button -->
+        <div class="form-actions">
+          <button 
+            mat-raised-button 
+            type="submit"
+            color="primary"
+            class="login-button"
+            [disabled]="isLoading || registerForm.invalid">
+            <mat-icon *ngIf="!isLoading">person_add</mat-icon>
+            <mat-spinner *ngIf="isLoading" diameter="20" class="login-spinner"></mat-spinner>
+            <span *ngIf="!isLoading">Opret konto</span>
+            <span *ngIf="isLoading">Opretter konto...</span>
+          </button>
+        </div>
+
+        <!-- Helper Text -->
+        <div class="form-footer">
+          <p class="help-text">
+            <mat-icon class="info-icon">info</mat-icon>
+            Ved at oprette en konto accepterer du vores brugervilkår.
           </p>
         </div>
       </form>

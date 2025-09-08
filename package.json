@@ -1,0 +1,24 @@
+{
+  "name": "example-app2",
+  "version": "1.0.0",
+  "description": "A modern task management application built with Angular and NestJS, demonstrating the multi-application deployment pattern in the mhylle.com infrastructure.",
+  "main": "detailed-test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhylle/mhylle-app2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mhylle/mhylle-app2/issues"
+  },
+  "homepage": "https://github.com/mhylle/mhylle-app2#readme",
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}
