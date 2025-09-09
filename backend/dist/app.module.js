@@ -34,7 +34,7 @@ exports.AppModule = AppModule = __decorate([
                 type: 'sqlite',
                 database: process.env.NODE_ENV === 'production' ? 'data/lommepenge.db' : 'dev-lommepenge.db',
                 entities: [user_entity_1.User, entities_1.Family, entities_1.PocketMoneyUser, entities_1.Transaction],
-                synchronize: true,
+                synchronize: process.env.NODE_ENV !== 'production',
                 logging: process.env.NODE_ENV === 'development',
             }),
             migrations_module_1.MigrationsModule,

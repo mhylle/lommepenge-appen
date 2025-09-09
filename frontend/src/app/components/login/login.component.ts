@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   hideConfirmPassword = true;
   showModal = false;
   isRegistering = false;
+  private formInteractionActive = false;
 
   constructor(
     private fb: FormBuilder,
@@ -66,9 +67,30 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isLoading = false;
   }
 
-  closeModal(): void {
+  closeModal(event?: Event): void {
+    // Don't close if user is actively interacting with form elements
+    if (this.formInteractionActive) {
+      return;
+    }
+    
+    // If this was triggered by a context menu or right-click, don't close
+    if (event && (event as any).button === 2) {
+      return;
+    }
+    
     this.showModal = false;
     this.isRegistering = false;
+  }
+
+  onFormInteractionStart(): void {
+    this.formInteractionActive = true;
+  }
+
+  onFormInteractionEnd(): void {
+    // Use a small delay to allow click events to complete
+    setTimeout(() => {
+      this.formInteractionActive = false;
+    }, 100);
   }
 
   toggleRegistrationMode(): void {

@@ -1,6 +1,6 @@
 <!-- Login Modal Overlay -->
-<div class="login-overlay" [class.show]="showModal" (click)="closeModal()">
-  <div class="login-modal" (click)="$event.stopPropagation()">
+<div class="login-overlay" [class.show]="showModal" (click)="closeModal($event)">
+  <div class="login-modal" (click)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()">
     <!-- Modal Header -->
     <div class="login-header">
       <div class="welcome-section">
@@ -30,7 +30,8 @@
       </div>
 
       <!-- Login Form -->
-      <form *ngIf="!isRegistering" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <form *ngIf="!isRegistering" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form"
+            (focusin)="onFormInteractionStart()" (focusout)="onFormInteractionEnd()">
         <!-- Welcome Message -->
         <div class="form-welcome">
           <h3>Velkommen tilbage!</h3>
@@ -100,7 +101,8 @@
       </form>
 
       <!-- Registration Form -->
-      <form *ngIf="isRegistering" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form register-form">
+      <form *ngIf="isRegistering" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form register-form" 
+            (focusin)="onFormInteractionStart()" (focusout)="onFormInteractionEnd()">
         <!-- Welcome Message -->
         <div class="form-welcome">
           <h3>Velkommen til familien!</h3>
@@ -154,19 +156,21 @@
         </mat-form-field>
 
         <!-- Password Fields -->
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" (click)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()">
           <mat-label>Adgangskode</mat-label>
           <input 
             matInput 
             [type]="hidePassword ? 'password' : 'text'" 
             formControlName="password"
             placeholder="Din adgangskode"
-            autocomplete="new-password">
+            autocomplete="new-password"
+            (click)="$event.stopPropagation()" 
+            (contextmenu)="$event.stopPropagation()">
           <button 
             mat-icon-button 
             matSuffix 
             type="button"
-            (click)="hidePassword = !hidePassword">
+            (click)="hidePassword = !hidePassword; $event.stopPropagation()">
             <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
           <mat-error *ngIf="registerPassword?.invalid && (registerPassword?.dirty || registerPassword?.touched)">
@@ -174,19 +178,21 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" (click)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()">
           <mat-label>Bekræft adgangskode</mat-label>
           <input 
             matInput 
             [type]="hideConfirmPassword ? 'password' : 'text'" 
             formControlName="confirmPassword"
             placeholder="Gentag din adgangskode"
-            autocomplete="new-password">
+            autocomplete="new-password"
+            (click)="$event.stopPropagation()" 
+            (contextmenu)="$event.stopPropagation()">
           <button 
             mat-icon-button 
             matSuffix 
             type="button"
-            (click)="hideConfirmPassword = !hideConfirmPassword">
+            (click)="hideConfirmPassword = !hideConfirmPassword; $event.stopPropagation()">
             <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
           </button>
           <mat-error *ngIf="confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)">
