@@ -55,7 +55,63 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
             this.logger.log(`Migration ${migrationName} already executed, skipping`);
             return;
         }
-        this.logger.log('Initial schema created by TypeORM synchronization');
+        const queries = [
+            `CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );`,
+            `CREATE TABLE IF NOT EXISTS families (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        parent_user_id TEXT NOT NULL,
+        profile_picture TEXT,
+        "isActive" BOOLEAN DEFAULT 1,
+        currency TEXT DEFAULT 'DKK',
+        default_allowance DECIMAL(10,2) DEFAULT 0,
+        allowance_frequency TEXT DEFAULT 'weekly',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (parent_user_id) REFERENCES users(id)
+      );`,
+            `CREATE TABLE IF NOT EXISTS pocket_money_users (
+        id TEXT PRIMARY KEY,
+        family_id TEXT NOT NULL,
+        auth_user_id TEXT,
+        name TEXT NOT NULL,
+        email TEXT,
+        role TEXT NOT NULL DEFAULT 'child',
+        current_balance DECIMAL(10,2) DEFAULT 0,
+        is_active BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (family_id) REFERENCES families(id),
+        FOREIGN KEY (auth_user_id) REFERENCES users(id)
+      );`,
+            `CREATE TABLE IF NOT EXISTS transactions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        family_id TEXT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        type TEXT NOT NULL,
+        status TEXT DEFAULT 'COMPLETED',
+        description TEXT NOT NULL,
+        transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        balance_after DECIMAL(10,2),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES pocket_money_users(id),
+        FOREIGN KEY (family_id) REFERENCES families(id)
+      );`
+        ];
+        for (const query of queries) {
+            await this.dataSource.query(query);
+        }
+        this.logger.log('Initial schema created successfully');
         await this.markMigrationExecuted(migrationName);
     }
     async migration002_AddIndexes() {

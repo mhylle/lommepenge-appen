@@ -19,11 +19,16 @@ import { AuthProxyModule } from './auth-proxy/auth-proxy.module';
       envFilePath: ['.env.local', '.env'],
     }),
     TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: process.env.NODE_ENV === 'production' ? 'data/lommepenge.db' : 'dev-lommepenge.db',
+      type: 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432', 10),
+      username: process.env.DB_USER || 'app2_user',
+      password: process.env.DB_PASSWORD || 'password',
+      database: process.env.DB_NAME || 'mhylle_app2',
       entities: [User, Family, PocketMoneyUser, Transaction],
       synchronize: process.env.NODE_ENV !== 'production', // Only for development
       logging: process.env.NODE_ENV === 'development',
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     }),
     MigrationsModule,
     FamiliesModule,
