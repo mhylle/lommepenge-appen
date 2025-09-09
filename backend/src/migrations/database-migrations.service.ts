@@ -35,9 +35,9 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
   private async ensureMigrationsTable() {
     const query = `
       CREATE TABLE IF NOT EXISTS migrations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
     
@@ -56,61 +56,65 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
     const queries = [
       // Users table
       `CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        email TEXT NOT NULL UNIQUE,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) NOT NULL UNIQUE,
+        "firstName" VARCHAR(255) NOT NULL,
+        "lastName" VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        "isActive" BOOLEAN DEFAULT true,
+        apps TEXT DEFAULT '[]',
+        roles TEXT DEFAULT '{}',
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );`,
       
       // Families table
       `CREATE TABLE IF NOT EXISTS families (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
         description TEXT,
-        parent_user_id TEXT NOT NULL,
-        profile_picture TEXT,
-        "isActive" BOOLEAN DEFAULT 1,
-        currency TEXT DEFAULT 'DKK',
-        default_allowance DECIMAL(10,2) DEFAULT 0,
-        allowance_frequency TEXT DEFAULT 'weekly',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (parent_user_id) REFERENCES users(id)
+        "parentUserId" UUID NOT NULL,
+        "profilePicture" VARCHAR(500),
+        "isActive" BOOLEAN DEFAULT true,
+        currency VARCHAR(10) DEFAULT 'DKK',
+        "defaultAllowance" DECIMAL(10,2) DEFAULT 0,
+        "allowanceFrequency" VARCHAR(50) DEFAULT 'weekly',
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("parentUserId") REFERENCES users(id)
       );`,
       
       // Pocket Money Users table
       `CREATE TABLE IF NOT EXISTS pocket_money_users (
-        id TEXT PRIMARY KEY,
-        family_id TEXT NOT NULL,
-        auth_user_id TEXT,
-        name TEXT NOT NULL,
-        email TEXT,
-        role TEXT NOT NULL DEFAULT 'child',
-        current_balance DECIMAL(10,2) DEFAULT 0,
-        is_active BOOLEAN DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (family_id) REFERENCES families(id),
-        FOREIGN KEY (auth_user_id) REFERENCES users(id)
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "familyId" UUID NOT NULL,
+        "authUserId" UUID,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        role VARCHAR(50) NOT NULL DEFAULT 'child',
+        "currentBalance" DECIMAL(10,2) DEFAULT 0,
+        "isActive" BOOLEAN DEFAULT true,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("familyId") REFERENCES families(id),
+        FOREIGN KEY ("authUserId") REFERENCES users(id)
       );`,
       
       // Transactions table
       `CREATE TABLE IF NOT EXISTS transactions (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        family_id TEXT NOT NULL,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "userId" UUID NOT NULL,
+        "familyId" UUID NOT NULL,
         amount DECIMAL(10,2) NOT NULL,
-        type TEXT NOT NULL,
-        status TEXT DEFAULT 'COMPLETED',
+        type VARCHAR(50) NOT NULL,
+        status VARCHAR(50) DEFAULT 'COMPLETED',
         description TEXT NOT NULL,
-        transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        balance_after DECIMAL(10,2),
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES pocket_money_users(id),
-        FOREIGN KEY (family_id) REFERENCES families(id)
+        "transactionDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "balanceAfter" DECIMAL(10,2),
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("userId") REFERENCES pocket_money_users(id),
+        FOREIGN KEY ("familyId") REFERENCES families(id)
       );`
     ];
 
@@ -133,11 +137,11 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
     // Additional indexes for performance
     const queries = [
       // Performance indexes for common queries
-      'CREATE INDEX IF NOT EXISTS idx_families_parent_active ON families(parent_user_id, "isActive");',
-      'CREATE INDEX IF NOT EXISTS idx_pocket_money_users_family_active ON pocket_money_users(family_id, "is_active");',
-      'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions(user_id, transaction_date);',
-      'CREATE INDEX IF NOT EXISTS idx_transactions_family_type ON transactions(family_id, type);',
-      'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, transaction_date);',
+      'CREATE INDEX IF NOT EXISTS idx_families_parent_active ON families("parentUserId", "isActive");',
+      'CREATE INDEX IF NOT EXISTS idx_pocket_money_users_family_active ON pocket_money_users("familyId", "isActive");',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions("userId", "transactionDate");',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_family_type ON transactions("familyId", type);',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, "transactionDate");',
     ];
 
     for (const query of queries) {
