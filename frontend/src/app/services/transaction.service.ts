@@ -172,12 +172,12 @@ export class TransactionService {
 
   // Get recent transactions for dashboard
   getRecentTransactions(familyId: string, limit: number = 5): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(`${environment.apiUrl}/transactions/recent/${familyId}?limit=${limit}`);
+    return this.http.get<Transaction[]>(`${this.apiUrl}/recent/${familyId}?limit=${limit}`);
   }
 
   // Get transactions for a specific child
   getChildTransactions(childId: string, limit: number = 10): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(`${environment.apiUrl}/transactions/child/${childId}?limit=${limit}`);
+    return this.http.get<Transaction[]>(`${this.apiUrl}/child/${childId}?limit=${limit}`);
   }
 
   // Helper methods for Danish localization

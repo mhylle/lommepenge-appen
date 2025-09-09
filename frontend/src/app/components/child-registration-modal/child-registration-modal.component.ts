@@ -187,7 +187,7 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
       weeklyAllowance: formValue.weeklyAllowance || this.getRecommendedAllowance()
     };
 
-    const apiUrl = `${environment.apiUrl}/pocket-money-users/children`;
+    const apiUrl = `/api/app2/pocket-money-users/children`;
     
     this.subscriptions.add(
       this.http.post<Child>(apiUrl, createChildRequest).subscribe({

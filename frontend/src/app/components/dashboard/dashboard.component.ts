@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!this.currentFamily?.id) return;
     
     this.isLoadingChildren = true;
-    const apiUrl = `${environment.apiUrl}/pocket-money-users/children/${this.currentFamily.id}`;
+    const apiUrl = `/api/app2/pocket-money-users/children/${this.currentFamily.id}`;
     
     this.subscriptions.add(
       this.http.get<Child[]>(apiUrl).subscribe({
@@ -246,7 +246,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isLoadingStats = true;
     
     this.subscriptions.add(
-      this.http.get(`${environment.apiUrl}/transactions/family-stats/${this.currentFamily.id}`).subscribe({
+      this.http.get(`/api/app2/transactions/family-stats/${this.currentFamily.id}`).subscribe({
         next: (stats) => {
           this.realFamilyStats = stats;
           this.isLoadingStats = false;
@@ -263,7 +263,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadChildrenLastActivity(): void {
     this.actualChildren.forEach(child => {
       this.subscriptions.add(
-        this.http.get<{lastActivity: string}>(`${environment.apiUrl}/transactions/last-activity/${child.id}`).subscribe({
+        this.http.get<{lastActivity: string}>(`/api/app2/transactions/last-activity/${child.id}`).subscribe({
           next: (response) => {
             this.childrenLastActivity[child.id] = response.lastActivity;
           },
