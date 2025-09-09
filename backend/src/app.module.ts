@@ -22,7 +22,7 @@ import { AuthProxyModule } from './auth-proxy/auth-proxy.module';
       type: 'sqlite',
       database: process.env.NODE_ENV === 'production' ? 'data/lommepenge.db' : 'dev-lommepenge.db',
       entities: [User, Family, PocketMoneyUser, Transaction],
-      synchronize: true, // Only for development
+      synchronize: process.env.NODE_ENV !== 'production', // Only for development
       logging: process.env.NODE_ENV === 'development',
     }),
     MigrationsModule,
