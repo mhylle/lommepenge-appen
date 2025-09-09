@@ -20,6 +20,8 @@ let User = class User {
     lastName;
     password;
     isActive;
+    apps;
+    roles;
     families;
     createdAt;
     updatedAt;
@@ -50,6 +52,20 @@ __decorate([
     (0, typeorm_1.Column)({ default: true }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)('simple-json', {
+        default: () => "'[]'",
+        comment: 'List of apps the user has access to'
+    }),
+    __metadata("design:type", Array)
+], User.prototype, "apps", void 0);
+__decorate([
+    (0, typeorm_1.Column)('simple-json', {
+        default: () => "'{}'",
+        comment: 'App-specific roles for the user'
+    }),
+    __metadata("design:type", Object)
+], User.prototype, "roles", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => family_entity_1.Family, family => family.parent, { cascade: true }),
     __metadata("design:type", Array)

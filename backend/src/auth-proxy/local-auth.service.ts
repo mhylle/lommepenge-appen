@@ -25,6 +25,10 @@ export interface AuthResponse {
     email: string;
     firstName: string;
     lastName: string;
+    permissions: {
+      apps: string[];
+      roles: Record<string, string[]>;
+    };
   };
   access_token?: string;
   message?: string;
@@ -37,6 +41,10 @@ export interface ValidationResponse {
     email: string;
     firstName: string;
     lastName: string;
+    permissions: {
+      apps: string[];
+      roles: Record<string, string[]>;
+    };
   };
 }
 
@@ -49,6 +57,34 @@ export class LocalAuthService {
     private userRepository: Repository<User>,
     private jwtService: JwtService,
   ) {}
+
+  private buildUserResponse(user: User) {
+    // Ensure user has default permissions for app2
+    const apps = user.apps || [];
+    const roles = user.roles || {};
+    
+    // Grant access to app2 for all users by default
+    if (!apps.includes('app2')) {
+      apps.push('app2');
+    }
+    
+    // Grant admin role for app2 by default (for development)
+    if (!roles.app2 || !roles.app2.includes('admin')) {
+      if (!roles.app2) roles.app2 = [];
+      roles.app2.push('admin');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      permissions: {
+        apps,
+        roles
+      }
+    };
+  }
 
   async validateUser(email: string, password: string): Promise<any> {
     try {
@@ -86,12 +122,7 @@ export class LocalAuthService {
       
       return {
         success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
+        user: this.buildUserResponse(user),
         access_token,
       };
     } catch (error) {
@@ -124,12 +155,14 @@ export class LocalAuthService {
       // Hash password
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
       
-      // Create user
+      // Create user with default permissions
       const user = this.userRepository.create({
         email: registerDto.email,
         firstName: registerDto.firstName,
         lastName: registerDto.lastName,
         password: hashedPassword,
+        apps: ['app2'], // Grant access to app2 by default
+        roles: { app2: ['admin'] }, // Grant admin role by default for development
       });
 
       const savedUser = await this.userRepository.save(user);
@@ -148,12 +181,7 @@ export class LocalAuthService {
       
       return {
         success: true,
-        user: {
-          id: savedUser.id,
-          email: savedUser.email,
-          firstName: savedUser.firstName,
-          lastName: savedUser.lastName,
-        },
+        user: this.buildUserResponse(savedUser),
         access_token,
       };
     } catch (error) {
@@ -182,12 +210,7 @@ export class LocalAuthService {
 
       return {
         valid: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
+        user: this.buildUserResponse(user),
       };
     } catch (error) {
       this.logger.error('JWT validation failed:', error);
@@ -207,12 +230,7 @@ export class LocalAuthService {
 
       return {
         valid: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
+        user: this.buildUserResponse(user),
       };
     } catch (error) {
       this.logger.error('Get current user failed:', error);
@@ -239,6 +257,8 @@ export class LocalAuthService {
           firstName: 'Test',
           lastName: 'Familie',
           password: hashedPassword,
+          apps: ['app2'], // Grant access to app2
+          roles: { app2: ['admin'] }, // Grant admin role for app2
         });
 
         await this.userRepository.save(user);

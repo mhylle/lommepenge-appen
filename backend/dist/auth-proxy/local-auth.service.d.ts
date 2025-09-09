@@ -19,6 +19,10 @@ export interface AuthResponse {
         email: string;
         firstName: string;
         lastName: string;
+        permissions: {
+            apps: string[];
+            roles: Record<string, string[]>;
+        };
     };
     access_token?: string;
     message?: string;
@@ -30,6 +34,10 @@ export interface ValidationResponse {
         email: string;
         firstName: string;
         lastName: string;
+        permissions: {
+            apps: string[];
+            roles: Record<string, string[]>;
+        };
     };
 }
 export declare class LocalAuthService {
@@ -37,6 +45,7 @@ export declare class LocalAuthService {
     private jwtService;
     private readonly logger;
     constructor(userRepository: Repository<User>, jwtService: JwtService);
+    private buildUserResponse;
     validateUser(email: string, password: string): Promise<any>;
     login(loginDto: LoginDto): Promise<AuthResponse>;
     register(registerDto: RegisterDto): Promise<AuthResponse>;

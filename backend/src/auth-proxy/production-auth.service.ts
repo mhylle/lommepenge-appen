@@ -6,6 +6,29 @@ export class ProductionAuthService {
   private readonly logger = new Logger(ProductionAuthService.name);
   private readonly authBaseUrl = 'https://mhylle.com/api/auth';
 
+  private ensureUserHasPermissions(user: any) {
+    // Ensure the user object includes permissions structure
+    if (!user.permissions) {
+      user.permissions = {
+        apps: user.apps || ['app2'], // Default to app2 access
+        roles: user.roles || { app2: ['admin'] } // Default to admin role for app2
+      };
+    }
+
+    // Ensure user has app2 access
+    if (!user.permissions.apps.includes('app2')) {
+      user.permissions.apps.push('app2');
+    }
+
+    // Ensure user has admin role for app2
+    if (!user.permissions.roles.app2 || !user.permissions.roles.app2.includes('admin')) {
+      if (!user.permissions.roles.app2) user.permissions.roles.app2 = [];
+      user.permissions.roles.app2.push('admin');
+    }
+
+    return user;
+  }
+
   async validateUser(email: string, password: string): Promise<any> {
     try {
       const response = await fetch(`${this.authBaseUrl}/login`, {
@@ -18,7 +41,8 @@ export class ProductionAuthService {
 
       if (response.ok) {
         const data = await response.json();
-        return data.user || data.data;
+        const user = data.user || data.data;
+        return user ? this.ensureUserHasPermissions(user) : user;
       }
       return null;
     } catch (error) {
@@ -50,9 +74,10 @@ export class ProductionAuthService {
       const result = await response.json();
       this.logger.log(`Login successful for user: ${loginDto.email}`);
       
+      const user = result.user || result.data;
       return {
         success: true,
-        user: result.user || result.data,
+        user: user ? this.ensureUserHasPermissions(user) : user,
         access_token: result.access_token || result.token,
       };
     } catch (error) {
@@ -92,9 +117,10 @@ export class ProductionAuthService {
       const result = await response.json();
       this.logger.log(`Registration successful for user: ${registerDto.email}`);
       
+      const user = result.user || result.data;
       return {
         success: true,
-        user: result.user || result.data,
+        user: user ? this.ensureUserHasPermissions(user) : user,
         access_token: result.access_token || result.token,
       };
     } catch (error) {
@@ -125,9 +151,10 @@ export class ProductionAuthService {
 
       if (response.ok) {
         const data = await response.json();
+        const user = data.user || data.data;
         return {
           valid: true,
-          user: data.user || data.data,
+          user: user ? this.ensureUserHasPermissions(user) : user,
         };
       }
 
@@ -150,9 +177,10 @@ export class ProductionAuthService {
 
       if (response.ok) {
         const data = await response.json();
+        const user = data.user || data.data;
         return {
           valid: true,
-          user: data.user || data.data,
+          user: user ? this.ensureUserHasPermissions(user) : user,
         };
       }
 

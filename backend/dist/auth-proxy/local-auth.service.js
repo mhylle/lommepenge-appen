@@ -28,6 +28,28 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
+    buildUserResponse(user) {
+        const apps = user.apps || [];
+        const roles = user.roles || {};
+        if (!apps.includes('app2')) {
+            apps.push('app2');
+        }
+        if (!roles.app2 || !roles.app2.includes('admin')) {
+            if (!roles.app2)
+                roles.app2 = [];
+            roles.app2.push('admin');
+        }
+        return {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            permissions: {
+                apps,
+                roles
+            }
+        };
+    }
     async validateUser(email, password) {
         try {
             const user = await this.userRepository.findOne({ where: { email } });
@@ -59,12 +81,7 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
             this.logger.log(`Login successful for user: ${loginDto.email}`);
             return {
                 success: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                },
+                user: this.buildUserResponse(user),
                 access_token,
             };
         }
@@ -91,6 +108,8 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
                 firstName: registerDto.firstName,
                 lastName: registerDto.lastName,
                 password: hashedPassword,
+                apps: ['app2'],
+                roles: { app2: ['admin'] },
             });
             const savedUser = await this.userRepository.save(user);
             const payload = {
@@ -103,12 +122,7 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
             this.logger.log(`Registration successful for user: ${registerDto.email}`);
             return {
                 success: true,
-                user: {
-                    id: savedUser.id,
-                    email: savedUser.email,
-                    firstName: savedUser.firstName,
-                    lastName: savedUser.lastName,
-                },
+                user: this.buildUserResponse(savedUser),
                 access_token,
             };
         }
@@ -130,12 +144,7 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
             }
             return {
                 valid: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                },
+                user: this.buildUserResponse(user),
             };
         }
         catch (error) {
@@ -153,12 +162,7 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
             }
             return {
                 valid: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                },
+                user: this.buildUserResponse(user),
             };
         }
         catch (error) {
@@ -181,6 +185,8 @@ let LocalAuthService = LocalAuthService_1 = class LocalAuthService {
                     firstName: 'Test',
                     lastName: 'Familie',
                     password: hashedPassword,
+                    apps: ['app2'],
+                    roles: { app2: ['admin'] },
                 });
                 await this.userRepository.save(user);
                 this.logger.log('Test user created: test@familie.dk / password123');

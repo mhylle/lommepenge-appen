@@ -6,6 +6,8 @@ export declare class User {
     lastName: string;
     password: string;
     isActive: boolean;
+    apps: string[];
+    roles: Record<string, string[]>;
     families: Family[];
     createdAt: Date;
     updatedAt: Date;

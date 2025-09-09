@@ -30,6 +30,18 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column('simple-json', { 
+    default: () => "'[]'",
+    comment: 'List of apps the user has access to'
+  })
+  apps: string[];
+
+  @Column('simple-json', { 
+    default: () => "'{}'",
+    comment: 'App-specific roles for the user'
+  })
+  roles: Record<string, string[]>;
+
   @OneToMany(() => Family, family => family.parent, { cascade: true })
   families: Family[];
 
