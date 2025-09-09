@@ -28,7 +28,8 @@ import { AuthProxyModule } from './auth-proxy/auth-proxy.module';
       entities: [User, Family, PocketMoneyUser, Transaction],
       synchronize: process.env.NODE_ENV !== 'production', // Only for development
       logging: process.env.NODE_ENV === 'development',
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      retryAttempts: 3,
+      retryDelay: 3000,
     }),
     MigrationsModule,
     FamiliesModule,
