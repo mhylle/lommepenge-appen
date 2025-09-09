@@ -17,18 +17,25 @@ exports.AuthProxyController = void 0;
 const common_1 = require("@nestjs/common");
 const passport_1 = require("@nestjs/passport");
 const local_auth_service_1 = require("./local-auth.service");
+const production_auth_service_1 = require("./production-auth.service");
 const families_service_1 = require("../families/families.service");
 let AuthProxyController = AuthProxyController_1 = class AuthProxyController {
     localAuthService;
+    productionAuthService;
     familiesService;
     logger = new common_1.Logger(AuthProxyController_1.name);
-    constructor(localAuthService, familiesService) {
+    authService;
+    constructor(localAuthService, productionAuthService, familiesService) {
         this.localAuthService = localAuthService;
+        this.productionAuthService = productionAuthService;
         this.familiesService = familiesService;
+        const useProductionAuth = process.env.USE_PRODUCTION_AUTH === 'true';
+        this.authService = useProductionAuth ? this.productionAuthService : this.localAuthService;
+        this.logger.log(`Using ${useProductionAuth ? 'production' : 'local'} authentication service`);
     }
     async login(loginDto, req, res) {
         try {
-            const result = await this.localAuthService.login(loginDto);
+            const result = await this.authService.login(loginDto);
             if (result.success && result.user) {
                 try {
                     const parentName = `${result.user.firstName} ${result.user.lastName}`.trim();
@@ -64,7 +71,7 @@ let AuthProxyController = AuthProxyController_1 = class AuthProxyController {
     }
     async register(registerDto, req, res) {
         try {
-            const result = await this.localAuthService.register(registerDto);
+            const result = await this.authService.register(registerDto);
             if (result.success && result.user) {
                 try {
                     const parentName = `${result.user.firstName} ${result.user.lastName}`.trim();
@@ -101,7 +108,7 @@ let AuthProxyController = AuthProxyController_1 = class AuthProxyController {
     }
     async validateSession(req) {
         try {
-            const result = await this.localAuthService.validateByJwt(req.user);
+            const result = await this.authService.validateByJwt(req.user);
             if (result.valid && result.user) {
                 try {
                     const parentName = `${result.user.firstName} ${result.user.lastName}`.trim();
@@ -131,7 +138,7 @@ let AuthProxyController = AuthProxyController_1 = class AuthProxyController {
     }
     async logout(req, res) {
         try {
-            const result = await this.localAuthService.logout();
+            const result = await this.authService.logout();
             res.clearCookie('authToken', {
                 domain: 'mhylle.com',
                 path: '/',
@@ -148,7 +155,7 @@ let AuthProxyController = AuthProxyController_1 = class AuthProxyController {
     }
     async getCurrentUser(req) {
         try {
-            const result = await this.localAuthService.getCurrentUser(req.user?.id);
+            const result = await this.authService.getCurrentUser(req.user?.id);
             return result;
         }
         catch (error) {
@@ -203,6 +210,7 @@ __decorate([
 exports.AuthProxyController = AuthProxyController = AuthProxyController_1 = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [local_auth_service_1.LocalAuthService,
+        production_auth_service_1.ProductionAuthService,
         families_service_1.FamiliesService])
 ], AuthProxyController);
 //# sourceMappingURL=auth-proxy.controller.js.map

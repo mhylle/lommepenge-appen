@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthProxyService } from './auth-proxy.service';
 import { LocalAuthService } from './local-auth.service';
+import { ProductionAuthService } from './production-auth.service';
 import { AuthProxyController } from './auth-proxy.controller';
 import { AuthGuard } from './auth.guard';
 import { LocalStrategy } from './local-auth.strategy';
@@ -32,6 +33,7 @@ import { User } from '../entities/user.entity';
   providers: [
     AuthProxyService, 
     LocalAuthService,
+    ProductionAuthService,
     AuthGuard, 
     LocalStrategy, 
     JwtStrategy

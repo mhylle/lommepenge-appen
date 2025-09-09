@@ -15,6 +15,7 @@ const passport_1 = require("@nestjs/passport");
 const typeorm_1 = require("@nestjs/typeorm");
 const auth_proxy_service_1 = require("./auth-proxy.service");
 const local_auth_service_1 = require("./local-auth.service");
+const production_auth_service_1 = require("./production-auth.service");
 const auth_proxy_controller_1 = require("./auth-proxy.controller");
 const auth_guard_1 = require("./auth.guard");
 const local_auth_strategy_1 = require("./local-auth.strategy");
@@ -44,6 +45,7 @@ exports.AuthProxyModule = AuthProxyModule = __decorate([
         providers: [
             auth_proxy_service_1.AuthProxyService,
             local_auth_service_1.LocalAuthService,
+            production_auth_service_1.ProductionAuthService,
             auth_guard_1.AuthGuard,
             local_auth_strategy_1.LocalStrategy,
             jwt_strategy_1.JwtStrategy

@@ -168,12 +168,12 @@ export class AuthService {
 
   hasAppAccess(appId: string): boolean {
     const user = this.getCurrentUser();
-    return user?.permissions.apps.includes(appId) || false;
+    return user?.permissions?.apps?.includes(appId) || false;
   }
 
   hasRole(appId: string, role: string): boolean {
     const user = this.getCurrentUser();
-    return user?.permissions.roles[appId]?.includes(role) || false;
+    return user?.permissions?.roles?.[appId]?.includes(role) || false;
   }
 
   clearUserState(): void {

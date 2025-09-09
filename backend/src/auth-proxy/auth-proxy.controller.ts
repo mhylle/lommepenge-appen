@@ -2,16 +2,25 @@ import { Controller, Post, Get, Body, Req, Res, HttpStatus, Logger, UseGuards } 
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthService, LoginDto, RegisterDto } from './local-auth.service';
+import { ProductionAuthService } from './production-auth.service';
 import { FamiliesService } from '../families/families.service';
 
 @Controller('auth')
 export class AuthProxyController {
   private readonly logger = new Logger(AuthProxyController.name);
+  private readonly authService: LocalAuthService | ProductionAuthService;
 
   constructor(
     private readonly localAuthService: LocalAuthService,
+    private readonly productionAuthService: ProductionAuthService,
     private readonly familiesService: FamiliesService,
-  ) {}
+  ) {
+    // Use production auth service if USE_PRODUCTION_AUTH env var is set to 'true'
+    const useProductionAuth = process.env.USE_PRODUCTION_AUTH === 'true';
+    this.authService = useProductionAuth ? this.productionAuthService : this.localAuthService;
+    
+    this.logger.log(`Using ${useProductionAuth ? 'production' : 'local'} authentication service`);
+  }
 
   @Post('login')
   async login(
@@ -20,7 +29,7 @@ export class AuthProxyController {
     @Res() res: Response,
   ) {
     try {
-      const result = await this.localAuthService.login(loginDto);
+      const result = await this.authService.login(loginDto);
       
       // If login is successful and we have user data, ensure family exists
       if (result.success && result.user) {
@@ -77,7 +86,7 @@ export class AuthProxyController {
     @Res() res: Response,
   ) {
     try {
-      const result = await this.localAuthService.register(registerDto);
+      const result = await this.authService.register(registerDto);
       
       // If registration is successful and we have user data, create family
       if (result.success && result.user) {
@@ -134,7 +143,7 @@ export class AuthProxyController {
   @UseGuards(AuthGuard('jwt'))
   async validateSession(@Req() req: Request & { user: any }) {
     try {
-      const result = await this.localAuthService.validateByJwt(req.user);
+      const result = await this.authService.validateByJwt(req.user);
       
       // If session is valid and we have user data, ensure family exists
       if (result.valid && result.user) {
@@ -177,7 +186,7 @@ export class AuthProxyController {
     @Res() res: Response,
   ) {
     try {
-      const result = await this.localAuthService.logout();
+      const result = await this.authService.logout();
       
       // Clear cookies on logout
       res.clearCookie('authToken', { 
@@ -199,7 +208,7 @@ export class AuthProxyController {
   @UseGuards(AuthGuard('jwt'))
   async getCurrentUser(@Req() req: Request & { user: any }) {
     try {
-      const result = await this.localAuthService.getCurrentUser(req.user?.id);
+      const result = await this.authService.getCurrentUser(req.user?.id);
       return result;
     } catch (error) {
       this.logger.error('Get current user error:', error);
