@@ -24,6 +24,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       await this.migration001_InitialSchema();
       await this.migration002_AddIndexes();
       await this.migration003_AddDefaultData();
+      await this.migration004_FixColumnNames();
 
       this.logger.log('Database migrations completed successfully');
     } catch (error) {
@@ -162,6 +163,62 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
 
     // Add any default data if needed
     this.logger.log('Default data setup completed');
+    await this.markMigrationExecuted(migrationName);
+  }
+
+  private async migration004_FixColumnNames() {
+    const migrationName = 'migration004_FixColumnNames';
+    
+    if (await this.isMigrationExecuted(migrationName)) {
+      this.logger.log(`Migration ${migrationName} already executed, skipping`);
+      return;
+    }
+
+    // Fix column names to match TypeORM entity expectations
+    const queries = [
+      // Rename columns in users table
+      'ALTER TABLE users RENAME COLUMN firstname TO "firstName";',
+      'ALTER TABLE users RENAME COLUMN lastname TO "lastName";',
+      'ALTER TABLE users RENAME COLUMN isactive TO "isActive";',
+      'ALTER TABLE users RENAME COLUMN createdat TO "createdAt";',
+      'ALTER TABLE users RENAME COLUMN updatedat TO "updatedAt";',
+      
+      // Fix families table column names
+      'ALTER TABLE families RENAME COLUMN parentuserid TO "parentUserId";',
+      'ALTER TABLE families RENAME COLUMN profilepicture TO "profilePicture";',
+      'ALTER TABLE families RENAME COLUMN isactive TO "isActive";',
+      'ALTER TABLE families RENAME COLUMN defaultallowance TO "defaultAllowance";',
+      'ALTER TABLE families RENAME COLUMN allowancefrequency TO "allowanceFrequency";',
+      'ALTER TABLE families RENAME COLUMN createdat TO "createdAt";',
+      'ALTER TABLE families RENAME COLUMN updatedat TO "updatedAt";',
+      
+      // Fix pocket_money_users table column names
+      'ALTER TABLE pocket_money_users RENAME COLUMN familyid TO "familyId";',
+      'ALTER TABLE pocket_money_users RENAME COLUMN authuserid TO "authUserId";',
+      'ALTER TABLE pocket_money_users RENAME COLUMN currentbalance TO "currentBalance";',
+      'ALTER TABLE pocket_money_users RENAME COLUMN isactive TO "isActive";',
+      'ALTER TABLE pocket_money_users RENAME COLUMN createdat TO "createdAt";',
+      'ALTER TABLE pocket_money_users RENAME COLUMN updatedat TO "updatedAt";',
+      
+      // Fix transactions table column names
+      'ALTER TABLE transactions RENAME COLUMN userid TO "userId";',
+      'ALTER TABLE transactions RENAME COLUMN familyid TO "familyId";',
+      'ALTER TABLE transactions RENAME COLUMN transactiondate TO "transactionDate";',
+      'ALTER TABLE transactions RENAME COLUMN balanceafter TO "balanceAfter";',
+      'ALTER TABLE transactions RENAME COLUMN createdat TO "createdAt";',
+      'ALTER TABLE transactions RENAME COLUMN updatedat TO "updatedAt";',
+    ];
+
+    for (const query of queries) {
+      try {
+        await this.dataSource.query(query);
+      } catch (error) {
+        // Log but don't fail if column already has correct name
+        this.logger.warn(`Column rename query failed (might already be correct): ${query}`, error.message);
+      }
+    }
+
+    this.logger.log('Column names fixed to match TypeORM entity expectations');
     await this.markMigrationExecuted(migrationName);
   }
 
