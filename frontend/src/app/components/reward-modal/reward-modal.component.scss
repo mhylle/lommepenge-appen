@@ -1,5 +1,5 @@
 // Import Google Fonts for handwritten style
-@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Comic+Neue:wght@300;400;700&display=swap');
+/* Google Fonts loaded via index.html to avoid CSP violations */
 
 // Living Scrapbook Color Palette
 $primary-green: #8FBC8F;
@@ -189,7 +189,7 @@ $shadow: rgba(0,0,0,0.15);
         margin-bottom: 30px;
 
         &::before {
-          content: '=ø';
+          content: '=ï¿½';
           position: absolute;
           top: -10px;
           right: -10px;

@@ -361,7 +361,7 @@ export class AppComponent implements OnInit {
     this.appInfo = {
       ...this.appInfo,
       environment: isProduction ? 'production' : 'development',
-      apiUrl: isProduction ? '/api/app2' : 'http://localhost:3001'
+      apiUrl: '/api/app2' // Always use relative URL - handled by proxy in dev
     };
   }
 }
