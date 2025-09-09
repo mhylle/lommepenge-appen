@@ -18,31 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Free up disk space
-      run: |
-        echo "🧹 Cleaning up disk space before build..."
-        df -h
-        docker system prune -af --volumes || true
-        sudo apt-get clean || true
-        sudo rm -rf /usr/share/dotnet || true
-        sudo rm -rf /opt/ghc || true
-        sudo rm -rf "/usr/local/share/boost" || true
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
-        echo "📊 Disk space after cleanup:"
-        df -h
-    
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Validate Dockerfile syntax
       run: |
-        docker build --no-cache -f frontend/Dockerfile -t test-frontend . || echo "Frontend Dockerfile needs adjustment"
-        docker build --no-cache -f backend/Dockerfile -t test-backend . || echo "Backend Dockerfile needs adjustment"
-
-    - name: Configuration check
-      run: |
-        echo "✅ Repository structure validated"
-        echo "✅ Deployment configuration ready"
+        docker build -f frontend/Dockerfile --target build . --quiet || echo "Frontend Dockerfile needs adjustment"
+        docker build -f backend/Dockerfile --target builder . --quiet || echo "Backend Dockerfile needs adjustment"
 
   build:
     runs-on: ubuntu-latest
@@ -61,16 +43,9 @@ jobs:
     steps:
     - name: Free up disk space
       run: |
-        echo "🧹 Cleaning up disk space before build..."
-        df -h
+        echo "🧹 Freeing up disk space..."
         docker system prune -af --volumes || true
-        sudo apt-get clean || true
-        sudo rm -rf /usr/share/dotnet || true
-        sudo rm -rf /opt/ghc || true
-        sudo rm -rf "/usr/local/share/boost" || true
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY" || true
-        echo "📊 Disk space after cleanup:"
-        df -h
+        sudo rm -rf /opt/ghc /usr/share/dotnet || true
     
     - name: Checkout code
       uses: actions/checkout@v4
@@ -94,7 +69,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v5
 
     # Build Frontend
     - name: Extract frontend metadata
@@ -110,11 +85,11 @@ jobs:
 
     - name: Build and push frontend image
       id: build-frontend
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ./frontend/Dockerfile
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ github.ref == 'refs/heads/main' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
         push: true
         tags: ${{ steps.meta-frontend.outputs.tags }}
         labels: ${{ steps.meta-frontend.outputs.labels }}
@@ -138,11 +113,11 @@ jobs:
 
     - name: Build and push backend image
       id: build-backend
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ./backend/Dockerfile
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ github.ref == 'refs/heads/main' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
         push: true
         tags: ${{ steps.meta-backend.outputs.tags }}
         labels: ${{ steps.meta-backend.outputs.labels }}
@@ -211,18 +186,6 @@ jobs:
           
           # Deploy App2 independently using Docker directly
           echo "🚀 Deploying App2 using Docker containers..."
-          
-          # Extract image information
-          FRONTEND_FULL=$(echo "${{ needs.build.outputs.frontend-image }}" | head -n1)
-          BACKEND_FULL=$(echo "${{ needs.build.outputs.backend-image }}" | head -n1)
-          VERSION="${{ needs.build.outputs.version }}"
-          
-          echo "Frontend image: $FRONTEND_FULL"
-          echo "Backend image: $BACKEND_FULL"
-          echo "Version: $VERSION"
-          
-          # Log in to GitHub Container Registry
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
           # Pull latest images
           docker pull "$FRONTEND_FULL"

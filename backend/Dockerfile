@@ -25,9 +25,9 @@ RUN apk add --no-cache curl
 # Set working directory
 WORKDIR /app
 
-# Copy package files and install production dependencies
+# Copy package files and install only production dependencies
 COPY backend/package*.json ./
-RUN npm ci && npm cache clean --force
+RUN npm ci --only=production && npm cache clean --force
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
