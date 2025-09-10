@@ -136,6 +136,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.authService.currentUser$.subscribe(user => {
         if (user) {
           this.userName = user.firstName || user.email.split('@')[0];
+          // Load families when user is available
+          this.loadUserFamilies();
         }
       })
     );
@@ -156,6 +158,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  // Load families for the current user
+  private async loadUserFamilies(): Promise<void> {
+    try {
+      const families = await this.familyService.getActiveFamilies();
+      // FamilyService will automatically set the first family as current
+      if (families.length === 0) {
+        console.warn('No families found for user');
+      }
+    } catch (error) {
+      console.error('Error loading families:', error);
+      this.snackBar.open('Kunne ikke indlæse familier', 'Luk', { duration: 3000 });
+    }
   }
 
   ngOnDestroy(): void {
