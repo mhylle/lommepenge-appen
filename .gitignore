@@ -44,3 +44,6 @@ frontend/.angular/cache/
 # Temporary
 tmp/
 temp/
+
+# Playwright test artifacts
+.playwright-mcp/
