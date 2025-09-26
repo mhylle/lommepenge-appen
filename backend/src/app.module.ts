@@ -26,7 +26,7 @@ import { AuthProxyModule } from './auth-proxy/auth-proxy.module';
       password: process.env.DB_PASSWORD || 'password',
       database: process.env.DB_NAME || 'mhylle_app2',
       entities: [User, Family, PocketMoneyUser, Transaction],
-      synchronize: process.env.NODE_ENV !== 'production', // Only for development
+      synchronize: true, // Enable for SQLite development
       logging: process.env.NODE_ENV === 'development',
       retryAttempts: 3,
       retryDelay: 3000,
