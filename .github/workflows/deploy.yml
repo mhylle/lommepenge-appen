@@ -204,18 +204,19 @@ jobs:
             echo "ℹ️ App2 containers not found (may not be deployed yet)"
           fi
           
-          # Create SQLite data volume if not exists
-          docker volume create app2_sqlite_data 2>/dev/null || echo "Volume already exists"
-
-          # Start App2 backend with SQLite database
+          # Start App2 backend with database connection
           echo "🚀 Starting App2 backend..."
           docker run -d \
             --name app2-backend \
             --restart unless-stopped \
             --network mhylle_app-network \
             -p 8002:3000 \
-            -v app2_sqlite_data:/app/data \
             -e NODE_ENV=production \
+            -e DB_HOST=mhylle-postgres \
+            -e DB_PORT=5432 \
+            -e DB_NAME=mhylle_app2 \
+            -e DB_USER=app2_user \
+            -e DB_PASSWORD="${APP2_DB_PASSWORD}" \
             -e API_PREFIX=/api/app2 \
             --health-cmd="curl -f http://localhost:3000/health || exit 1" \
             --health-interval=30s \

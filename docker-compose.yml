@@ -38,10 +38,13 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - DB_HOST=mhylle-postgres
+      - DB_PORT=5432
+      - DB_NAME=app2_db
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - JWT_SECRET=${APP2_JWT_SECRET:-default_jwt_secret_app2}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-7d}
-    volumes:
-      - sqlite_data:/app/data
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
@@ -50,8 +53,10 @@ services:
     networks:
       - app2-network
       - mhylle-network
+    depends_on:
+      - mhylle-postgres
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/app2/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -72,9 +77,5 @@ networks:
     external: true
     name: mhylle-network
 
-volumes:
-  sqlite_data:
-    driver: local
-
-# Note: SQLite database is used for persistence
-# This compose file defines the complete application stack
+# Note: PostgreSQL is provided by the main infrastructure
+# This compose file only defines the application-specific services
