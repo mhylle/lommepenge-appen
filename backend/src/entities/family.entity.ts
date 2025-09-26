@@ -25,7 +25,7 @@ export class Family {
   @Column({ type: 'varchar', length: 500, nullable: true })
   description: string;
 
-  @Column({ type: 'uuid', name: 'parent_user_id', nullable: false })
+  @Column({ type: 'uuid', name: 'parentUserId', nullable: false })
   @Index()
   parentUserId: string; // References central auth system user ID
 
@@ -39,16 +39,16 @@ export class Family {
   @Column({ type: 'varchar', length: 3, default: 'DKK' })
   currency: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'default_allowance' })
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'defaultAllowance' })
   defaultAllowance: number;
 
-  @Column({ type: 'varchar', length: 50, default: 'weekly', name: 'allowance_frequency' })
+  @Column({ type: 'varchar', length: 50, default: 'weekly', name: 'allowanceFrequency' })
   allowanceFrequency: string; // 'weekly', 'monthly', 'biweekly'
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'createdAt' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updatedAt' })
   updatedAt: Date;
 
   // Relationships
@@ -56,7 +56,7 @@ export class Family {
     nullable: false,
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'parent_user_id' })
+  @JoinColumn({ name: 'parentUserId' })
   parent: User;
 
   @OneToMany(() => PocketMoneyUser, (user) => user.family, {
