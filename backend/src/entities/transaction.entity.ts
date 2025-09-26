@@ -37,11 +37,11 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid', name: 'user_id', nullable: false })
+  @Column({ type: 'uuid', name: 'userId', nullable: false })
   @Index()
   userId: string;
 
-  @Column({ type: 'uuid', name: 'family_id', nullable: false })
+  @Column({ type: 'uuid', name: 'familyId', nullable: false })
   @Index()
   familyId: string;
 
@@ -125,14 +125,14 @@ export class Transaction {
     onDelete: 'CASCADE',
     nullable: false,
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'userId' })
   user: PocketMoneyUser;
 
   @ManyToOne(() => Family, (family) => family.transactions, {
     onDelete: 'CASCADE',
     nullable: false,
   })
-  @JoinColumn({ name: 'family_id' })
+  @JoinColumn({ name: 'familyId' })
   family: Family;
 
   // Business logic methods

@@ -45,7 +45,7 @@ export class PocketMoneyUser {
   authUserId: string; // References central auth system user ID (optional)
 
   // Family relationship
-  @Column({ type: 'uuid', name: 'family_id', nullable: false })
+  @Column({ type: 'uuid', name: 'familyId', nullable: false })
   @Index()
   familyId: string;
 
@@ -74,7 +74,7 @@ export class PocketMoneyUser {
     onDelete: 'CASCADE',
     nullable: false,
   })
-  @JoinColumn({ name: 'family_id' })
+  @JoinColumn({ name: 'familyId' })
   family: Family;
 
   @OneToMany(() => Transaction, (transaction) => transaction.user, {
