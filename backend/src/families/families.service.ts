@@ -133,4 +133,90 @@ export class FamiliesService {
       throw new ConflictException('Failed to create family. Please try again.');
     }
   }
+
+  /**
+   * Debug method to check database schema
+   */
+  async debugDatabaseSchema(): Promise<any> {
+    try {
+      // Check pocket_money_users table structure
+      const tableInfo = await this.familiesRepository.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'pocket_money_users'
+        ORDER BY ordinal_position;
+      `);
+
+      // Check migrations table
+      const migrations = await this.familiesRepository.query(`
+        SELECT name, executed_at FROM migrations ORDER BY executed_at DESC LIMIT 10;
+      `);
+
+      // Test basic family count
+      const familyCount = await this.familiesRepository.count();
+
+      // Test pocket money users count
+      const pocketMoneyCount = await this.familiesRepository.query(
+        'SELECT COUNT(*) as count FROM pocket_money_users'
+      );
+
+      return {
+        timestamp: new Date().toISOString(),
+        pocket_money_users_schema: tableInfo,
+        recent_migrations: migrations,
+        family_count: familyCount,
+        pocket_money_users_count: pocketMoneyCount[0].count,
+      };
+    } catch (error) {
+      this.logger.error('Error in debugDatabaseSchema:', error);
+      return {
+        error: error.message,
+        stack: error.stack,
+      };
+    }
+  }
+
+  /**
+   * Debug method to test active families without relations
+   */
+  async debugActiveByParentUserId(parentUserId: string): Promise<any> {
+    try {
+      // First try without any relations
+      const familiesNoRelations = await this.familiesRepository.find({
+        where: { parentUserId, isActive: true },
+        order: { createdAt: 'DESC' },
+      });
+
+      let familiesWithChildren = null;
+      let childrenError = null;
+
+      // Try to load just children relation
+      try {
+        familiesWithChildren = await this.familiesRepository.find({
+          where: { parentUserId, isActive: true },
+          relations: ['children'],
+          order: { createdAt: 'DESC' },
+        });
+      } catch (error) {
+        childrenError = {
+          message: error.message,
+          stack: error.stack,
+        };
+      }
+
+      return {
+        timestamp: new Date().toISOString(),
+        parentUserId,
+        families_without_relations: familiesNoRelations,
+        families_with_children: familiesWithChildren,
+        children_relation_error: childrenError,
+      };
+    } catch (error) {
+      this.logger.error('Error in debugActiveByParentUserId:', error);
+      return {
+        error: error.message,
+        stack: error.stack,
+      };
+    }
+  }
 }

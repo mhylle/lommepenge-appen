@@ -35,6 +35,16 @@ export class FamiliesController {
     return await this.familiesService.findActiveByParentUserId(parentUserId);
   }
 
+  @Get('debug/schema')
+  async debugSchema(): Promise<any> {
+    return await this.familiesService.debugDatabaseSchema();
+  }
+
+  @Get('debug/active')
+  async debugActive(@Query('parentUserId') parentUserId: string): Promise<any> {
+    return await this.familiesService.debugActiveByParentUserId(parentUserId);
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<Family> {
     return await this.familiesService.findOne(id);
