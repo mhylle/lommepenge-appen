@@ -26,6 +26,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       await this.migration003_AddDefaultData();
       await this.migration004_FixColumnNames();
       await this.migration005_AddMissingPocketMoneyUserColumns();
+      await this.migration006_VerifyAndFixDatabaseSchema();
 
       this.logger.log('Database migrations completed successfully');
     } catch (error) {
@@ -251,6 +252,92 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
     }
 
     this.logger.log('Missing pocket_money_users columns added successfully');
+    await this.markMigrationExecuted(migrationName);
+  }
+
+  private async migration006_VerifyAndFixDatabaseSchema() {
+    const migrationName = 'migration006_VerifyAndFixDatabaseSchema';
+
+    if (await this.isMigrationExecuted(migrationName)) {
+      this.logger.log(`Migration ${migrationName} already executed, skipping`);
+      return;
+    }
+
+    this.logger.log('Running migration: Verify and fix database schema');
+
+    try {
+      // Check current table structure
+      const tableInfo = await this.dataSource.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'pocket_money_users'
+        ORDER BY ordinal_position;
+      `);
+
+      this.logger.log(`Current pocket_money_users table structure: ${JSON.stringify(tableInfo)}`);
+
+      // Check specifically for the problematic columns
+      const requiredColumns = [
+        { name: 'dateOfBirth', type: 'date' },
+        { name: 'profilePicture', type: 'character varying' },
+        { name: 'cardColor', type: 'character varying' },
+        { name: 'weeklyAllowance', type: 'numeric' },
+        { name: 'preferences', type: 'json' }
+      ];
+
+      for (const column of requiredColumns) {
+        const exists = tableInfo.some(col => col.column_name === column.name);
+        if (!exists) {
+          this.logger.warn(`Column ${column.name} is missing, attempting to add it...`);
+
+          let query = '';
+          switch (column.name) {
+            case 'dateOfBirth':
+              query = 'ALTER TABLE pocket_money_users ADD COLUMN "dateOfBirth" DATE;';
+              break;
+            case 'profilePicture':
+              query = 'ALTER TABLE pocket_money_users ADD COLUMN "profilePicture" VARCHAR(255);';
+              break;
+            case 'cardColor':
+              query = 'ALTER TABLE pocket_money_users ADD COLUMN "cardColor" VARCHAR(7) DEFAULT \'#FFB6C1\';';
+              break;
+            case 'weeklyAllowance':
+              query = 'ALTER TABLE pocket_money_users ADD COLUMN "weeklyAllowance" DECIMAL(10,2) DEFAULT 0.00;';
+              break;
+            case 'preferences':
+              query = 'ALTER TABLE pocket_money_users ADD COLUMN "preferences" JSON;';
+              break;
+          }
+
+          if (query) {
+            await this.dataSource.query(query);
+            this.logger.log(`Successfully added column: ${column.name}`);
+          }
+        } else {
+          this.logger.log(`Column ${column.name} exists`);
+        }
+      }
+
+      // Verify final structure
+      const finalTableInfo = await this.dataSource.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'pocket_money_users'
+        ORDER BY ordinal_position;
+      `);
+
+      this.logger.log(`Final pocket_money_users table structure: ${JSON.stringify(finalTableInfo)}`);
+
+      // Test a simple query to verify TypeORM can work with the table
+      const count = await this.dataSource.query('SELECT COUNT(*) as count FROM pocket_money_users');
+      this.logger.log(`Pocket money users count: ${count[0].count}`);
+
+    } catch (error) {
+      this.logger.error('Error in schema verification migration:', error);
+      throw error;
+    }
+
+    this.logger.log('Database schema verification and fix completed successfully');
     await this.markMigrationExecuted(migrationName);
   }
 
