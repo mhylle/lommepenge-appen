@@ -189,8 +189,8 @@ export class FamiliesService {
         order: { createdAt: 'DESC' },
       });
 
-      let familiesWithChildren = null;
-      let childrenError = null;
+      let familiesWithChildren: Family[] | null = null;
+      let childrenError: { message: string; stack: string } | null = null;
 
       // Try to load just children relation
       try {
