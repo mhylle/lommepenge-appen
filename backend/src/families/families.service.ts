@@ -59,9 +59,11 @@ export class FamiliesService {
   }
 
   async findActiveByParentUserId(parentUserId: string): Promise<Family[]> {
+    // Temporarily remove relations to fix 500 error - children relation causing join failure
+    // TODO: Re-enable relations after database schema is fixed
     return await this.familiesRepository.find({
       where: { parentUserId, isActive: true },
-      relations: ['children', 'transactions'],
+      // relations: ['children', 'transactions'], // Commented out temporarily
       order: { createdAt: 'DESC' },
     });
   }
