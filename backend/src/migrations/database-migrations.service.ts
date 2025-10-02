@@ -25,6 +25,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       await this.migration002_AddIndexes();
       await this.migration003_AddDefaultData();
       await this.migration004_FixColumnNames();
+      await this.migration005_AddMissingPocketMoneyUserColumns();
 
       this.logger.log('Database migrations completed successfully');
     } catch (error) {
@@ -219,6 +220,37 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
     }
 
     this.logger.log('Column names fixed to match TypeORM entity expectations');
+    await this.markMigrationExecuted(migrationName);
+  }
+
+  private async migration005_AddMissingPocketMoneyUserColumns() {
+    const migrationName = 'migration005_AddMissingPocketMoneyUserColumns';
+
+    if (await this.isMigrationExecuted(migrationName)) {
+      this.logger.log(`Migration ${migrationName} already executed, skipping`);
+      return;
+    }
+
+    this.logger.log('Running migration: Add missing pocket_money_users columns');
+
+    const queries = [
+      // Add missing columns to pocket_money_users table
+      'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "dateOfBirth" DATE;',
+      'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "profilePicture" VARCHAR(255);',
+      'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "cardColor" VARCHAR(7) DEFAULT \'#FFB6C1\';',
+      'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "weeklyAllowance" DECIMAL(10,2) DEFAULT 0.00;',
+      'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "preferences" JSON;',
+    ];
+
+    for (const query of queries) {
+      try {
+        await this.dataSource.query(query);
+      } catch (error) {
+        this.logger.warn(`Column add query failed (might already exist): ${query}`, error.message);
+      }
+    }
+
+    this.logger.log('Missing pocket_money_users columns added successfully');
     await this.markMigrationExecuted(migrationName);
   }
 
