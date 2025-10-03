@@ -50,6 +50,16 @@ export class TransactionsController {
     return await this.transactionsService.getTransactionStatsByUserId(userId);
   }
 
+  @Get('child/:userId')
+  async getChildTransactions(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Query('limit') limit?: string,
+  ): Promise<Transaction[]> {
+    const limitNumber = limit ? parseInt(limit, 10) : 10;
+    const transactions = await this.transactionsService.findByUserId(userId);
+    return limitNumber ? transactions.slice(0, limitNumber) : transactions;
+  }
+
   @Get('by-user/:userId')
   async findByUserId(@Param('userId', ParseUUIDPipe) userId: string): Promise<Transaction[]> {
     return await this.transactionsService.findByUserId(userId);

@@ -69,6 +69,11 @@ export class PocketMoneyUsersController {
     return await this.pocketMoneyUsersService.findByAuthUserId(authUserId);
   }
 
+  @Get('child/:id')
+  async getChild(@Param('id', ParseUUIDPipe) id: string): Promise<PocketMoneyUser> {
+    return await this.pocketMoneyUsersService.findOne(id);
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<PocketMoneyUser> {
     return await this.pocketMoneyUsersService.findOne(id);
