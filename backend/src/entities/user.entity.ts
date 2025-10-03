@@ -42,8 +42,8 @@ export class User {
   })
   roles: Record<string, string[]>;
 
-  @OneToMany(() => Family, family => family.parent, { cascade: true })
-  families: Family[];
+  // @OneToMany(() => Family, family => family.parent, { cascade: true })
+  // families: Family[];
 
   @CreateDateColumn()
   createdAt: Date;
