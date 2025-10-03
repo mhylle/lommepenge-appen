@@ -28,14 +28,12 @@ let PocketMoneyUsersService = class PocketMoneyUsersService {
     }
     async findAll() {
         return await this.pocketMoneyUsersRepository.find({
-            relations: ['family', 'transactions'],
             order: { createdAt: 'DESC' },
         });
     }
     async findOne(id) {
         const user = await this.pocketMoneyUsersRepository.findOne({
             where: { id },
-            relations: ['family', 'transactions'],
         });
         if (!user) {
             throw new common_1.NotFoundException(`Pocket money user with ID "${id}" not found`);
@@ -45,20 +43,17 @@ let PocketMoneyUsersService = class PocketMoneyUsersService {
     async findByFamilyId(familyId) {
         return await this.pocketMoneyUsersRepository.find({
             where: { familyId },
-            relations: ['family', 'transactions'],
             order: { name: 'ASC' },
         });
     }
     async findByAuthUserId(authUserId) {
         return await this.pocketMoneyUsersRepository.findOne({
             where: { authUserId },
-            relations: ['family', 'transactions'],
         });
     }
     async findActiveByFamilyId(familyId) {
         return await this.pocketMoneyUsersRepository.find({
             where: { familyId, isActive: true },
-            relations: ['family', 'transactions'],
             order: { name: 'ASC' },
         });
     }
@@ -123,7 +118,6 @@ let PocketMoneyUsersService = class PocketMoneyUsersService {
     async getChildrenForFamily(familyId) {
         const children = await this.pocketMoneyUsersRepository.find({
             where: { familyId, isActive: true },
-            relations: ['transactions'],
             order: {
                 dateOfBirth: 'DESC'
             },

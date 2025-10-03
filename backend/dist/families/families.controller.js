@@ -33,6 +33,12 @@ let FamiliesController = class FamiliesController {
     async findActive(parentUserId) {
         return await this.familiesService.findActiveByParentUserId(parentUserId);
     }
+    async debugSchema() {
+        return await this.familiesService.debugDatabaseSchema();
+    }
+    async debugActive(parentUserId) {
+        return await this.familiesService.debugActiveByParentUserId(parentUserId);
+    }
     async findOne(id) {
         return await this.familiesService.findOne(id);
     }
@@ -65,6 +71,19 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], FamiliesController.prototype, "findActive", null);
+__decorate([
+    (0, common_1.Get)('debug/schema'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], FamiliesController.prototype, "debugSchema", null);
+__decorate([
+    (0, common_1.Get)('debug/active'),
+    __param(0, (0, common_1.Query)('parentUserId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], FamiliesController.prototype, "debugActive", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),

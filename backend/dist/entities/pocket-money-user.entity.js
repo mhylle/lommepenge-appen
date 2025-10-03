@@ -16,16 +16,17 @@ const transaction_entity_1 = require("./transaction.entity");
 let PocketMoneyUser = class PocketMoneyUser {
     id;
     name;
+    email;
     dateOfBirth;
     profilePicture;
     cardColor;
+    role;
     currentBalance;
     weeklyAllowance;
     isActive;
+    preferences;
     authUserId;
     familyId;
-    preferences;
-    role;
     createdAt;
     updatedAt;
     family;
@@ -46,7 +47,8 @@ let PocketMoneyUser = class PocketMoneyUser {
         return this.name;
     }
     get cardDisplayBalance() {
-        return `${this.currentBalance.toFixed(2)} DKK`;
+        const balance = Number(this.currentBalance) || 0;
+        return `${balance.toFixed(2)} DKK`;
     }
 };
 exports.PocketMoneyUser = PocketMoneyUser;
@@ -60,66 +62,70 @@ __decorate([
     __metadata("design:type", String)
 ], PocketMoneyUser.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'date', name: 'date_of_birth', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true }),
+    __metadata("design:type", String)
+], PocketMoneyUser.prototype, "email", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'date', nullable: true, name: 'dateOfBirth' }),
     __metadata("design:type", Date)
 ], PocketMoneyUser.prototype, "dateOfBirth", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true, name: 'profile_picture' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true, name: 'profilePicture' }),
     __metadata("design:type", String)
 ], PocketMoneyUser.prototype, "profilePicture", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 7, default: '#FFB6C1', name: 'card_color' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 7, default: '#FFB6C1', name: 'cardColor' }),
     __metadata("design:type", String)
 ], PocketMoneyUser.prototype, "cardColor", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'current_balance' }),
-    __metadata("design:type", Number)
-], PocketMoneyUser.prototype, "currentBalance", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'weekly_allowance' }),
-    __metadata("design:type", Number)
-], PocketMoneyUser.prototype, "weeklyAllowance", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'boolean', default: true, name: 'is_active' }),
-    __metadata("design:type", Boolean)
-], PocketMoneyUser.prototype, "isActive", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', name: 'auth_user_id', nullable: true }),
-    (0, typeorm_1.Index)(),
-    __metadata("design:type", String)
-], PocketMoneyUser.prototype, "authUserId", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', name: 'family_id', nullable: false }),
-    (0, typeorm_1.Index)(),
-    __metadata("design:type", String)
-], PocketMoneyUser.prototype, "familyId", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ type: 'json', nullable: true }),
-    __metadata("design:type", Object)
-], PocketMoneyUser.prototype, "preferences", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'child' }),
     __metadata("design:type", String)
 ], PocketMoneyUser.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'currentBalance' }),
+    __metadata("design:type", Number)
+], PocketMoneyUser.prototype, "currentBalance", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'weeklyAllowance' }),
+    __metadata("design:type", Number)
+], PocketMoneyUser.prototype, "weeklyAllowance", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: true, name: 'isActive' }),
+    __metadata("design:type", Boolean)
+], PocketMoneyUser.prototype, "isActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'json', nullable: true }),
+    __metadata("design:type", Object)
+], PocketMoneyUser.prototype, "preferences", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'authUserId', nullable: true }),
+    (0, typeorm_1.Index)(),
+    __metadata("design:type", String)
+], PocketMoneyUser.prototype, "authUserId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'familyId', nullable: false }),
+    (0, typeorm_1.Index)(),
+    __metadata("design:type", String)
+], PocketMoneyUser.prototype, "familyId", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
 ], PocketMoneyUser.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
 ], PocketMoneyUser.prototype, "updatedAt", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => family_entity_1.Family, (family) => family.children, {
         onDelete: 'CASCADE',
-        nullable: false,
+        nullable: true,
     }),
-    (0, typeorm_1.JoinColumn)({ name: 'family_id' }),
+    (0, typeorm_1.JoinColumn)({ name: 'familyId' }),
     __metadata("design:type", family_entity_1.Family)
 ], PocketMoneyUser.prototype, "family", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => transaction_entity_1.Transaction, (transaction) => transaction.user, {
-        cascade: true,
+        cascade: false,
     }),
     __metadata("design:type", Array)
 ], PocketMoneyUser.prototype, "transactions", void 0);

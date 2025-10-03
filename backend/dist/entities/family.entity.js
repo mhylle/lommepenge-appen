@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Family = void 0;
 const typeorm_1 = require("typeorm");
-const user_entity_1 = require("./user.entity");
 const pocket_money_user_entity_1 = require("./pocket-money-user.entity");
 const transaction_entity_1 = require("./transaction.entity");
 let Family = class Family {
@@ -26,7 +25,6 @@ let Family = class Family {
     allowanceFrequency;
     createdAt;
     updatedAt;
-    parent;
     children;
     transactions;
 };
@@ -45,7 +43,7 @@ __decorate([
     __metadata("design:type", String)
 ], Family.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', name: 'parent_user_id', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'parentUserId', nullable: false }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Family.prototype, "parentUserId", void 0);
@@ -62,38 +60,31 @@ __decorate([
     __metadata("design:type", String)
 ], Family.prototype, "currency", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'default_allowance' }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'defaultAllowance' }),
     __metadata("design:type", Number)
 ], Family.prototype, "defaultAllowance", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'weekly', name: 'allowance_frequency' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'weekly', name: 'allowanceFrequency' }),
     __metadata("design:type", String)
 ], Family.prototype, "allowanceFrequency", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
 ], Family.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
 ], Family.prototype, "updatedAt", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, user => user.families, {
-        nullable: false,
-        onDelete: 'CASCADE',
-    }),
-    (0, typeorm_1.JoinColumn)({ name: 'parent_user_id' }),
-    __metadata("design:type", user_entity_1.User)
-], Family.prototype, "parent", void 0);
-__decorate([
     (0, typeorm_1.OneToMany)(() => pocket_money_user_entity_1.PocketMoneyUser, (user) => user.family, {
-        cascade: true,
-        onDelete: 'CASCADE',
+        cascade: false,
     }),
     __metadata("design:type", Array)
 ], Family.prototype, "children", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => transaction_entity_1.Transaction, (transaction) => transaction.family),
+    (0, typeorm_1.OneToMany)(() => transaction_entity_1.Transaction, (transaction) => transaction.family, {
+        cascade: false,
+    }),
     __metadata("design:type", Array)
 ], Family.prototype, "transactions", void 0);
 exports.Family = Family = __decorate([

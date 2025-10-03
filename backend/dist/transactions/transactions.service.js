@@ -42,14 +42,12 @@ let TransactionsService = class TransactionsService {
     }
     async findAll() {
         return await this.transactionsRepository.find({
-            relations: ['user', 'family'],
             order: { createdAt: 'DESC' },
         });
     }
     async findOne(id) {
         const transaction = await this.transactionsRepository.findOne({
             where: { id },
-            relations: ['user', 'family'],
         });
         if (!transaction) {
             throw new common_1.NotFoundException(`Transaction with ID "${id}" not found`);
@@ -59,28 +57,24 @@ let TransactionsService = class TransactionsService {
     async findByUserId(userId) {
         return await this.transactionsRepository.find({
             where: { userId },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
         });
     }
     async findByFamilyId(familyId) {
         return await this.transactionsRepository.find({
             where: { familyId },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
         });
     }
     async findByType(type) {
         return await this.transactionsRepository.find({
             where: { type },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
         });
     }
     async findByStatus(status) {
         return await this.transactionsRepository.find({
             where: { status },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
         });
     }
@@ -93,14 +87,12 @@ let TransactionsService = class TransactionsService {
                     lte: endDate,
                 },
             },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
         });
     }
     async findByFamilyIdWithPagination(familyId, page = 1, limit = 10) {
         const [transactions, total] = await this.transactionsRepository.findAndCount({
             where: { familyId },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
             skip: (page - 1) * limit,
             take: limit,
@@ -118,7 +110,6 @@ let TransactionsService = class TransactionsService {
     async getRecentTransactionsByFamilyId(familyId, limit = 5) {
         return await this.transactionsRepository.find({
             where: { familyId },
-            relations: ['user', 'family'],
             order: { transactionDate: 'DESC', createdAt: 'DESC' },
             take: limit,
         });

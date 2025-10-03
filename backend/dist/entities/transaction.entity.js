@@ -103,12 +103,12 @@ __decorate([
     __metadata("design:type", String)
 ], Transaction.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', name: 'user_id', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'userId', nullable: false }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Transaction.prototype, "userId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', name: 'family_id', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'familyId', nullable: false }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Transaction.prototype, "familyId", void 0);
@@ -182,17 +182,17 @@ __decorate([
 __decorate([
     (0, typeorm_1.ManyToOne)(() => pocket_money_user_entity_1.PocketMoneyUser, (user) => user.transactions, {
         onDelete: 'CASCADE',
-        nullable: false,
+        nullable: true,
     }),
-    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
+    (0, typeorm_1.JoinColumn)({ name: 'userId' }),
     __metadata("design:type", pocket_money_user_entity_1.PocketMoneyUser)
 ], Transaction.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => family_entity_1.Family, (family) => family.transactions, {
         onDelete: 'CASCADE',
-        nullable: false,
+        nullable: true,
     }),
-    (0, typeorm_1.JoinColumn)({ name: 'family_id' }),
+    (0, typeorm_1.JoinColumn)({ name: 'familyId' }),
     __metadata("design:type", family_entity_1.Family)
 ], Transaction.prototype, "family", void 0);
 __decorate([

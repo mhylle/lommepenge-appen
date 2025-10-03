@@ -1,4 +1,3 @@
-import { User } from './user.entity';
 import { PocketMoneyUser } from './pocket-money-user.entity';
 import { Transaction } from './transaction.entity';
 export declare class Family {
@@ -13,7 +12,6 @@ export declare class Family {
     allowanceFrequency: string;
     createdAt: Date;
     updatedAt: Date;
-    parent: User;
     children: PocketMoneyUser[];
     transactions: Transaction[];
 }

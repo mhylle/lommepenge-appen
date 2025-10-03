@@ -10,6 +10,10 @@ export declare class DatabaseMigrationService implements OnApplicationBootstrap 
     private migration001_InitialSchema;
     private migration002_AddIndexes;
     private migration003_AddDefaultData;
+    private migration004_FixColumnNames;
+    private migration005_AddMissingPocketMoneyUserColumns;
+    private migration006_VerifyAndFixDatabaseSchema;
     private isMigrationExecuted;
     private markMigrationExecuted;
+    private migration007_TemporaryDisableForeignKeyConstraints;
 }

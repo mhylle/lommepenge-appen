@@ -32,6 +32,10 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
             await this.migration001_InitialSchema();
             await this.migration002_AddIndexes();
             await this.migration003_AddDefaultData();
+            await this.migration004_FixColumnNames();
+            await this.migration005_AddMissingPocketMoneyUserColumns();
+            await this.migration006_VerifyAndFixDatabaseSchema();
+            await this.migration007_TemporaryDisableForeignKeyConstraints();
             this.logger.log('Database migrations completed successfully');
         }
         catch (error) {
@@ -42,9 +46,9 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
     async ensureMigrationsTable() {
         const query = `
       CREATE TABLE IF NOT EXISTS migrations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        executed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL UNIQUE,
+        executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
         await this.dataSource.query(query);
@@ -57,55 +61,59 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
         }
         const queries = [
             `CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        email TEXT NOT NULL UNIQUE,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) NOT NULL UNIQUE,
+        "firstName" VARCHAR(255) NOT NULL,
+        "lastName" VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        "isActive" BOOLEAN DEFAULT true,
+        apps TEXT DEFAULT '[]',
+        roles TEXT DEFAULT '{}',
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );`,
             `CREATE TABLE IF NOT EXISTS families (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
         description TEXT,
-        parent_user_id TEXT NOT NULL,
-        profile_picture TEXT,
-        "isActive" BOOLEAN DEFAULT 1,
-        currency TEXT DEFAULT 'DKK',
-        default_allowance DECIMAL(10,2) DEFAULT 0,
-        allowance_frequency TEXT DEFAULT 'weekly',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (parent_user_id) REFERENCES users(id)
+        "parentUserId" UUID NOT NULL,
+        "profilePicture" VARCHAR(500),
+        "isActive" BOOLEAN DEFAULT true,
+        currency VARCHAR(10) DEFAULT 'DKK',
+        "defaultAllowance" DECIMAL(10,2) DEFAULT 0,
+        "allowanceFrequency" VARCHAR(50) DEFAULT 'weekly',
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("parentUserId") REFERENCES users(id)
       );`,
             `CREATE TABLE IF NOT EXISTS pocket_money_users (
-        id TEXT PRIMARY KEY,
-        family_id TEXT NOT NULL,
-        auth_user_id TEXT,
-        name TEXT NOT NULL,
-        email TEXT,
-        role TEXT NOT NULL DEFAULT 'child',
-        current_balance DECIMAL(10,2) DEFAULT 0,
-        is_active BOOLEAN DEFAULT 1,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (family_id) REFERENCES families(id),
-        FOREIGN KEY (auth_user_id) REFERENCES users(id)
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "familyId" UUID NOT NULL,
+        "authUserId" UUID,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        role VARCHAR(50) NOT NULL DEFAULT 'child',
+        "currentBalance" DECIMAL(10,2) DEFAULT 0,
+        "isActive" BOOLEAN DEFAULT true,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("familyId") REFERENCES families(id),
+        FOREIGN KEY ("authUserId") REFERENCES users(id)
       );`,
             `CREATE TABLE IF NOT EXISTS transactions (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        family_id TEXT NOT NULL,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        "userId" UUID NOT NULL,
+        "familyId" UUID NOT NULL,
         amount DECIMAL(10,2) NOT NULL,
-        type TEXT NOT NULL,
-        status TEXT DEFAULT 'COMPLETED',
+        type VARCHAR(50) NOT NULL,
+        status VARCHAR(50) DEFAULT 'COMPLETED',
         description TEXT NOT NULL,
-        transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        balance_after DECIMAL(10,2),
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES pocket_money_users(id),
-        FOREIGN KEY (family_id) REFERENCES families(id)
+        "transactionDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "balanceAfter" DECIMAL(10,2),
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("userId") REFERENCES pocket_money_users(id),
+        FOREIGN KEY ("familyId") REFERENCES families(id)
       );`
         ];
         for (const query of queries) {
@@ -121,11 +129,11 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
             return;
         }
         const queries = [
-            'CREATE INDEX IF NOT EXISTS idx_families_parent_active ON families(parent_user_id, "isActive");',
-            'CREATE INDEX IF NOT EXISTS idx_pocket_money_users_family_active ON pocket_money_users(family_id, "is_active");',
-            'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions(user_id, transaction_date);',
-            'CREATE INDEX IF NOT EXISTS idx_transactions_family_type ON transactions(family_id, type);',
-            'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, transaction_date);',
+            'CREATE INDEX IF NOT EXISTS idx_families_parent_active ON families("parentUserId", "isActive");',
+            'CREATE INDEX IF NOT EXISTS idx_pocket_money_users_family_active ON pocket_money_users("familyId", "isActive");',
+            'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions("userId", "transactionDate");',
+            'CREATE INDEX IF NOT EXISTS idx_transactions_family_type ON transactions("familyId", type);',
+            'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, "transactionDate");',
         ];
         for (const query of queries) {
             await this.dataSource.query(query);
@@ -142,12 +150,185 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
         this.logger.log('Default data setup completed');
         await this.markMigrationExecuted(migrationName);
     }
+    async migration004_FixColumnNames() {
+        const migrationName = 'migration004_FixColumnNames';
+        if (await this.isMigrationExecuted(migrationName)) {
+            this.logger.log(`Migration ${migrationName} already executed, skipping`);
+            return;
+        }
+        const queries = [
+            'ALTER TABLE users RENAME COLUMN firstname TO "firstName";',
+            'ALTER TABLE users RENAME COLUMN lastname TO "lastName";',
+            'ALTER TABLE users RENAME COLUMN isactive TO "isActive";',
+            'ALTER TABLE users RENAME COLUMN createdat TO "createdAt";',
+            'ALTER TABLE users RENAME COLUMN updatedat TO "updatedAt";',
+            'ALTER TABLE families RENAME COLUMN parentuserid TO "parentUserId";',
+            'ALTER TABLE families RENAME COLUMN profilepicture TO "profilePicture";',
+            'ALTER TABLE families RENAME COLUMN isactive TO "isActive";',
+            'ALTER TABLE families RENAME COLUMN defaultallowance TO "defaultAllowance";',
+            'ALTER TABLE families RENAME COLUMN allowancefrequency TO "allowanceFrequency";',
+            'ALTER TABLE families RENAME COLUMN createdat TO "createdAt";',
+            'ALTER TABLE families RENAME COLUMN updatedat TO "updatedAt";',
+            'ALTER TABLE pocket_money_users RENAME COLUMN familyid TO "familyId";',
+            'ALTER TABLE pocket_money_users RENAME COLUMN authuserid TO "authUserId";',
+            'ALTER TABLE pocket_money_users RENAME COLUMN currentbalance TO "currentBalance";',
+            'ALTER TABLE pocket_money_users RENAME COLUMN isactive TO "isActive";',
+            'ALTER TABLE pocket_money_users RENAME COLUMN createdat TO "createdAt";',
+            'ALTER TABLE pocket_money_users RENAME COLUMN updatedat TO "updatedAt";',
+            'ALTER TABLE transactions RENAME COLUMN userid TO "userId";',
+            'ALTER TABLE transactions RENAME COLUMN familyid TO "familyId";',
+            'ALTER TABLE transactions RENAME COLUMN transactiondate TO "transactionDate";',
+            'ALTER TABLE transactions RENAME COLUMN balanceafter TO "balanceAfter";',
+            'ALTER TABLE transactions RENAME COLUMN createdat TO "createdAt";',
+            'ALTER TABLE transactions RENAME COLUMN updatedat TO "updatedAt";',
+        ];
+        for (const query of queries) {
+            try {
+                await this.dataSource.query(query);
+            }
+            catch (error) {
+                this.logger.warn(`Column rename query failed (might already be correct): ${query}`, error.message);
+            }
+        }
+        this.logger.log('Column names fixed to match TypeORM entity expectations');
+        await this.markMigrationExecuted(migrationName);
+    }
+    async migration005_AddMissingPocketMoneyUserColumns() {
+        const migrationName = 'migration005_AddMissingPocketMoneyUserColumns';
+        if (await this.isMigrationExecuted(migrationName)) {
+            this.logger.log(`Migration ${migrationName} already executed, skipping`);
+            return;
+        }
+        this.logger.log('Running migration: Add missing pocket_money_users columns');
+        const queries = [
+            'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "dateOfBirth" DATE;',
+            'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "profilePicture" VARCHAR(255);',
+            'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "cardColor" VARCHAR(7) DEFAULT \'#FFB6C1\';',
+            'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "weeklyAllowance" DECIMAL(10,2) DEFAULT 0.00;',
+            'ALTER TABLE pocket_money_users ADD COLUMN IF NOT EXISTS "preferences" JSON;',
+        ];
+        for (const query of queries) {
+            try {
+                await this.dataSource.query(query);
+            }
+            catch (error) {
+                this.logger.warn(`Column add query failed (might already exist): ${query}`, error.message);
+            }
+        }
+        this.logger.log('Missing pocket_money_users columns added successfully');
+        await this.markMigrationExecuted(migrationName);
+    }
+    async migration006_VerifyAndFixDatabaseSchema() {
+        const migrationName = 'migration006_VerifyAndFixDatabaseSchema';
+        if (await this.isMigrationExecuted(migrationName)) {
+            this.logger.log(`Migration ${migrationName} already executed, skipping`);
+            return;
+        }
+        this.logger.log('Running migration: Verify and fix database schema');
+        try {
+            const tableInfo = await this.dataSource.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'pocket_money_users'
+        ORDER BY ordinal_position;
+      `);
+            this.logger.log(`Current pocket_money_users table structure: ${JSON.stringify(tableInfo)}`);
+            const requiredColumns = [
+                { name: 'dateOfBirth', type: 'date' },
+                { name: 'profilePicture', type: 'character varying' },
+                { name: 'cardColor', type: 'character varying' },
+                { name: 'weeklyAllowance', type: 'numeric' },
+                { name: 'preferences', type: 'json' }
+            ];
+            for (const column of requiredColumns) {
+                const exists = tableInfo.some(col => col.column_name === column.name);
+                if (!exists) {
+                    this.logger.warn(`Column ${column.name} is missing, attempting to add it...`);
+                    let query = '';
+                    switch (column.name) {
+                        case 'dateOfBirth':
+                            query = 'ALTER TABLE pocket_money_users ADD COLUMN "dateOfBirth" DATE;';
+                            break;
+                        case 'profilePicture':
+                            query = 'ALTER TABLE pocket_money_users ADD COLUMN "profilePicture" VARCHAR(255);';
+                            break;
+                        case 'cardColor':
+                            query = 'ALTER TABLE pocket_money_users ADD COLUMN "cardColor" VARCHAR(7) DEFAULT \'#FFB6C1\';';
+                            break;
+                        case 'weeklyAllowance':
+                            query = 'ALTER TABLE pocket_money_users ADD COLUMN "weeklyAllowance" DECIMAL(10,2) DEFAULT 0.00;';
+                            break;
+                        case 'preferences':
+                            query = 'ALTER TABLE pocket_money_users ADD COLUMN "preferences" JSON;';
+                            break;
+                    }
+                    if (query) {
+                        await this.dataSource.query(query);
+                        this.logger.log(`Successfully added column: ${column.name}`);
+                    }
+                }
+                else {
+                    this.logger.log(`Column ${column.name} exists`);
+                }
+            }
+            const finalTableInfo = await this.dataSource.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'pocket_money_users'
+        ORDER BY ordinal_position;
+      `);
+            this.logger.log(`Final pocket_money_users table structure: ${JSON.stringify(finalTableInfo)}`);
+            const count = await this.dataSource.query('SELECT COUNT(*) as count FROM pocket_money_users');
+            this.logger.log(`Pocket money users count: ${count[0].count}`);
+        }
+        catch (error) {
+            this.logger.error('Error in schema verification migration:', error);
+            throw error;
+        }
+        this.logger.log('Database schema verification and fix completed successfully');
+        await this.markMigrationExecuted(migrationName);
+    }
     async isMigrationExecuted(migrationName) {
         const result = await this.dataSource.query('SELECT COUNT(*) as count FROM migrations WHERE name = $1', [migrationName]);
         return parseInt(result[0].count) > 0;
     }
     async markMigrationExecuted(migrationName) {
         await this.dataSource.query('INSERT INTO migrations (name) VALUES ($1) ON CONFLICT (name) DO NOTHING', [migrationName]);
+    }
+    async migration007_TemporaryDisableForeignKeyConstraints() {
+        const migrationName = 'migration007_TemporaryDisableForeignKeyConstraints';
+        if (await this.isMigrationExecuted(migrationName)) {
+            this.logger.log(`Migration ${migrationName} already executed, skipping`);
+            return;
+        }
+        this.logger.log('Running migration: Temporarily disable foreign key constraints');
+        try {
+            const queries = [
+                'ALTER TABLE families DROP CONSTRAINT IF EXISTS families_parentuserid_fkey;',
+                'ALTER TABLE families DROP CONSTRAINT IF EXISTS "FK_families_parentUserId";',
+                'ALTER TABLE pocket_money_users DROP CONSTRAINT IF EXISTS pocket_money_users_familyid_fkey;',
+                'ALTER TABLE pocket_money_users DROP CONSTRAINT IF EXISTS "FK_pocket_money_users_familyId";',
+                'ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_familyid_fkey;',
+                'ALTER TABLE transactions DROP CONSTRAINT IF EXISTS "FK_transactions_familyId";',
+                'ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_userid_fkey;',
+                'ALTER TABLE transactions DROP CONSTRAINT IF EXISTS "FK_transactions_userId";',
+            ];
+            for (const query of queries) {
+                try {
+                    await this.dataSource.query(query);
+                    this.logger.log(`Successfully executed: ${query}`);
+                }
+                catch (error) {
+                    this.logger.warn(`Constraint drop query failed (might not exist): ${query}`, error.message);
+                }
+            }
+            this.logger.log('Foreign key constraints temporarily disabled to allow family creation');
+        }
+        catch (error) {
+            this.logger.error('Error in foreign key constraint migration:', error);
+            throw error;
+        }
+        await this.markMigrationExecuted(migrationName);
     }
 };
 exports.DatabaseMigrationService = DatabaseMigrationService;

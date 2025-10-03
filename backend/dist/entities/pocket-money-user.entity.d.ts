@@ -3,14 +3,14 @@ import { Transaction } from './transaction.entity';
 export declare class PocketMoneyUser {
     id: string;
     name: string;
+    email: string;
     dateOfBirth: Date;
     profilePicture: string;
     cardColor: string;
+    role: string;
     currentBalance: number;
     weeklyAllowance: number;
     isActive: boolean;
-    authUserId: string;
-    familyId: string;
     preferences: {
         favoriteStickers?: string[];
         cardStyle?: string;
@@ -19,7 +19,8 @@ export declare class PocketMoneyUser {
             balanceUpdates: boolean;
         };
     };
-    role: string;
+    authUserId: string;
+    familyId: string;
     createdAt: Date;
     updatedAt: Date;
     family: Family;

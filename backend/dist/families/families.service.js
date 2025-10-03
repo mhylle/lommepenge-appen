@@ -30,14 +30,12 @@ let FamiliesService = FamiliesService_1 = class FamiliesService {
     }
     async findAll() {
         return await this.familiesRepository.find({
-            relations: ['children', 'transactions'],
             order: { createdAt: 'DESC' },
         });
     }
     async findOne(id) {
         const family = await this.familiesRepository.findOne({
             where: { id },
-            relations: ['children', 'transactions'],
         });
         if (!family) {
             throw new common_1.NotFoundException(`Family with ID "${id}" not found`);
@@ -47,7 +45,6 @@ let FamiliesService = FamiliesService_1 = class FamiliesService {
     async findByParentUserId(parentUserId) {
         return await this.familiesRepository.find({
             where: { parentUserId },
-            relations: ['children', 'transactions'],
             order: { createdAt: 'DESC' },
         });
     }
@@ -61,11 +58,17 @@ let FamiliesService = FamiliesService_1 = class FamiliesService {
         await this.familiesRepository.remove(family);
     }
     async findActiveByParentUserId(parentUserId) {
-        return await this.familiesRepository.find({
-            where: { parentUserId, isActive: true },
-            relations: ['children', 'transactions'],
-            order: { createdAt: 'DESC' },
-        });
+        try {
+            const families = await this.familiesRepository.find({
+                where: { parentUserId, isActive: true },
+                order: { createdAt: 'DESC' },
+            });
+            return families;
+        }
+        catch (error) {
+            this.logger.error('Error in findActiveByParentUserId:', error);
+            return [];
+        }
     }
     async hasFamily(parentUserId) {
         const count = await this.familiesRepository.count({
@@ -76,7 +79,6 @@ let FamiliesService = FamiliesService_1 = class FamiliesService {
     async getPrimaryFamily(parentUserId) {
         const family = await this.familiesRepository.findOne({
             where: { parentUserId, isActive: true },
-            relations: ['children', 'transactions'],
             order: { createdAt: 'ASC' },
         });
         return family;
@@ -111,6 +113,72 @@ let FamiliesService = FamiliesService_1 = class FamiliesService {
                 return existingFamily;
             }
             throw new common_1.ConflictException('Failed to create family. Please try again.');
+        }
+    }
+    async debugDatabaseSchema() {
+        try {
+            const tableInfo = await this.familiesRepository.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'pocket_money_users'
+        ORDER BY ordinal_position;
+      `);
+            const migrations = await this.familiesRepository.query(`
+        SELECT name, executed_at FROM migrations ORDER BY executed_at DESC LIMIT 10;
+      `);
+            const familyCount = await this.familiesRepository.count();
+            const pocketMoneyCount = await this.familiesRepository.query('SELECT COUNT(*) as count FROM pocket_money_users');
+            return {
+                timestamp: new Date().toISOString(),
+                pocket_money_users_schema: tableInfo,
+                recent_migrations: migrations,
+                family_count: familyCount,
+                pocket_money_users_count: pocketMoneyCount[0].count,
+            };
+        }
+        catch (error) {
+            this.logger.error('Error in debugDatabaseSchema:', error);
+            return {
+                error: error.message,
+                stack: error.stack,
+            };
+        }
+    }
+    async debugActiveByParentUserId(parentUserId) {
+        try {
+            const familiesNoRelations = await this.familiesRepository.find({
+                where: { parentUserId, isActive: true },
+                order: { createdAt: 'DESC' },
+            });
+            let familiesWithChildren = null;
+            let childrenError = null;
+            try {
+                familiesWithChildren = await this.familiesRepository.find({
+                    where: { parentUserId, isActive: true },
+                    relations: ['children'],
+                    order: { createdAt: 'DESC' },
+                });
+            }
+            catch (error) {
+                childrenError = {
+                    message: error.message,
+                    stack: error.stack,
+                };
+            }
+            return {
+                timestamp: new Date().toISOString(),
+                parentUserId,
+                families_without_relations: familiesNoRelations,
+                families_with_children: familiesWithChildren,
+                children_relation_error: childrenError,
+            };
+        }
+        catch (error) {
+            this.logger.error('Error in debugActiveByParentUserId:', error);
+            return {
+                error: error.message,
+                stack: error.stack,
+            };
         }
     }
 };

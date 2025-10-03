@@ -15,4 +15,6 @@ export declare class FamiliesService {
     hasFamily(parentUserId: string): Promise<boolean>;
     getPrimaryFamily(parentUserId: string): Promise<Family | null>;
     createOrGetDefaultFamily(parentUserId: string, parentName: string, customFamilyName?: string): Promise<Family>;
+    debugDatabaseSchema(): Promise<any>;
+    debugActiveByParentUserId(parentUserId: string): Promise<any>;
 }

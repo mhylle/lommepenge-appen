@@ -155,4 +155,17 @@ export class PocketMoneyUsersService {
 
     return !existingChild; // true if name is available
   }
+
+  // Verify that a child belongs to a specific family
+  async verifyChildAccess(childId: string, familyId: string): Promise<boolean> {
+    try {
+      const child = await this.pocketMoneyUsersRepository.findOne({
+        where: { id: childId, familyId }
+      });
+      return !!child; // true if child exists and belongs to the family
+    } catch (error) {
+      console.error('Error verifying child access:', error);
+      return false;
+    }
+  }
 }

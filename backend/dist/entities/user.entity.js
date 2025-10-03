@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
-const family_entity_1 = require("./family.entity");
 let User = class User {
     id;
     email;
@@ -22,7 +21,6 @@ let User = class User {
     isActive;
     apps;
     roles;
-    families;
     createdAt;
     updatedAt;
 };
@@ -66,10 +64,6 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], User.prototype, "roles", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => family_entity_1.Family, family => family.parent, { cascade: true }),
-    __metadata("design:type", Array)
-], User.prototype, "families", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

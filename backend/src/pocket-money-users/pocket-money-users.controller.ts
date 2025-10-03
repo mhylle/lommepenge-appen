@@ -55,6 +55,15 @@ export class PocketMoneyUsersController {
     return { available };
   }
 
+  @Get('verify-child-access/:childId/:familyId')
+  async verifyChildAccess(
+    @Param('childId', ParseUUIDPipe) childId: string,
+    @Param('familyId', ParseUUIDPipe) familyId: string,
+  ): Promise<{ hasAccess: boolean }> {
+    const hasAccess = await this.pocketMoneyUsersService.verifyChildAccess(childId, familyId);
+    return { hasAccess };
+  }
+
   @Get('by-auth-user/:authUserId')
   async findByAuthUserId(@Param('authUserId') authUserId: string): Promise<PocketMoneyUser | null> {
     return await this.pocketMoneyUsersService.findByAuthUserId(authUserId);
