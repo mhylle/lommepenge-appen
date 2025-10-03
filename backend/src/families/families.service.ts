@@ -20,7 +20,7 @@ export class FamiliesService {
 
   async findAll(): Promise<Family[]> {
     return await this.familiesRepository.find({
-      relations: ['children', 'transactions'],
+      // relations: ['children', 'transactions'], // Temporarily removed due to database schema issues
       order: { createdAt: 'DESC' },
     });
   }
@@ -28,7 +28,7 @@ export class FamiliesService {
   async findOne(id: string): Promise<Family> {
     const family = await this.familiesRepository.findOne({
       where: { id },
-      relations: ['children', 'transactions'],
+      // relations: ['children', 'transactions'], // Temporarily removed due to database schema issues
     });
 
     if (!family) {
@@ -41,7 +41,7 @@ export class FamiliesService {
   async findByParentUserId(parentUserId: string): Promise<Family[]> {
     return await this.familiesRepository.find({
       where: { parentUserId },
-      relations: ['children', 'transactions'],
+      // relations: ['children', 'transactions'], // Temporarily removed due to database schema issues
       order: { createdAt: 'DESC' },
     });
   }
@@ -91,7 +91,7 @@ export class FamiliesService {
   async getPrimaryFamily(parentUserId: string): Promise<Family | null> {
     const family = await this.familiesRepository.findOne({
       where: { parentUserId, isActive: true },
-      relations: ['children', 'transactions'],
+      // relations: ['children', 'transactions'], // Temporarily removed due to database schema issues
       order: { createdAt: 'ASC' }, // Get the first created family
     });
 
