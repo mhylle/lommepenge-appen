@@ -52,19 +52,19 @@ export class Family {
   updatedAt: Date;
 
   // Relationships
-  @ManyToOne(() => User, user => user.families, {
-    nullable: false,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'parentUserId' })
-  parent: User;
+  // @ManyToOne(() => User, user => user.families, {
+  //   nullable: false,
+  //   onDelete: 'CASCADE',
+  // })
+  // @JoinColumn({ name: 'parentUserId' })
+  // parent: User;
 
-  @OneToMany(() => PocketMoneyUser, (user) => user.family, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  children: PocketMoneyUser[];
+  // @OneToMany(() => PocketMoneyUser, (user) => user.family, {
+  //   cascade: true,
+  //   onDelete: 'CASCADE',
+  // })
+  // children: PocketMoneyUser[];
 
-  @OneToMany(() => Transaction, (transaction) => transaction.family)
-  transactions: Transaction[];
+  // @OneToMany(() => Transaction, (transaction) => transaction.family)
+  // transactions: Transaction[];
 }
