@@ -134,7 +134,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Transaction.prototype, "amount", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, name: 'balance_after', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, name: 'balanceAfter', nullable: true }),
     __metadata("design:type", Number)
 ], Transaction.prototype, "balanceAfter", void 0);
 __decorate([
@@ -146,11 +146,11 @@ __decorate([
     __metadata("design:type", String)
 ], Transaction.prototype, "category", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true, name: 'sticker_type' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: true, name: 'stickerType' }),
     __metadata("design:type", String)
 ], Transaction.prototype, "stickerType", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 7, nullable: true, name: 'sticker_color' }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 7, nullable: true, name: 'stickerColor' }),
     __metadata("design:type", String)
 ], Transaction.prototype, "stickerColor", void 0);
 __decorate([
@@ -158,12 +158,12 @@ __decorate([
     __metadata("design:type", Object)
 ], Transaction.prototype, "metadata", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'uuid', name: 'created_by_user_id', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'uuid', name: 'createdByUserId', nullable: false }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], Transaction.prototype, "createdByUserId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'date', name: 'transaction_date', nullable: false }),
+    (0, typeorm_1.Column)({ type: 'date', name: 'transactionDate', nullable: false }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Date)
 ], Transaction.prototype, "transactionDate", void 0);
@@ -172,11 +172,11 @@ __decorate([
     __metadata("design:type", String)
 ], Transaction.prototype, "notes", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAt' }),
     __metadata("design:type", Date)
 ], Transaction.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAt' }),
     __metadata("design:type", Date)
 ], Transaction.prototype, "updatedAt", void 0);
 __decorate([

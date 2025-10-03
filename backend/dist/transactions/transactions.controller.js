@@ -43,6 +43,11 @@ let TransactionsController = class TransactionsController {
     async getStats(userId) {
         return await this.transactionsService.getTransactionStatsByUserId(userId);
     }
+    async getChildTransactions(userId, limit) {
+        const limitNumber = limit ? parseInt(limit, 10) : 10;
+        const transactions = await this.transactionsService.findByUserId(userId);
+        return limitNumber ? transactions.slice(0, limitNumber) : transactions;
+    }
     async findByUserId(userId) {
         return await this.transactionsService.findByUserId(userId);
     }
@@ -109,6 +114,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "getStats", null);
+__decorate([
+    (0, common_1.Get)('child/:userId'),
+    __param(0, (0, common_1.Param)('userId', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "getChildTransactions", null);
 __decorate([
     (0, common_1.Get)('by-user/:userId'),
     __param(0, (0, common_1.Param)('userId', common_1.ParseUUIDPipe)),

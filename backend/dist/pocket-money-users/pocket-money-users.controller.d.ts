@@ -12,7 +12,11 @@ export declare class PocketMoneyUsersController {
     validateChildName(familyId: string, name: string, excludeId?: string): Promise<{
         available: boolean;
     }>;
+    verifyChildAccess(childId: string, familyId: string): Promise<{
+        hasAccess: boolean;
+    }>;
     findByAuthUserId(authUserId: string): Promise<PocketMoneyUser | null>;
+    getChild(id: string): Promise<PocketMoneyUser>;
     findOne(id: string): Promise<PocketMoneyUser>;
     update(id: string, updateUserDto: UpdatePocketMoneyUserDto): Promise<PocketMoneyUser>;
     updateBalance(id: string, balance: number): Promise<PocketMoneyUser>;

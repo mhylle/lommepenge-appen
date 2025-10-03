@@ -12,6 +12,7 @@ export declare class TransactionsController {
         currentBalance: number;
         transactionCount: number;
     }>;
+    getChildTransactions(userId: string, limit?: string): Promise<Transaction[]>;
     findByUserId(userId: string): Promise<Transaction[]>;
     findByFamilyId(familyId: string): Promise<Transaction[]>;
     findByType(type: TransactionType): Promise<Transaction[]>;

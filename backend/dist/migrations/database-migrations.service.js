@@ -131,9 +131,9 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
         const queries = [
             'CREATE INDEX IF NOT EXISTS idx_families_parent_active ON families("parentUserId", "isActive");',
             'CREATE INDEX IF NOT EXISTS idx_pocket_money_users_family_active ON pocket_money_users("familyId", "isActive");',
-            'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions("userId", "transactionDate");',
+            'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions("userId", transaction_date);',
             'CREATE INDEX IF NOT EXISTS idx_transactions_family_type ON transactions("familyId", type);',
-            'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, "transactionDate");',
+            'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, transaction_date);',
         ];
         for (const query of queries) {
             await this.dataSource.query(query);

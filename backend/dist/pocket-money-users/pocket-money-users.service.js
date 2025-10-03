@@ -134,6 +134,18 @@ let PocketMoneyUsersService = class PocketMoneyUsersService {
         });
         return !existingChild;
     }
+    async verifyChildAccess(childId, familyId) {
+        try {
+            const child = await this.pocketMoneyUsersRepository.findOne({
+                where: { id: childId, familyId }
+            });
+            return !!child;
+        }
+        catch (error) {
+            console.error('Error verifying child access:', error);
+            return false;
+        }
+    }
 };
 exports.PocketMoneyUsersService = PocketMoneyUsersService;
 exports.PocketMoneyUsersService = PocketMoneyUsersService = __decorate([

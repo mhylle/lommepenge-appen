@@ -17,4 +17,5 @@ export declare class PocketMoneyUsersService {
     createChild(createChildDto: CreateChildDto): Promise<PocketMoneyUser>;
     getChildrenForFamily(familyId: string): Promise<PocketMoneyUser[]>;
     validateChildNameInFamily(familyId: string, name: string, excludeId?: string): Promise<boolean>;
+    verifyChildAccess(childId: string, familyId: string): Promise<boolean>;
 }

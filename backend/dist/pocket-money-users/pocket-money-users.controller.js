@@ -43,8 +43,15 @@ let PocketMoneyUsersController = class PocketMoneyUsersController {
         const available = await this.pocketMoneyUsersService.validateChildNameInFamily(familyId, name, excludeId);
         return { available };
     }
+    async verifyChildAccess(childId, familyId) {
+        const hasAccess = await this.pocketMoneyUsersService.verifyChildAccess(childId, familyId);
+        return { hasAccess };
+    }
     async findByAuthUserId(authUserId) {
         return await this.pocketMoneyUsersService.findByAuthUserId(authUserId);
+    }
+    async getChild(id) {
+        return await this.pocketMoneyUsersService.findOne(id);
     }
     async findOne(id) {
         return await this.pocketMoneyUsersService.findOne(id);
@@ -108,12 +115,27 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PocketMoneyUsersController.prototype, "validateChildName", null);
 __decorate([
+    (0, common_1.Get)('verify-child-access/:childId/:familyId'),
+    __param(0, (0, common_1.Param)('childId', common_1.ParseUUIDPipe)),
+    __param(1, (0, common_1.Param)('familyId', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], PocketMoneyUsersController.prototype, "verifyChildAccess", null);
+__decorate([
     (0, common_1.Get)('by-auth-user/:authUserId'),
     __param(0, (0, common_1.Param)('authUserId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], PocketMoneyUsersController.prototype, "findByAuthUserId", null);
+__decorate([
+    (0, common_1.Get)('child/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], PocketMoneyUsersController.prototype, "getChild", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),

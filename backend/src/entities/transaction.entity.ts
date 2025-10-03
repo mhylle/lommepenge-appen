@@ -63,7 +63,7 @@ export class Transaction {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   amount: number; // Positive for income, negative for expenses
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, name: 'balance_after', nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, name: 'balanceAfter', nullable: true })
   balanceAfter: number; // Balance after this transaction
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -73,10 +73,10 @@ export class Transaction {
   category: string; // e.g., 'toys', 'books', 'candy', 'chores'
 
   // Visual elements for the "Living Scrapbook" theme
-  @Column({ type: 'varchar', length: 255, nullable: true, name: 'sticker_type' })
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'stickerType' })
   stickerType: string; // e.g., 'star', 'heart', 'coin', 'trophy'
 
-  @Column({ type: 'varchar', length: 7, nullable: true, name: 'sticker_color' })
+  @Column({ type: 'varchar', length: 7, nullable: true, name: 'stickerColor' })
   stickerColor: string; // Hex color for the sticker
 
   @Column({ type: 'json', nullable: true })
@@ -103,21 +103,21 @@ export class Transaction {
     };
   };
 
-  @Column({ type: 'uuid', name: 'created_by_user_id', nullable: false })
+  @Column({ type: 'uuid', name: 'createdByUserId', nullable: false })
   @Index()
   createdByUserId: string; // Parent/guardian who created the transaction
 
-  @Column({ type: 'date', name: 'transaction_date', nullable: false })
+  @Column({ type: 'date', name: 'transactionDate', nullable: false })
   @Index()
   transactionDate: Date; // When the transaction actually occurred
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   notes: string; // Additional notes from parent/child
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'createdAt' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updatedAt' })
   updatedAt: Date;
 
   // Relationships
