@@ -121,19 +121,19 @@ export class Transaction {
   updatedAt: Date;
 
   // Relationships
-  @ManyToOne(() => PocketMoneyUser, (user) => user.transactions, {
-    onDelete: 'CASCADE',
-    nullable: false,
-  })
-  @JoinColumn({ name: 'userId' })
-  user: PocketMoneyUser;
+  // @ManyToOne(() => PocketMoneyUser, (user) => user.transactions, {
+  //   onDelete: 'CASCADE',
+  //   nullable: false,
+  // })
+  // @JoinColumn({ name: 'userId' })
+  // user: PocketMoneyUser;
 
-  @ManyToOne(() => Family, (family) => family.transactions, {
-    onDelete: 'CASCADE',
-    nullable: false,
-  })
-  @JoinColumn({ name: 'familyId' })
-  family: Family;
+  // @ManyToOne(() => Family, (family) => family.transactions, {
+  //   onDelete: 'CASCADE',
+  //   nullable: false,
+  // })
+  // @JoinColumn({ name: 'familyId' })
+  // family: Family;
 
   // Business logic methods
   get isIncome(): boolean {
