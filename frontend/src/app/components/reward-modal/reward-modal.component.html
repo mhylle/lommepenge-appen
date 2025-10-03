@@ -42,7 +42,7 @@
           <mat-option *ngFor="let child of data.children" [value]="child.id">
             <div class="child-option">
               <span class="child-name">{{child.name}}</span>
-              <span class="child-balance">({{child.currentBalance.toFixed(2)}} DKK)</span>
+              <span class="child-balance">({{formatBalance(child.currentBalance)}} DKK)</span>
             </div>
           </mat-option>
         </mat-select>

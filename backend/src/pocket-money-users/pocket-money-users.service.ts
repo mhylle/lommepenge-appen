@@ -18,7 +18,7 @@ export class PocketMoneyUsersService {
 
   async findAll(): Promise<PocketMoneyUser[]> {
     return await this.pocketMoneyUsersRepository.find({
-      relations: ['family', 'transactions'],
+      // relations: ['family', 'transactions'], // Temporarily removed due to database schema issues
       order: { createdAt: 'DESC' },
     });
   }
@@ -26,7 +26,7 @@ export class PocketMoneyUsersService {
   async findOne(id: string): Promise<PocketMoneyUser> {
     const user = await this.pocketMoneyUsersRepository.findOne({
       where: { id },
-      relations: ['family', 'transactions'],
+      // relations: ['family', 'transactions'], // Temporarily removed due to database schema issues
     });
 
     if (!user) {
@@ -39,7 +39,7 @@ export class PocketMoneyUsersService {
   async findByFamilyId(familyId: string): Promise<PocketMoneyUser[]> {
     return await this.pocketMoneyUsersRepository.find({
       where: { familyId },
-      relations: ['family', 'transactions'],
+      // relations: ['family', 'transactions'], // Temporarily removed due to database schema issues
       order: { name: 'ASC' },
     });
   }
@@ -47,14 +47,14 @@ export class PocketMoneyUsersService {
   async findByAuthUserId(authUserId: string): Promise<PocketMoneyUser | null> {
     return await this.pocketMoneyUsersRepository.findOne({
       where: { authUserId },
-      relations: ['family', 'transactions'],
+      // relations: ['family', 'transactions'], // Temporarily removed due to database schema issues
     });
   }
 
   async findActiveByFamilyId(familyId: string): Promise<PocketMoneyUser[]> {
     return await this.pocketMoneyUsersRepository.find({
       where: { familyId, isActive: true },
-      relations: ['family', 'transactions'],
+      // relations: ['family', 'transactions'], // Temporarily removed due to database schema issues
       order: { name: 'ASC' },
     });
   }
@@ -133,8 +133,8 @@ export class PocketMoneyUsersService {
   async getChildrenForFamily(familyId: string): Promise<PocketMoneyUser[]> {
     const children = await this.pocketMoneyUsersRepository.find({
       where: { familyId, isActive: true },
-      relations: ['transactions'],
-      order: { 
+      // relations: ['transactions'], // Temporarily removed due to database schema issues
+      order: {
         dateOfBirth: 'DESC' // Youngest first
       },
     });

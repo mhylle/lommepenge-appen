@@ -469,7 +469,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Get card display balance
   getChildCardBalance(child: Child): string {
-    return `${child.currentBalance.toFixed(2)} DKK`;
+    const balance = Number(child.currentBalance) || 0;
+    return `${balance.toFixed(2)} DKK`;
   }
 
   // Enhanced polaroid card methods

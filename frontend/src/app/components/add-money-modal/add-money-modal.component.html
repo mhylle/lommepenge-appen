@@ -15,7 +15,7 @@
         <mat-label>Barn</mat-label>
         <mat-select formControlName="childId">
           <mat-option *ngFor="let child of data.children" [value]="child.id">
-            {{child.name}} ({{child.currentBalance.toFixed(2)}} DKK)
+            {{child.name}} ({{formatBalance(child.currentBalance)}} DKK)
           </mat-option>
         </mat-select>
         <mat-error *ngIf="isFieldInvalid('childId')">

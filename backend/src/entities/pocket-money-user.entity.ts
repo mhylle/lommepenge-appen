@@ -104,6 +104,7 @@ export class PocketMoneyUser {
   }
 
   get cardDisplayBalance(): string {
-    return `${this.currentBalance.toFixed(2)} DKK`;
+    const balance = Number(this.currentBalance) || 0;
+    return `${balance.toFixed(2)} DKK`;
   }
 }

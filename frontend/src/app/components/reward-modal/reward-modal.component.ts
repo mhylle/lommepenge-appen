@@ -381,4 +381,10 @@ export class RewardModalComponent implements OnInit, AfterViewInit {
   getCurrentRewardExamples(): string[] {
     return this.rewardDescriptions[this.selectedRewardType] || [];
   }
+
+  // Safe balance formatting
+  formatBalance(balance: any): string {
+    const numBalance = Number(balance) || 0;
+    return numBalance.toFixed(2);
+  }
 }

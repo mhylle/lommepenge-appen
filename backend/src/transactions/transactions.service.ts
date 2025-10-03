@@ -42,7 +42,7 @@ export class TransactionsService {
 
   async findAll(): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { createdAt: 'DESC' },
     });
   }
@@ -50,7 +50,7 @@ export class TransactionsService {
   async findOne(id: string): Promise<Transaction> {
     const transaction = await this.transactionsRepository.findOne({
       where: { id },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
     });
 
     if (!transaction) {
@@ -63,7 +63,7 @@ export class TransactionsService {
   async findByUserId(userId: string): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
       where: { userId },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -71,7 +71,7 @@ export class TransactionsService {
   async findByFamilyId(familyId: string): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
       where: { familyId },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -79,7 +79,7 @@ export class TransactionsService {
   async findByType(type: TransactionType): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
       where: { type },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -87,7 +87,7 @@ export class TransactionsService {
   async findByStatus(status: TransactionStatus): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
       where: { status },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -105,7 +105,7 @@ export class TransactionsService {
           lte: endDate,
         } as any,
       },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
     });
   }
@@ -125,7 +125,7 @@ export class TransactionsService {
   }> {
     const [transactions, total] = await this.transactionsRepository.findAndCount({
       where: { familyId },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -143,12 +143,12 @@ export class TransactionsService {
   }
 
   async getRecentTransactionsByFamilyId(
-    familyId: string, 
+    familyId: string,
     limit: number = 5
   ): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
       where: { familyId },
-      relations: ['user', 'family'],
+      // relations: ['user', 'family'], // Temporarily removed due to database schema issues
       order: { transactionDate: 'DESC', createdAt: 'DESC' },
       take: limit,
     });

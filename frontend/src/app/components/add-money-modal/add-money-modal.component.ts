@@ -163,4 +163,10 @@ export class AddMoneyModalComponent implements OnInit {
     }
     return '';
   }
+
+  // Safe balance formatting
+  formatBalance(balance: any): string {
+    const numBalance = Number(balance) || 0;
+    return numBalance.toFixed(2);
+  }
 }
