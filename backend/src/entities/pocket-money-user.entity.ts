@@ -72,17 +72,17 @@ export class PocketMoneyUser {
   updatedAt: Date;
 
   // Relationships
-  // @ManyToOne(() => Family, (family) => family.children, {
-  //   onDelete: 'CASCADE',
-  //   nullable: false,
-  // })
-  // @JoinColumn({ name: 'familyId' })
-  // family: Family;
+  @ManyToOne(() => Family, (family) => family.children, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'familyId' })
+  family: Family;
 
-  // @OneToMany(() => Transaction, (transaction) => transaction.user, {
-  //   cascade: true,
-  // })
-  // transactions: Transaction[];
+  @OneToMany(() => Transaction, (transaction) => transaction.user, {
+    cascade: false,
+  })
+  transactions: Transaction[];
 
   // Virtual fields for computed properties
   get age(): number | null {

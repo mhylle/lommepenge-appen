@@ -51,7 +51,7 @@ export class Family {
   @UpdateDateColumn({ name: 'updatedAt' })
   updatedAt: Date;
 
-  // Relationships
+  // Relationships - disabled due to foreign key constraint issues
   // @ManyToOne(() => User, user => user.families, {
   //   nullable: false,
   //   onDelete: 'CASCADE',
@@ -59,12 +59,13 @@ export class Family {
   // @JoinColumn({ name: 'parentUserId' })
   // parent: User;
 
-  // @OneToMany(() => PocketMoneyUser, (user) => user.family, {
-  //   cascade: true,
-  //   onDelete: 'CASCADE',
-  // })
-  // children: PocketMoneyUser[];
+  @OneToMany(() => PocketMoneyUser, (user) => user.family, {
+    cascade: false,
+  })
+  children: PocketMoneyUser[];
 
-  // @OneToMany(() => Transaction, (transaction) => transaction.family)
-  // transactions: Transaction[];
+  @OneToMany(() => Transaction, (transaction) => transaction.family, {
+    cascade: false,
+  })
+  transactions: Transaction[];
 }
