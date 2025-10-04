@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
+import { Subscription, from } from 'rxjs';
 import { FamilyService, Family, UpdateFamilyDto } from '../../services/family.service';
 
 export interface FamilySettingsData {
@@ -168,17 +168,16 @@ export class FamilySettingsModalComponent implements OnInit, OnDestroy {
     };
 
     this.subscriptions.add(
-      this.familyService.updateFamily(this.data.family.id, updateDto).then(
-        (updatedFamily) => {
+      from(this.familyService.updateFamily(this.data.family.id, updateDto)).subscribe({
+        next: (updatedFamily) => {
           this.isSubmitting = false;
           this.snackBar.open('Familie indstillinger opdateret!', 'Luk', {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
           this.dialogRef.close(updatedFamily);
-        }
-      ).catch(
-        (error) => {
+        },
+        error: (error) => {
           this.isSubmitting = false;
           console.error('Error updating family:', error);
 
@@ -188,7 +187,7 @@ export class FamilySettingsModalComponent implements OnInit, OnDestroy {
             this.errorMessage = 'Der opstod en fejl ved opdatering af familie indstillinger. Prøv venligst igen.';
           }
         }
-      )
+      })
     );
   }
 

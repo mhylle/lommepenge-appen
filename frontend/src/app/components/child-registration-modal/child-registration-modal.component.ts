@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
 
 export interface CreateChildData {
   familyId: string;
+  editChild?: Child; // Optional child to edit
 }
 
 export interface CreateChildRequest {
@@ -21,6 +22,12 @@ export interface CreateChildRequest {
   age: number;
   cardColor?: string;
   initialBalance?: number;
+  weeklyAllowance?: number;
+}
+
+export interface UpdateChildRequest {
+  name?: string;
+  cardColor?: string;
   weeklyAllowance?: number;
 }
 
@@ -59,6 +66,7 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
   childForm: FormGroup;
   isSubmitting = false;
   errorMessage = '';
+  isEditMode = false;
   private subscriptions = new Subscription();
 
   // Danish-friendly color palette for polaroid cards
@@ -85,10 +93,23 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Set default card color randomly
-    if (!this.childForm.get('cardColor')?.value) {
-      const randomColor = this.cardColors[Math.floor(Math.random() * this.cardColors.length)];
-      this.childForm.patchValue({ cardColor: randomColor.value });
+    // Check if we're in edit mode
+    this.isEditMode = !!this.data.editChild;
+
+    if (this.isEditMode && this.data.editChild) {
+      // Populate form with existing child data
+      this.childForm.patchValue({
+        name: this.data.editChild.name,
+        age: this.getChildAge(this.data.editChild),
+        cardColor: this.data.editChild.cardColor,
+        weeklyAllowance: this.data.editChild.weeklyAllowance
+      });
+    } else {
+      // Set default card color randomly for new children
+      if (!this.childForm.get('cardColor')?.value) {
+        const randomColor = this.cardColors[Math.floor(Math.random() * this.cardColors.length)];
+        this.childForm.patchValue({ cardColor: randomColor.value });
+      }
     }
   }
 
@@ -119,6 +140,27 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
         Validators.max(500)
       ]]
     });
+  }
+
+  // Helper method to get child age (either from age field or calculated from dateOfBirth)
+  private getChildAge(child: Child): number {
+    if (child.age !== null) return child.age;
+
+    // Calculate from date of birth if age is null
+    if (child.dateOfBirth) {
+      const birthDate = new Date(child.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      return Math.max(0, age);
+    }
+
+    return 7; // Default age
   }
 
   getFieldError(fieldName: string): string {
@@ -178,35 +220,67 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const formValue = this.childForm.value;
-    const createChildRequest: CreateChildRequest = {
-      name: formValue.name.trim(),
-      familyId: this.data.familyId,
-      age: formValue.age,
-      cardColor: formValue.cardColor,
-      initialBalance: formValue.initialBalance || 0,
-      weeklyAllowance: formValue.weeklyAllowance || this.getRecommendedAllowance()
-    };
 
-    const apiUrl = `/api/app2/pocket-money-users/children`;
-    
-    this.subscriptions.add(
-      this.http.post<Child>(apiUrl, createChildRequest).subscribe({
-        next: (newChild) => {
-          this.isSubmitting = false;
-          this.dialogRef.close(newChild); // Return the created child
-        },
-        error: (error) => {
-          this.isSubmitting = false;
-          console.error('Error creating child:', error);
-          
-          if (error.status === 400 && error.error?.message) {
-            this.errorMessage = error.error.message;
-          } else {
-            this.errorMessage = 'Der opstod en fejl ved oprettelse af barnet. Prøv venligst igen.';
+    if (this.isEditMode && this.data.editChild) {
+      // Update existing child
+      const updateChildRequest: UpdateChildRequest = {
+        name: formValue.name.trim(),
+        cardColor: formValue.cardColor,
+        weeklyAllowance: formValue.weeklyAllowance || this.getRecommendedAllowance()
+      };
+
+      const apiUrl = `/api/app2/pocket-money-users/${this.data.editChild.id}`;
+
+      this.subscriptions.add(
+        this.http.patch<Child>(apiUrl, updateChildRequest).subscribe({
+          next: (updatedChild) => {
+            this.isSubmitting = false;
+            this.dialogRef.close(updatedChild); // Return the updated child
+          },
+          error: (error) => {
+            this.isSubmitting = false;
+            console.error('Error updating child:', error);
+
+            if (error.status === 400 && error.error?.message) {
+              this.errorMessage = error.error.message;
+            } else {
+              this.errorMessage = 'Der opstod en fejl ved opdatering af barnet. Prøv venligst igen.';
+            }
           }
-        }
-      })
-    );
+        })
+      );
+    } else {
+      // Create new child
+      const createChildRequest: CreateChildRequest = {
+        name: formValue.name.trim(),
+        familyId: this.data.familyId,
+        age: formValue.age,
+        cardColor: formValue.cardColor,
+        initialBalance: formValue.initialBalance || 0,
+        weeklyAllowance: formValue.weeklyAllowance || this.getRecommendedAllowance()
+      };
+
+      const apiUrl = `/api/app2/pocket-money-users/children`;
+
+      this.subscriptions.add(
+        this.http.post<Child>(apiUrl, createChildRequest).subscribe({
+          next: (newChild) => {
+            this.isSubmitting = false;
+            this.dialogRef.close(newChild); // Return the created child
+          },
+          error: (error) => {
+            this.isSubmitting = false;
+            console.error('Error creating child:', error);
+
+            if (error.status === 400 && error.error?.message) {
+              this.errorMessage = error.error.message;
+            } else {
+              this.errorMessage = 'Der opstod en fejl ved oprettelse af barnet. Prøv venligst igen.';
+            }
+          }
+        })
+      );
+    }
   }
 
   onCancel(): void {

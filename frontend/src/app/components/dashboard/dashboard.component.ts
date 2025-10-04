@@ -555,9 +555,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   editChild(child: Child): void {
-    // TODO: Open edit child modal
-    console.log('Edit child', child.name);
-    this.snackBar.open(`Redigerer ${child.name}...`, 'Luk', { duration: 2000 });
+    if (!this.currentFamily) {
+      this.snackBar.open('Ingen familie valgt', 'Luk', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ChildRegistrationModalComponent, {
+      data: {
+        familyId: this.currentFamily.id,
+        editChild: child
+      },
+      width: '650px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: false,
+      autoFocus: true,
+      panelClass: 'child-registration-modal-panel'
+    });
+
+    dialogRef.afterClosed().subscribe((updatedChild?: Child) => {
+      if (updatedChild) {
+        // Update the child in the list
+        const index = this.actualChildren.findIndex((c: Child) => c.id === updatedChild.id);
+        if (index !== -1) {
+          this.actualChildren[index] = updatedChild;
+        }
+        this.snackBar.open(`${updatedChild.name} blev opdateret!`, 'Luk', { duration: 3000 });
+      }
+    });
   }
 
   // Get activity status for activity indicator

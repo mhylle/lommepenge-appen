@@ -51,7 +51,7 @@
       <div class="balance-info" *ngIf="getSelectedChild()">
         <div class="current-balance">
           <span class="balance-label">Nuværende saldo:</span>
-          <span class="balance-amount">{{getSelectedChild()?.currentBalance ? (+getSelectedChild().currentBalance).toFixed(2) : '0.00'}} DKK</span>
+          <span class="balance-amount">{{getSelectedChild()?.currentBalance ? (+getSelectedChild()!.currentBalance).toFixed(2) : '0.00'}} DKK</span>
         </div>
         <div class="remaining-balance" [class.negative]="getRemainingBalance() < 0">
           <span class="balance-label">Efter fradrag:</span>

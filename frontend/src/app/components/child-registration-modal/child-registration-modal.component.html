@@ -10,8 +10,8 @@
     
     <!-- Modal Header -->
     <div class="modal-header">
-      <h2 class="modal-title handwritten">Tilføj nyt barn</h2>
-      <div class="sticker-decoration">🌟</div>
+      <h2 class="modal-title handwritten">{{ isEditMode ? 'Rediger barn' : 'Tilføj nyt barn' }}</h2>
+      <div class="sticker-decoration">{{ isEditMode ? '✏️' : '🌟' }}</div>
     </div>
 
     <!-- Form Content -->
@@ -35,23 +35,31 @@
       </div>
 
       <!-- Age Field -->
-      <div class="form-group">
+      <div class="form-group" *ngIf="!isEditMode">
         <label class="form-label handwritten" for="age">
           Alder
           <span class="required">*</span>
         </label>
         <mat-form-field appearance="outline" class="age-field scrapbook-field">
-          <input 
-            matInput 
-            type="number" 
+          <input
+            matInput
+            type="number"
             id="age"
             formControlName="age"
-            min="3" 
+            min="3"
             max="17"
             (input)="suggestAllowance()">
           <span matTextSuffix class="age-suffix">år</span>
           <mat-error>{{ getFieldError('age') }}</mat-error>
         </mat-form-field>
+      </div>
+
+      <!-- Age Display for Edit Mode -->
+      <div class="form-group age-display" *ngIf="isEditMode">
+        <label class="form-label handwritten">Alder</label>
+        <div class="read-only-field">
+          {{ childForm.get('age')?.value }} år
+        </div>
       </div>
 
       <!-- Card Color Selection -->
@@ -77,19 +85,19 @@
         </div>
       </div>
 
-      <!-- Initial Balance -->
-      <div class="form-group">
+      <!-- Initial Balance (only for new children) -->
+      <div class="form-group" *ngIf="!isEditMode">
         <label class="form-label handwritten" for="initialBalance">
           Start balance
           <span class="helper-text">(valgfrit)</span>
         </label>
         <mat-form-field appearance="outline" class="full-width scrapbook-field">
-          <input 
-            matInput 
-            type="number" 
+          <input
+            matInput
+            type="number"
             id="initialBalance"
             formControlName="initialBalance"
-            min="0" 
+            min="0"
             max="10000"
             step="0.01"
             placeholder="0">
@@ -146,17 +154,17 @@
           [disabled]="isSubmitting">
           Annuller
         </button>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           class="submit-btn scrapbook-btn-primary"
           [disabled]="childForm.invalid || isSubmitting">
-          <mat-spinner 
-            *ngIf="isSubmitting" 
-            diameter="20" 
+          <mat-spinner
+            *ngIf="isSubmitting"
+            diameter="20"
             class="submit-spinner">
           </mat-spinner>
-          <span *ngIf="!isSubmitting">Opret barn</span>
-          <span *ngIf="isSubmitting">Opretter...</span>
+          <span *ngIf="!isSubmitting">{{ isEditMode ? 'Gem ændringer' : 'Opret barn' }}</span>
+          <span *ngIf="isSubmitting">{{ isEditMode ? 'Gemmer...' : 'Opretter...' }}</span>
         </button>
       </div>
     </form>
