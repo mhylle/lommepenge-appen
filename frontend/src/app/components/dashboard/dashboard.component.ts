@@ -15,6 +15,7 @@ import { AddMoneyModalComponent } from '../add-money-modal/add-money-modal.compo
 import { RewardModalComponent } from '../reward-modal/reward-modal.component';
 import { DeductionModalComponent } from '../deduction-modal/deduction-modal.component';
 import { TransactionHistoryModalComponent } from '../transaction-history-modal/transaction-history-modal.component';
+import { FamilySettingsModalComponent } from '../family-settings-modal/family-settings-modal.component';
 import { environment } from '../../../environments/environment';
 
 // Interfaces for placeholder data
@@ -416,7 +417,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   openSettings(): void {
-    console.log('Open family settings modal');
+    if (!this.currentFamily) {
+      this.snackBar.open('Ingen familie valgt', 'Luk', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(FamilySettingsModalComponent, {
+      data: {
+        family: this.currentFamily
+      },
+      width: '650px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: false,
+      autoFocus: true,
+      panelClass: 'family-settings-modal-panel'
+    });
+
+    this.subscriptions.add(
+      dialogRef.afterClosed().subscribe((updatedFamily: Family) => {
+        if (updatedFamily) {
+          // Family was updated, refresh the current family data
+          this.currentFamily = updatedFamily;
+
+          // Optionally refresh other data if currency changed
+          this.loadFamilyStats();
+
+          this.snackBar.open('Familie indstillinger opdateret!', 'Luk', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+        }
+      })
+    );
   }
 
   // Template helper methods

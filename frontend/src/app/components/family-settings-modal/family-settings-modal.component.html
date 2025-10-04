@@ -1,0 +1,175 @@
+<!-- Family Settings Modal -->
+<div class="family-settings-modal">
+
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h2 mat-dialog-title class="handwritten-title">⚙️ Familie Indstillinger</h2>
+    <p class="modal-subtitle">Administrer din families indstillinger og præferencer</p>
+    <button mat-icon-button (click)="onCancel()" class="close-button">
+      <span>❌</span>
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" class="modal-content">
+
+    <!-- Decorative tape -->
+    <div class="decorative-tape tape-1">📎</div>
+    <div class="decorative-tape tape-2">📌</div>
+
+    <!-- Basic Family Information -->
+    <div class="form-section">
+      <label class="section-label handwritten">🏠 Familie Information</label>
+
+      <!-- Family Name -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Familie navn</mat-label>
+        <input matInput
+               formControlName="name"
+               maxlength="100"
+               placeholder="F.eks. Familien Hansen">
+        <mat-icon matPrefix>home</mat-icon>
+        <mat-hint align="end">{{settingsForm.get('name')?.value?.length || 0}}/100</mat-hint>
+        <mat-error *ngIf="isFieldInvalid('name')">
+          {{getFieldError('name')}}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Family Description -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Beskrivelse (valgfrit)</mat-label>
+        <textarea matInput
+                  formControlName="description"
+                  maxlength="500"
+                  rows="3"
+                  placeholder="F.eks. En glad familie på 5 med tre dejlige børn..."></textarea>
+        <mat-icon matPrefix>description</mat-icon>
+        <mat-hint align="end">{{settingsForm.get('description')?.value?.length || 0}}/500</mat-hint>
+        <mat-error *ngIf="isFieldInvalid('description')">
+          {{getFieldError('description')}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Currency and Money Settings -->
+    <div class="form-section">
+      <label class="section-label handwritten">💰 Penge Indstillinger</label>
+
+      <!-- Currency Selection -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valuta</mat-label>
+        <mat-select formControlName="currency">
+          <mat-option *ngFor="let currency of currencyOptions" [value]="currency.value">
+            <span class="currency-option">
+              <span class="currency-name">{{currency.name}}</span>
+              <span class="currency-symbol">{{getCurrencySymbol(currency.value)}}</span>
+            </span>
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>attach_money</mat-icon>
+        <mat-error *ngIf="isFieldInvalid('currency')">
+          {{getFieldError('currency')}}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Default Allowance -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Standard ugepenge</mat-label>
+        <input matInput
+               type="number"
+               formControlName="defaultAllowance"
+               min="0"
+               max="1000"
+               step="5"
+               placeholder="50">
+        <span matSuffix>{{getCurrencySymbol(settingsForm.get('currency')?.value || 'DKK')}} 💸</span>
+        <mat-icon matPrefix>savings</mat-icon>
+        <mat-hint>Bruges som standard for nye børn (kan tilpasses individuelt)</mat-hint>
+        <mat-error *ngIf="isFieldInvalid('defaultAllowance')">
+          {{getFieldError('defaultAllowance')}}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Allowance Frequency -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ugepenge frekvens</mat-label>
+        <mat-select formControlName="allowanceFrequency">
+          <mat-option *ngFor="let frequency of frequencyOptions" [value]="frequency.value">
+            <span class="frequency-option">
+              <span class="frequency-name">{{frequency.name}}</span>
+            </span>
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>schedule</mat-icon>
+        <mat-error *ngIf="isFieldInvalid('allowanceFrequency')">
+          {{getFieldError('allowanceFrequency')}}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Settings Preview -->
+    <div class="settings-preview-card" *ngIf="settingsForm.valid">
+      <div class="preview-header">
+        <span class="preview-sticker">⚙️</span>
+        <h4 class="preview-title handwritten">Indstillinger Oversigt</h4>
+        <span class="preview-decoration">🏠</span>
+      </div>
+      <div class="preview-content">
+        <div class="preview-family">
+          <strong>{{settingsForm.get('name')?.value}}</strong>
+          <span *ngIf="settingsForm.get('description')?.value?.trim()">
+            <br><em>"{{settingsForm.get('description')?.value}}"</em>
+          </span>
+        </div>
+        <div class="preview-currency">
+          Valuta: <strong>{{settingsForm.get('currency')?.value}}</strong>
+        </div>
+        <div class="preview-allowance">
+          {{getPreviewText()}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" *ngIf="errorMessage">
+      <mat-icon>error</mat-icon>
+      {{errorMessage}}
+    </div>
+
+  </form>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer">
+    <button mat-raised-button
+            type="button"
+            (click)="onCancel()"
+            class="cancel-button">
+      ❌ Annuller
+    </button>
+    <button mat-raised-button
+            color="primary"
+            [disabled]="!settingsForm.valid || isSubmitting"
+            (click)="onSubmit()"
+            class="save-button">
+      <span *ngIf="!isSubmitting" class="save-button-content">
+        <span class="save-icon">💾</span>
+        <span class="save-text">Gem Indstillinger</span>
+        <span class="arrow">→</span>
+      </span>
+      <span *ngIf="isSubmitting" class="submitting-content">
+        <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+        Gemmer... ⚙️
+      </span>
+    </button>
+  </div>
+
+  <!-- Decorative elements -->
+  <div class="decorative-stickers">
+    <div class="sticker sticker-1">🏠</div>
+    <div class="sticker sticker-2">⚙️</div>
+    <div class="sticker sticker-3">💰</div>
+    <div class="sticker sticker-4">👨‍👩‍👧‍👦</div>
+    <div class="sticker sticker-5">📊</div>
+    <div class="sticker sticker-6">✓</div>
+  </div>
+</div>
