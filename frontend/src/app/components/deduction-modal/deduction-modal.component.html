@@ -38,7 +38,7 @@
           <mat-option *ngFor="let child of data.children" [value]="child.id">
             <div class="child-option">
               <span class="child-name">{{child.name}}</span>
-              <span class="child-balance">({{child.currentBalance?.toFixed(2) || '0.00'}} DKK)</span>
+              <span class="child-balance">({{child.currentBalance ? (+child.currentBalance).toFixed(2) : '0.00'}} DKK)</span>
             </div>
           </mat-option>
         </mat-select>
@@ -51,7 +51,7 @@
       <div class="balance-info" *ngIf="getSelectedChild()">
         <div class="current-balance">
           <span class="balance-label">Nuværende saldo:</span>
-          <span class="balance-amount">{{getSelectedChild()?.currentBalance?.toFixed(2) || '0.00'}} DKK</span>
+          <span class="balance-amount">{{getSelectedChild()?.currentBalance ? (+getSelectedChild().currentBalance).toFixed(2) : '0.00'}} DKK</span>
         </div>
         <div class="remaining-balance" [class.negative]="getRemainingBalance() < 0">
           <span class="balance-label">Efter fradrag:</span>

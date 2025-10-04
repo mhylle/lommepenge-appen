@@ -76,7 +76,7 @@
             </span>
             <span class="balance-after">
               <span class="meta-icon">💰</span>
-              Balance: {{transaction.balanceAfter?.toFixed(2) || '0.00'}} DKK
+              Balance: {{transaction.balanceAfter ? (+transaction.balanceAfter).toFixed(2) : '0.00'}} DKK
             </span>
           </div>
         </div>

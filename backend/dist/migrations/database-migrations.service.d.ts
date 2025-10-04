@@ -16,4 +16,5 @@ export declare class DatabaseMigrationService implements OnApplicationBootstrap 
     private isMigrationExecuted;
     private markMigrationExecuted;
     private migration007_TemporaryDisableForeignKeyConstraints;
+    private migration008_AddMissingTransactionColumns;
 }

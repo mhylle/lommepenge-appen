@@ -36,6 +36,7 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
             await this.migration005_AddMissingPocketMoneyUserColumns();
             await this.migration006_VerifyAndFixDatabaseSchema();
             await this.migration007_TemporaryDisableForeignKeyConstraints();
+            await this.migration008_AddMissingTransactionColumns();
             this.logger.log('Database migrations completed successfully');
         }
         catch (error) {
@@ -328,6 +329,47 @@ let DatabaseMigrationService = DatabaseMigrationService_1 = class DatabaseMigrat
             this.logger.error('Error in foreign key constraint migration:', error);
             throw error;
         }
+        await this.markMigrationExecuted(migrationName);
+    }
+    async migration008_AddMissingTransactionColumns() {
+        const migrationName = 'migration008_AddMissingTransactionColumns';
+        if (await this.isMigrationExecuted(migrationName)) {
+            this.logger.log(`Migration ${migrationName} already executed, skipping`);
+            return;
+        }
+        this.logger.log('Running migration: Add missing transaction columns');
+        try {
+            const queries = [
+                'ALTER TABLE transactions ADD COLUMN IF NOT EXISTS category VARCHAR(100);',
+                'ALTER TABLE transactions ADD COLUMN IF NOT EXISTS "stickerType" VARCHAR(255);',
+                'ALTER TABLE transactions ADD COLUMN IF NOT EXISTS "stickerColor" VARCHAR(7);',
+                'ALTER TABLE transactions ADD COLUMN IF NOT EXISTS metadata JSON;',
+                'ALTER TABLE transactions ADD COLUMN IF NOT EXISTS "createdByUserId" UUID;',
+                'ALTER TABLE transactions ADD COLUMN IF NOT EXISTS notes VARCHAR(255);',
+                'ALTER TABLE transactions ALTER COLUMN "transactionDate" TYPE DATE;',
+            ];
+            for (const query of queries) {
+                try {
+                    await this.dataSource.query(query);
+                    this.logger.log(`Successfully executed: ${query}`);
+                }
+                catch (error) {
+                    this.logger.warn(`Column add query failed (might already exist): ${query}`, error.message);
+                }
+            }
+            const tableInfo = await this.dataSource.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = 'transactions'
+        ORDER BY ordinal_position;
+      `);
+            this.logger.log(`Final transactions table structure: ${JSON.stringify(tableInfo)}`);
+        }
+        catch (error) {
+            this.logger.error('Error in transaction columns migration:', error);
+            throw error;
+        }
+        this.logger.log('Missing transaction columns added successfully');
         await this.markMigrationExecuted(migrationName);
     }
 };
