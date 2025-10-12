@@ -186,7 +186,27 @@ jobs:
           
           # Deploy App2 independently using Docker directly
           echo "🚀 Deploying App2 using Docker containers..."
-          
+
+          # Extract version for cleanup
+          VERSION="${{ needs.build.outputs.version }}"
+
+          # Clean up Docker resources before deployment
+          echo "🧹 Cleaning up Docker resources..."
+
+          # Remove dangling images (untagged)
+          docker image prune -f || echo "No dangling images to remove"
+
+          # Remove unused images older than 24 hours
+          docker image prune -a --filter "until=24h" -f || echo "No old images to remove"
+
+          # Remove stopped containers
+          docker container prune -f || echo "No stopped containers to remove"
+
+          # Display disk usage before pull
+          echo "📊 Disk usage before pull:"
+          df -h / || true
+          docker system df || true
+
           # Pull latest images
           docker pull "$FRONTEND_FULL"
           docker pull "$BACKEND_FULL"
@@ -248,11 +268,20 @@ jobs:
           # Final verification
           if docker ps | grep -q "app2-backend.*Up" && docker ps | grep -q "app2-frontend.*Up"; then
             echo "✅ App2 deployment successful!"
-            
+
             # Show final status ensuring both apps are independent
-            echo "� Current application status:"
+            echo "📊 Current application status:"
             docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(app2|app2)" || echo "No app containers found"
-            
+
+            # Clean up old app2 images after successful deployment
+            echo "🧹 Cleaning up old app2 images..."
+            docker images | grep -E "mhylle/mhylle-app2" | grep -v "$VERSION" | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || echo "No old app2 images to remove"
+
+            # Final disk usage report
+            echo "📊 Disk usage after cleanup:"
+            df -h / || true
+            docker system df || true
+
           else
             echo "❌ App2 deployment failed!"
             docker ps | grep app2 || echo "No app2 containers found"
