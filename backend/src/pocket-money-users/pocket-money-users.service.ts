@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PocketMoneyUser } from '../entities/pocket-money-user.entity';
 import { CreatePocketMoneyUserDto, CreateChildDto, UpdatePocketMoneyUserDto } from '../dto/pocket-money-user.dto';
+import { Auth0IntegrationService } from '../auth0-integration/auth0-integration.service';
 
 @Injectable()
 export class PocketMoneyUsersService {
   constructor(
     @InjectRepository(PocketMoneyUser)
     private pocketMoneyUsersRepository: Repository<PocketMoneyUser>,
+    private readonly auth0IntegrationService: Auth0IntegrationService,
   ) {}
 
   async create(createUserDto: CreatePocketMoneyUserDto): Promise<PocketMoneyUser> {
@@ -87,6 +89,13 @@ export class PocketMoneyUsersService {
   async createChild(createChildDto: CreateChildDto): Promise<PocketMoneyUser> {
     const { age, initialBalance, ...childData } = createChildDto;
 
+    // Create a unique, user-friendly email address for the child
+    const safeName = childData.name.toLowerCase().replace(/\s+/g, '.');
+    const uniqueEmail = `${safeName}.${childData.familyId.substring(0, 4)}@lommepenge.app`;
+
+    // Create the user in Auth0
+    const auth0User = await this.auth0IntegrationService.createUser(uniqueEmail, childData.name);
+
     // Calculate date of birth from age
     const currentDate = new Date();
     const birthYear = currentDate.getFullYear() - age;
@@ -105,6 +114,7 @@ export class PocketMoneyUsersService {
 
     const childUser: Partial<PocketMoneyUser> = {
       ...childData,
+      authUserId: auth0User.user_id,
       dateOfBirth,
       currentBalance: initialBalance || 0,
       cardColor: childData.cardColor || defaultCardColors[Math.floor(Math.random() * defaultCardColors.length)],
