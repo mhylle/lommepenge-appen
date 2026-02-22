@@ -25,7 +25,8 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
@@ -35,6 +36,8 @@
           },
           "configurations": {
             "production": {
+              "serviceWorker": true,
+              "ngswConfigPath": "src/ngsw-config.json",
               "budgets": [
                 {
                   "type": "initial",

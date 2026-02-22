@@ -1,5 +1,6 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -79,7 +80,11 @@ import { AnimatedCounterDirective } from './directives/animated-counter.directiv
     MatPaginatorModule,
     MatSortModule,
     MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor]))
