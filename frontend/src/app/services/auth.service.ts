@@ -102,17 +102,21 @@ export class AuthService {
       throw new Error('Invalid login response');
     }
 
+    // Store access token
+    if (result.access_token) {
+      localStorage.setItem('access_token', result.access_token);
+    }
+
     this.currentUserSubject.next(user);
-    
+
     // Initialize family context if available
     if (result.family) {
       this.familyService.initializeFamilyFromAuth(result.family);
     }
-    
+
     // Handle warnings (e.g., family creation failures)
     if (result.warnings && result.warnings.length > 0) {
       console.warn('Login warnings:', result.warnings);
-      // You could emit these warnings to a notification service here
     }
 
     return user;
@@ -146,6 +150,12 @@ export class AuthService {
     }
 
     this.currentUserSubject.next(user);
+
+    // Initialize family context if available
+    if (result.family) {
+      this.familyService.initializeFamilyFromAuth(result.family);
+    }
+
     return user;
   }
 

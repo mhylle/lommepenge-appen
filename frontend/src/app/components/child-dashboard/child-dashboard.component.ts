@@ -145,6 +145,11 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
       })
     );
 
+    // For child accounts, load data immediately even if family isn't set yet
+    if (this.isOwnAccount) {
+      this.loadChildData();
+    }
+
     // Subscribe to balance animation events
     this.subscriptions.add(
       this.balanceAnimationService.animationEvents$.subscribe(event => {
