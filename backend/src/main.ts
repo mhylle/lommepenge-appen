@@ -12,26 +12,38 @@ async function ensureIPv4Resolution() {
   try {
     if (process.env.DB_HOST && process.env.DB_HOST !== 'localhost') {
       const result = await dnsLookup(process.env.DB_HOST, { family: 4 });
-      console.log(`✅ DNS Resolution for ${process.env.DB_HOST}: ${result.address}`);
+      console.log(
+        `✅ DNS Resolution for ${process.env.DB_HOST}: ${result.address}`,
+      );
     }
   } catch (error) {
-    console.warn(`⚠️ DNS Resolution warning for ${process.env.DB_HOST}:`, error.message);
+    console.warn(
+      `⚠️ DNS Resolution warning for ${process.env.DB_HOST}:`,
+      error.message,
+    );
   }
 }
 
 async function bootstrap() {
   // Ensure DNS resolution is working correctly before starting the app
   await ensureIPv4Resolution();
-  
+
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for development and production
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? ['https://mhylle.com', 'https://www.mhylle.com']
-      : ['http://localhost:4200', 'http://localhost:3000'],
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://mhylle.com', 'https://www.mhylle.com']
+        : ['http://localhost:4200', 'http://localhost:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With',
+    ],
     credentials: true,
   });
 

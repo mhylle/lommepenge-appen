@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, Logger, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  Logger,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Family } from '../entities/family.entity';
@@ -48,7 +53,7 @@ export class FamiliesService {
 
   async update(id: string, updateFamilyDto: UpdateFamilyDto): Promise<Family> {
     const family = await this.findOne(id);
-    
+
     Object.assign(family, updateFamilyDto);
     return await this.familiesRepository.save(family);
   }
@@ -102,43 +107,60 @@ export class FamiliesService {
    * Create a default family for a first-time parent login
    * This method is idempotent - it won't create duplicate families
    */
-  async createOrGetDefaultFamily(parentUserId: string, parentName: string, customFamilyName?: string): Promise<Family> {
+  async createOrGetDefaultFamily(
+    parentUserId: string,
+    parentName: string,
+    customFamilyName?: string,
+  ): Promise<Family> {
     this.logger.log(`Checking for existing family for parent: ${parentUserId}`);
 
     // Check if family already exists
     const existingFamily = await this.getPrimaryFamily(parentUserId);
     if (existingFamily) {
-      this.logger.log(`Family already exists for parent ${parentUserId}: ${existingFamily.id}`);
+      this.logger.log(
+        `Family already exists for parent ${parentUserId}: ${existingFamily.id}`,
+      );
       return existingFamily;
     }
 
     // Create default family name in Danish or use custom name
-    const defaultFamilyName = customFamilyName || (parentName ? `${parentName}s Familie` : 'Min Familie');
+    const defaultFamilyName =
+      customFamilyName ||
+      (parentName ? `${parentName}s Familie` : 'Min Familie');
 
     const createFamilyDto: CreateFamilyDto = {
       name: defaultFamilyName,
       description: 'Oprettet automatisk ved første login', // "Created automatically on first login"
       parentUserId,
       currency: 'DKK',
-      defaultAllowance: 50.00, // Default 50 DKK weekly allowance
+      defaultAllowance: 50.0, // Default 50 DKK weekly allowance
       allowanceFrequency: 'weekly',
     };
 
     try {
-      this.logger.log(`Creating default family for parent ${parentUserId}: ${defaultFamilyName}`);
+      this.logger.log(
+        `Creating default family for parent ${parentUserId}: ${defaultFamilyName}`,
+      );
       const family = await this.create(createFamilyDto);
-      this.logger.log(`Successfully created family ${family.id} for parent ${parentUserId}`);
+      this.logger.log(
+        `Successfully created family ${family.id} for parent ${parentUserId}`,
+      );
       return family;
     } catch (error) {
-      this.logger.error(`Failed to create family for parent ${parentUserId}:`, error);
-      
+      this.logger.error(
+        `Failed to create family for parent ${parentUserId}:`,
+        error,
+      );
+
       // Check if family was created by another concurrent request
       const existingFamily = await this.getPrimaryFamily(parentUserId);
       if (existingFamily) {
-        this.logger.log(`Found concurrent family creation for parent ${parentUserId}: ${existingFamily.id}`);
+        this.logger.log(
+          `Found concurrent family creation for parent ${parentUserId}: ${existingFamily.id}`,
+        );
         return existingFamily;
       }
-      
+
       throw new ConflictException('Failed to create family. Please try again.');
     }
   }
@@ -166,7 +188,7 @@ export class FamiliesService {
 
       // Test pocket money users count
       const pocketMoneyCount = await this.familiesRepository.query(
-        'SELECT COUNT(*) as count FROM pocket_money_users'
+        'SELECT COUNT(*) as count FROM pocket_money_users',
       );
 
       return {

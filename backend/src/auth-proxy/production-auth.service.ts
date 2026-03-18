@@ -1,5 +1,10 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import { LoginDto, RegisterDto, AuthResponse, ValidationResponse } from './local-auth.service';
+import {
+  LoginDto,
+  RegisterDto,
+  AuthResponse,
+  ValidationResponse,
+} from './local-auth.service';
 
 @Injectable()
 export class ProductionAuthService {
@@ -11,7 +16,7 @@ export class ProductionAuthService {
     if (!user.permissions) {
       user.permissions = {
         apps: user.apps || ['app2'], // Default to app2 access
-        roles: user.roles || { app2: ['admin'] } // Default to admin role for app2
+        roles: user.roles || { app2: ['admin'] }, // Default to admin role for app2
       };
     }
 
@@ -21,7 +26,10 @@ export class ProductionAuthService {
     }
 
     // Ensure user has admin role for app2
-    if (!user.permissions.roles.app2 || !user.permissions.roles.app2.includes('admin')) {
+    if (
+      !user.permissions.roles.app2 ||
+      !user.permissions.roles.app2.includes('admin')
+    ) {
       if (!user.permissions.roles.app2) user.permissions.roles.app2 = [];
       user.permissions.roles.app2.push('admin');
     }
@@ -54,7 +62,7 @@ export class ProductionAuthService {
   async login(loginDto: LoginDto): Promise<AuthResponse> {
     try {
       this.logger.log(`Forwarding login request for user: ${loginDto.email}`);
-      
+
       const response = await fetch(`${this.authBaseUrl}/login`, {
         method: 'POST',
         headers: {
@@ -67,13 +75,13 @@ export class ProductionAuthService {
         const errorData = await response.json();
         throw new HttpException(
           errorData.message || 'Login failed',
-          response.status
+          response.status,
         );
       }
 
       const result = await response.json();
       this.logger.log(`Login successful for user: ${loginDto.email}`);
-      
+
       const user = result.user || result.data;
       return {
         success: true,
@@ -82,22 +90,24 @@ export class ProductionAuthService {
       };
     } catch (error) {
       this.logger.error(`Login failed for user: ${loginDto.email}`, error);
-      
+
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         'Authentication service error',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     try {
-      this.logger.log(`Forwarding registration request for user: ${registerDto.email}`);
-      
+      this.logger.log(
+        `Forwarding registration request for user: ${registerDto.email}`,
+      );
+
       const response = await fetch(`${this.authBaseUrl}/register`, {
         method: 'POST',
         headers: {
@@ -110,13 +120,13 @@ export class ProductionAuthService {
         const errorData = await response.json();
         throw new HttpException(
           errorData.message || 'Registration failed',
-          response.status
+          response.status,
         );
       }
 
       const result = await response.json();
       this.logger.log(`Registration successful for user: ${registerDto.email}`);
-      
+
       const user = result.user || result.data;
       return {
         success: true,
@@ -124,15 +134,18 @@ export class ProductionAuthService {
         access_token: result.access_token || result.token,
       };
     } catch (error) {
-      this.logger.error(`Registration failed for user: ${registerDto.email}`, error);
-      
+      this.logger.error(
+        `Registration failed for user: ${registerDto.email}`,
+        error,
+      );
+
       if (error instanceof HttpException) {
         throw error;
       }
-      
+
       throw new HttpException(
         'Registration failed',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -144,7 +157,7 @@ export class ProductionAuthService {
       const response = await fetch(`${this.authBaseUrl}/validate`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${payload.token}`,
+          Authorization: `Bearer ${payload.token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -170,7 +183,7 @@ export class ProductionAuthService {
       const response = await fetch(`${this.authBaseUrl}/me`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${userId}`, // This would need the actual token
+          Authorization: `Bearer ${userId}`, // This would need the actual token
           'Content-Type': 'application/json',
         },
       });

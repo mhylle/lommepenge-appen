@@ -11,11 +11,19 @@ export interface UserInfo {
     apps: string[];
     roles: Record<string, string[]>;
   };
+  accountType?: string;
+  childId?: string;
+  familyId?: string;
 }
 
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface ChildLoginRequest {
+  username: string;
+  pin: string;
 }
 
 export interface RegisterRequest {
@@ -110,6 +118,37 @@ export class AuthService {
     return user;
   }
 
+  async loginAsChild(credentials: ChildLoginRequest): Promise<UserInfo> {
+    const response = await fetch('/api/app2/auth/login/child', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(credentials)
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || error.message || 'Login mislykkedes');
+    }
+
+    const result = await response.json();
+    const user = result.data || result.user;
+
+    if (!user) {
+      throw new Error('Ugyldigt login-svar');
+    }
+
+    // Store access token for child accounts
+    if (result.access_token) {
+      localStorage.setItem('access_token', result.access_token);
+    }
+
+    this.currentUserSubject.next(user);
+    return user;
+  }
+
   async register(registrationData: RegisterRequest): Promise<UserInfo> {
     const response = await fetch('/api/app2/auth/register', {
       method: 'POST',
@@ -156,6 +195,7 @@ export class AuthService {
     
     this.currentUserSubject.next(null);
     this.familyService.clearFamilyState();
+    localStorage.removeItem('access_token');
   }
 
   getCurrentUser(): UserInfo | null {
@@ -164,6 +204,16 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.getCurrentUser() !== null;
+  }
+
+  isChildAccount(): boolean {
+    const user = this.getCurrentUser();
+    return user?.accountType === 'child';
+  }
+
+  getChildId(): string | null {
+    const user = this.getCurrentUser();
+    return user?.childId || null;
   }
 
   hasAppAccess(appId: string): boolean {

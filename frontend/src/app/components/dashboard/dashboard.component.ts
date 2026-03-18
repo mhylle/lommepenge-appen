@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -16,6 +16,7 @@ import { RewardModalComponent } from '../reward-modal/reward-modal.component';
 import { DeductionModalComponent } from '../deduction-modal/deduction-modal.component';
 import { TransactionHistoryModalComponent } from '../transaction-history-modal/transaction-history-modal.component';
 import { FamilySettingsModalComponent } from '../family-settings-modal/family-settings-modal.component';
+import { ChildCredentialsModalComponent, ChildCredentialsData } from '../child-credentials-modal/child-credentials-modal.component';
 import { environment } from '../../../environments/environment';
 
 // Interfaces for placeholder data
@@ -128,35 +129,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private breadcrumbService: BreadcrumbService
+    private breadcrumbService: BreadcrumbService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     // Subscribe to current user
     this.subscriptions.add(
       this.authService.currentUser$.subscribe(user => {
-        if (user) {
-          this.userName = user.firstName || user.email.split('@')[0];
-          // Load families when user is available
-          this.loadUserFamilies();
-        }
+        queueMicrotask(() => {
+          if (user) {
+            this.userName = user.firstName || user.email.split('@')[0];
+            this.loadUserFamilies();
+          }
+          this.cdr.detectChanges();
+        });
       })
     );
 
     // Subscribe to current family
     this.subscriptions.add(
       this.familyService.currentFamily$.subscribe(family => {
-        this.currentFamily = family;
-        
-        // Check if this is a newly created family
-        this.isNewFamily = family?.description?.includes('automatisk') || false;
-        
-        // Load children when family is available
-        if (family) {
-          this.loadChildren();
-          this.loadTransactionData();
-          this.loadFamilyStats();
-        }
+        queueMicrotask(() => {
+          this.currentFamily = family;
+
+          // Check if this is a newly created family (only if not already dismissed)
+          const dismissed = sessionStorage.getItem('welcomeDismissed_' + family?.id);
+          this.isNewFamily = !dismissed && (family?.description?.includes('automatisk') || false);
+
+          // Load children when family is available
+          if (family) {
+            this.loadChildren();
+            this.loadTransactionData();
+            this.loadFamilyStats();
+          }
+          this.cdr.detectChanges();
+        });
       })
     );
   }
@@ -181,6 +189,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   dismissWelcome(): void {
     this.isNewFamily = false;
+    if (this.currentFamily) {
+      sessionStorage.setItem('welcomeDismissed_' + this.currentFamily.id, 'true');
+    }
   }
 
   formatCurrency(amount: number, currency: string = 'DKK'): string {
@@ -471,14 +482,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getActualTotalBalance(): number {
-    return this.actualChildren.reduce((sum, child) => sum + child.currentBalance, 0);
+    return this.actualChildren.reduce((sum, child) => sum + Number(child.currentBalance || 0), 0);
   }
 
   // Get display age for child
   getChildDisplayAge(child: Child): number {
-    if (child.age !== null) return child.age;
-    
-    // Calculate from date of birth if age is null
+    if (child.age != null && child.age !== undefined) return child.age;
+
+    // Calculate from date of birth if age is not available
     if (child.dateOfBirth) {
       const birthDate = new Date(child.dateOfBirth);
       const today = new Date();
@@ -640,7 +651,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getRealTotalBalance(): number {
     if (this.hasRealStats()) {
-      return this.actualChildren.reduce((sum, child) => sum + child.currentBalance, 0);
+      return this.actualChildren.reduce((sum, child) => sum + Number(child.currentBalance || 0), 0);
     }
     return this.getActualTotalBalance();
   }
@@ -684,6 +695,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.celebrationService.celebrateWithMessage('Velkommen til familien! 🎉', 'celebration', 'high');
   }
 
+  // Show credentials modal for a child
+  showCredentialsModal(childName: string, username: string, pin: string, isReset: boolean): void {
+    this.dialog.open(ChildCredentialsModalComponent, {
+      data: {
+        childName,
+        username,
+        pin,
+        isReset
+      } as ChildCredentialsData,
+      width: '500px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      disableClose: true,
+      autoFocus: false,
+      panelClass: 'child-credentials-modal-panel'
+    });
+  }
+
+  // Reset PIN for a child
+  resetPin(child: Child): void {
+    const apiUrl = `/api/app2/pocket-money-users/credentials/${child.id}/reset-pin`;
+
+    this.subscriptions.add(
+      this.http.post<{ username: string; pin: string }>(apiUrl, {}).subscribe({
+        next: (result) => {
+          this.showCredentialsModal(child.name, result.username, result.pin, true);
+        },
+        error: (error) => {
+          console.error('Error resetting PIN:', error);
+          this.snackBar.open('Kunne ikke nulstille PIN-koden. Prøv igen.', 'Luk', {
+            duration: 3000
+          });
+        }
+      })
+    );
+  }
+
+  // Create login account for existing child without one
+  createChildAccount(child: Child): void {
+    const apiUrl = `/api/app2/pocket-money-users/credentials/${child.id}/create-account`;
+
+    this.subscriptions.add(
+      this.http.post<{ username: string; pin: string }>(apiUrl, {}).subscribe({
+        next: (result) => {
+          // Update child's authUserId locally so the UI updates
+          child.authUserId = 'created';
+          this.showCredentialsModal(child.name, result.username, result.pin, false);
+          this.snackBar.open(`Login oprettet for ${child.name}!`, 'Luk', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error creating child account:', error);
+          const msg = error?.error?.message || 'Kunne ikke oprette login. Prøv igen.';
+          this.snackBar.open(msg, 'Luk', { duration: 3000 });
+        }
+      })
+    );
+  }
+
   // Test confetti (for development/demo)
   testConfetti(event?: MouseEvent): void {
     const position = event ? { x: event.clientX, y: event.clientY } : undefined;
@@ -707,19 +776,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.add(
-      dialogRef.afterClosed().subscribe((newChild: Child) => {
-        if (newChild) {
+      dialogRef.afterClosed().subscribe((result: any) => {
+        if (result) {
           // Add the new child to our list
+          const newChild: Child = result.child || result;
           this.actualChildren.push(newChild);
-          
+
           // Trigger celebration for new child
           this.celebrateNewChild();
-          
+
           // Show success message
-          this.snackBar.open(`${newChild.name} er nu tilføjet til familien! 🎉`, 'Luk', { 
+          this.snackBar.open(`${newChild.name} er nu tilføjet til familien! 🎉`, 'Luk', {
             duration: 4000,
             panelClass: ['success-snackbar']
           });
+
+          // If credentials were returned, show the credentials modal
+          if (result.credentials) {
+            this.showCredentialsModal(
+              newChild.name,
+              result.credentials.username,
+              result.credentials.pin,
+              false
+            );
+          }
         }
       })
     );

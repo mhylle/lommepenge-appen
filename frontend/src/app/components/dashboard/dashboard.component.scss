@@ -933,6 +933,11 @@ $handwritten-decorative: 'Caveat', cursive;
           color: $warm-coral;
           &:hover { background: rgba($warm-coral, 0.1); }
         }
+
+        &.reset-pin {
+          color: $primary-brown;
+          &:hover { background: rgba($primary-brown, 0.1); }
+        }
       }
     }
     

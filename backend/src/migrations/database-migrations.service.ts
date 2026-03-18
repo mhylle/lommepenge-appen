@@ -45,13 +45,13 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
-    
+
     await this.dataSource.query(query);
   }
 
   private async migration001_InitialSchema() {
     const migrationName = 'migration001_InitialSchema';
-    
+
     if (await this.isMigrationExecuted(migrationName)) {
       this.logger.log(`Migration ${migrationName} already executed, skipping`);
       return;
@@ -72,7 +72,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );`,
-      
+
       // Families table
       `CREATE TABLE IF NOT EXISTS families (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -88,7 +88,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("parentUserId") REFERENCES users(id)
       );`,
-      
+
       // Pocket Money Users table
       `CREATE TABLE IF NOT EXISTS pocket_money_users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -104,7 +104,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         FOREIGN KEY ("familyId") REFERENCES families(id),
         FOREIGN KEY ("authUserId") REFERENCES users(id)
       );`,
-      
+
       // Transactions table
       `CREATE TABLE IF NOT EXISTS transactions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -120,7 +120,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("userId") REFERENCES pocket_money_users(id),
         FOREIGN KEY ("familyId") REFERENCES families(id)
-      );`
+      );`,
     ];
 
     for (const query of queries) {
@@ -133,7 +133,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
 
   private async migration002_AddIndexes() {
     const migrationName = 'migration002_AddIndexes';
-    
+
     if (await this.isMigrationExecuted(migrationName)) {
       this.logger.log(`Migration ${migrationName} already executed, skipping`);
       return;
@@ -144,9 +144,9 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       // Performance indexes for common queries
       'CREATE INDEX IF NOT EXISTS idx_families_parent_active ON families("parentUserId", "isActive");',
       'CREATE INDEX IF NOT EXISTS idx_pocket_money_users_family_active ON pocket_money_users("familyId", "isActive");',
-      'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions("userId", transaction_date);',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON transactions("userId", "transactionDate");',
       'CREATE INDEX IF NOT EXISTS idx_transactions_family_type ON transactions("familyId", type);',
-      'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, transaction_date);',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_status_date ON transactions(status, "transactionDate");',
     ];
 
     for (const query of queries) {
@@ -159,7 +159,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
 
   private async migration003_AddDefaultData() {
     const migrationName = 'migration003_AddDefaultData';
-    
+
     if (await this.isMigrationExecuted(migrationName)) {
       this.logger.log(`Migration ${migrationName} already executed, skipping`);
       return;
@@ -172,7 +172,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
 
   private async migration004_FixColumnNames() {
     const migrationName = 'migration004_FixColumnNames';
-    
+
     if (await this.isMigrationExecuted(migrationName)) {
       this.logger.log(`Migration ${migrationName} already executed, skipping`);
       return;
@@ -186,7 +186,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       'ALTER TABLE users RENAME COLUMN isactive TO "isActive";',
       'ALTER TABLE users RENAME COLUMN createdat TO "createdAt";',
       'ALTER TABLE users RENAME COLUMN updatedat TO "updatedAt";',
-      
+
       // Fix families table column names
       'ALTER TABLE families RENAME COLUMN parentuserid TO "parentUserId";',
       'ALTER TABLE families RENAME COLUMN profilepicture TO "profilePicture";',
@@ -195,7 +195,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       'ALTER TABLE families RENAME COLUMN allowancefrequency TO "allowanceFrequency";',
       'ALTER TABLE families RENAME COLUMN createdat TO "createdAt";',
       'ALTER TABLE families RENAME COLUMN updatedat TO "updatedAt";',
-      
+
       // Fix pocket_money_users table column names
       'ALTER TABLE pocket_money_users RENAME COLUMN familyid TO "familyId";',
       'ALTER TABLE pocket_money_users RENAME COLUMN authuserid TO "authUserId";',
@@ -203,7 +203,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       'ALTER TABLE pocket_money_users RENAME COLUMN isactive TO "isActive";',
       'ALTER TABLE pocket_money_users RENAME COLUMN createdat TO "createdAt";',
       'ALTER TABLE pocket_money_users RENAME COLUMN updatedat TO "updatedAt";',
-      
+
       // Fix transactions table column names
       'ALTER TABLE transactions RENAME COLUMN userid TO "userId";',
       'ALTER TABLE transactions RENAME COLUMN familyid TO "familyId";',
@@ -218,7 +218,10 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         await this.dataSource.query(query);
       } catch (error) {
         // Log but don't fail if column already has correct name
-        this.logger.warn(`Column rename query failed (might already be correct): ${query}`, error.message);
+        this.logger.warn(
+          `Column rename query failed (might already be correct): ${query}`,
+          error.message,
+        );
       }
     }
 
@@ -234,7 +237,9 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       return;
     }
 
-    this.logger.log('Running migration: Add missing pocket_money_users columns');
+    this.logger.log(
+      'Running migration: Add missing pocket_money_users columns',
+    );
 
     const queries = [
       // Add missing columns to pocket_money_users table
@@ -249,7 +254,10 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       try {
         await this.dataSource.query(query);
       } catch (error) {
-        this.logger.warn(`Column add query failed (might already exist): ${query}`, error.message);
+        this.logger.warn(
+          `Column add query failed (might already exist): ${query}`,
+          error.message,
+        );
       }
     }
 
@@ -276,7 +284,9 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         ORDER BY ordinal_position;
       `);
 
-      this.logger.log(`Current pocket_money_users table structure: ${JSON.stringify(tableInfo)}`);
+      this.logger.log(
+        `Current pocket_money_users table structure: ${JSON.stringify(tableInfo)}`,
+      );
 
       // Check specifically for the problematic columns
       const requiredColumns = [
@@ -284,30 +294,37 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         { name: 'profilePicture', type: 'character varying' },
         { name: 'cardColor', type: 'character varying' },
         { name: 'weeklyAllowance', type: 'numeric' },
-        { name: 'preferences', type: 'json' }
+        { name: 'preferences', type: 'json' },
       ];
 
       for (const column of requiredColumns) {
-        const exists = tableInfo.some(col => col.column_name === column.name);
+        const exists = tableInfo.some((col) => col.column_name === column.name);
         if (!exists) {
-          this.logger.warn(`Column ${column.name} is missing, attempting to add it...`);
+          this.logger.warn(
+            `Column ${column.name} is missing, attempting to add it...`,
+          );
 
           let query = '';
           switch (column.name) {
             case 'dateOfBirth':
-              query = 'ALTER TABLE pocket_money_users ADD COLUMN "dateOfBirth" DATE;';
+              query =
+                'ALTER TABLE pocket_money_users ADD COLUMN "dateOfBirth" DATE;';
               break;
             case 'profilePicture':
-              query = 'ALTER TABLE pocket_money_users ADD COLUMN "profilePicture" VARCHAR(255);';
+              query =
+                'ALTER TABLE pocket_money_users ADD COLUMN "profilePicture" VARCHAR(255);';
               break;
             case 'cardColor':
-              query = 'ALTER TABLE pocket_money_users ADD COLUMN "cardColor" VARCHAR(7) DEFAULT \'#FFB6C1\';';
+              query =
+                'ALTER TABLE pocket_money_users ADD COLUMN "cardColor" VARCHAR(7) DEFAULT \'#FFB6C1\';';
               break;
             case 'weeklyAllowance':
-              query = 'ALTER TABLE pocket_money_users ADD COLUMN "weeklyAllowance" DECIMAL(10,2) DEFAULT 0.00;';
+              query =
+                'ALTER TABLE pocket_money_users ADD COLUMN "weeklyAllowance" DECIMAL(10,2) DEFAULT 0.00;';
               break;
             case 'preferences':
-              query = 'ALTER TABLE pocket_money_users ADD COLUMN "preferences" JSON;';
+              query =
+                'ALTER TABLE pocket_money_users ADD COLUMN "preferences" JSON;';
               break;
           }
 
@@ -328,25 +345,30 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         ORDER BY ordinal_position;
       `);
 
-      this.logger.log(`Final pocket_money_users table structure: ${JSON.stringify(finalTableInfo)}`);
+      this.logger.log(
+        `Final pocket_money_users table structure: ${JSON.stringify(finalTableInfo)}`,
+      );
 
       // Test a simple query to verify TypeORM can work with the table
-      const count = await this.dataSource.query('SELECT COUNT(*) as count FROM pocket_money_users');
+      const count = await this.dataSource.query(
+        'SELECT COUNT(*) as count FROM pocket_money_users',
+      );
       this.logger.log(`Pocket money users count: ${count[0].count}`);
-
     } catch (error) {
       this.logger.error('Error in schema verification migration:', error);
       throw error;
     }
 
-    this.logger.log('Database schema verification and fix completed successfully');
+    this.logger.log(
+      'Database schema verification and fix completed successfully',
+    );
     await this.markMigrationExecuted(migrationName);
   }
 
   private async isMigrationExecuted(migrationName: string): Promise<boolean> {
     const result = await this.dataSource.query(
       'SELECT COUNT(*) as count FROM migrations WHERE name = $1',
-      [migrationName]
+      [migrationName],
     );
     return parseInt(result[0].count) > 0;
   }
@@ -354,7 +376,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
   private async markMigrationExecuted(migrationName: string): Promise<void> {
     await this.dataSource.query(
       'INSERT INTO migrations (name) VALUES ($1) ON CONFLICT (name) DO NOTHING',
-      [migrationName]
+      [migrationName],
     );
   }
 
@@ -366,7 +388,9 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       return;
     }
 
-    this.logger.log('Running migration: Temporarily disable foreign key constraints');
+    this.logger.log(
+      'Running migration: Temporarily disable foreign key constraints',
+    );
 
     try {
       // Drop foreign key constraints that prevent family creation
@@ -391,12 +415,16 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
           await this.dataSource.query(query);
           this.logger.log(`Successfully executed: ${query}`);
         } catch (error) {
-          this.logger.warn(`Constraint drop query failed (might not exist): ${query}`, error.message);
+          this.logger.warn(
+            `Constraint drop query failed (might not exist): ${query}`,
+            error.message,
+          );
         }
       }
 
-      this.logger.log('Foreign key constraints temporarily disabled to allow family creation');
-
+      this.logger.log(
+        'Foreign key constraints temporarily disabled to allow family creation',
+      );
     } catch (error) {
       this.logger.error('Error in foreign key constraint migration:', error);
       throw error;
@@ -433,7 +461,10 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
           await this.dataSource.query(query);
           this.logger.log(`Successfully executed: ${query}`);
         } catch (error) {
-          this.logger.warn(`Column add query failed (might already exist): ${query}`, error.message);
+          this.logger.warn(
+            `Column add query failed (might already exist): ${query}`,
+            error.message,
+          );
         }
       }
 
@@ -445,8 +476,9 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
         ORDER BY ordinal_position;
       `);
 
-      this.logger.log(`Final transactions table structure: ${JSON.stringify(tableInfo)}`);
-
+      this.logger.log(
+        `Final transactions table structure: ${JSON.stringify(tableInfo)}`,
+      );
     } catch (error) {
       this.logger.error('Error in transaction columns migration:', error);
       throw error;

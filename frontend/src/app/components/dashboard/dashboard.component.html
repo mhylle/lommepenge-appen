@@ -128,10 +128,20 @@
                     title="Se detaljer for {{child.name}}">
               👁️
             </button>
-            <button class="quick-action-btn edit-child" 
-                    (click)="editChild(child)" 
+            <button class="quick-action-btn edit-child"
+                    (click)="editChild(child)"
                     title="Rediger {{child.name}}">
               ✏️
+            </button>
+            <button *ngIf="child.authUserId" class="quick-action-btn reset-pin"
+                    (click)="resetPin(child); $event.stopPropagation()"
+                    title="Nulstil PIN for {{child.name}}">
+              🔑
+            </button>
+            <button *ngIf="!child.authUserId" class="quick-action-btn create-account"
+                    (click)="createChildAccount(child); $event.stopPropagation()"
+                    title="Opret login for {{child.name}}">
+              🔐
             </button>
           </div>
           

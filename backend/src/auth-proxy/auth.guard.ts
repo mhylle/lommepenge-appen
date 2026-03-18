@@ -1,4 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { AuthProxyService } from './auth-proxy.service';
 
 @Injectable()
@@ -17,8 +23,9 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const validationResult = await this.authProxyService.validateSession(cookies);
-      
+      const validationResult =
+        await this.authProxyService.validateSession(cookies);
+
       if (!validationResult.valid) {
         this.logger.warn('Invalid session token');
         throw new UnauthorizedException('Invalid or expired session');
@@ -26,7 +33,7 @@ export class AuthGuard implements CanActivate {
 
       // Attach user information to request for use in controllers
       request.user = validationResult.user;
-      
+
       return true;
     } catch (error) {
       this.logger.error('Authentication error:', error);

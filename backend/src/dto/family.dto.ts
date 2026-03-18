@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsNumber, IsBoolean, MaxLength, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  MaxLength,
+  IsIn,
+} from 'class-validator';
 
 export class CreateFamilyDto {
   @IsString()

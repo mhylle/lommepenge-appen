@@ -9,7 +9,7 @@ export class AppInitService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap() {
     this.logger.log('Initializing Lommepenge App...');
-    
+
     try {
       await this.localAuthService.seedTestUser();
       this.logger.log('Application initialization completed');

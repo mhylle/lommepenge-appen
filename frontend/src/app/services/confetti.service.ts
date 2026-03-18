@@ -398,7 +398,7 @@ export class ConfettiService {
   }
 
   // Firework-style burst from specific position
-  celebrateAt(x: number, y: number, themeId: string = 'celebration'): void {
+  celebrateAt(x: number, y: number, themeId: string = 'reward'): void {
     const options: Partial<ConfettiOptions> = {
       origin: { x: x / window.innerWidth, y: y / window.innerHeight }
     };

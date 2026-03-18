@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ConfettiService } from './confetti.service';
-import { SoundService } from './sound.service';
 import { Transaction, TransactionType } from './transaction.service';
 
 export interface CelebrationEvent {
-  type: 'confetti' | 'message' | 'sound';
+  type: 'confetti' | 'message';
   theme: string;
   message?: string;
   intensity?: 'low' | 'medium' | 'high';
@@ -61,8 +60,7 @@ export class CelebrationService {
   };
 
   constructor(
-    private confettiService: ConfettiService,
-    private soundService: SoundService
+    private confettiService: ConfettiService
   ) {}
 
   // Main celebration method for transactions
@@ -71,7 +69,6 @@ export class CelebrationService {
     const intensity = this.getIntensityForAmount(transaction.amount);
     const message = this.getRandomMessage(transaction.type);
 
-    // Emit celebration event
     this.celebrationSubject.next({
       type: 'confetti',
       theme,
@@ -81,23 +78,11 @@ export class CelebrationService {
       duration: 3000
     });
 
-    // Emit sound event
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme,
-      intensity,
-      duration: 1000
-    });
-
-    // Trigger confetti
     if (position) {
       this.confettiService.celebrateAt(position.x, position.y, theme);
     } else {
       this.confettiService.celebrate(theme, this.getOptionsForIntensity(intensity));
     }
-
-    // Play celebration sound
-    this.soundService.playCelebrationForTransaction(transaction.type, transaction.amount);
   }
 
   // Celebrate reward with specific amount-based intensity
@@ -113,20 +98,11 @@ export class CelebrationService {
       position
     });
 
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme: 'reward',
-      intensity
-    });
-
     if (position) {
       this.confettiService.celebrateAt(position.x, position.y, 'reward');
     } else {
       this.confettiService.celebrateReward(amount);
     }
-
-    // Play reward celebration sound
-    this.soundService.playCelebrationForTransaction(TransactionType.REWARD, amount);
   }
 
   // Celebrate allowance
@@ -141,20 +117,11 @@ export class CelebrationService {
       position
     });
 
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme: 'allowance',
-      intensity: 'medium'
-    });
-
     if (position) {
       this.confettiService.celebrateAt(position.x, position.y, 'allowance');
     } else {
       this.confettiService.celebrateAllowance();
     }
-
-    // Play allowance celebration sound
-    this.soundService.playCelebrationForTransaction(TransactionType.ALLOWANCE);
   }
 
   // Celebrate bonus
@@ -170,20 +137,11 @@ export class CelebrationService {
       position
     });
 
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme: 'bonus',
-      intensity
-    });
-
     if (position) {
       this.confettiService.celebrateAt(position.x, position.y, 'bonus');
     } else {
       this.confettiService.celebrateBonus();
     }
-
-    // Play bonus celebration sound
-    this.soundService.playCelebrationForTransaction(TransactionType.BONUS, amount);
   }
 
   // Celebrate savings/achievement
@@ -198,20 +156,11 @@ export class CelebrationService {
       position
     });
 
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme: 'achievement',
-      intensity: 'high'
-    });
-
     if (position) {
       this.confettiService.celebrateAt(position.x, position.y, 'achievement');
     } else {
       this.confettiService.celebrateAchievement();
     }
-
-    // Play achievement milestone sound
-    this.soundService.playMilestoneSound(description || 'Achievement unlocked!');
   }
 
   // Celebrate purchase (gentle celebration)
@@ -220,23 +169,22 @@ export class CelebrationService {
 
     this.celebrationSubject.next({
       type: 'confetti',
-      theme: 'celebration',
+      theme: 'reward',
       message,
       intensity: 'low',
       position
     });
 
-    // Gentler celebration for purchases
     const options = { particleCount: 50, spread: 40, startVelocity: 25 };
     if (position) {
-      this.confettiService.celebrateAt(position.x, position.y, 'celebration');
+      this.confettiService.celebrateAt(position.x, position.y, 'reward');
     } else {
-      this.confettiService.celebrate('celebration', options);
+      this.confettiService.celebrate('reward', options);
     }
   }
 
   // Custom celebration with message
-  celebrateWithMessage(message: string, theme: string = 'celebration', intensity: 'low' | 'medium' | 'high' = 'medium'): void {
+  celebrateWithMessage(message: string, theme: string = 'reward', intensity: 'low' | 'medium' | 'high' = 'medium'): void {
     this.celebrationSubject.next({
       type: 'confetti',
       theme,
@@ -250,7 +198,7 @@ export class CelebrationService {
   // Special Danish-themed celebrations
   celebrateDanishWay(): void {
     const message = 'Tillykke på dansk! 🇩🇰';
-    
+
     this.celebrationSubject.next({
       type: 'confetti',
       theme: 'danish',
@@ -258,22 +206,13 @@ export class CelebrationService {
       intensity: 'high'
     });
 
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme: 'danish',
-      intensity: 'high'
-    });
-
     this.confettiService.celebrate('danish');
-    
-    // Play Danish-themed celebration sound
-    this.soundService.playSound('danish_chime');
   }
 
   // Birthday or special event celebration
   celebrateSpecialEvent(childName: string, event: string): void {
     const message = `Tillykke ${childName}! ${event} 🎂`;
-    
+
     this.celebrationSubject.next({
       type: 'confetti',
       theme: 'achievement',
@@ -282,24 +221,10 @@ export class CelebrationService {
       duration: 5000
     });
 
-    this.celebrationSubject.next({
-      type: 'sound',
-      theme: 'special_event',
-      intensity: 'high',
-      duration: 3000
-    });
-
     // Multiple confetti bursts for special events
-    this.confettiService.celebrate('celebration');
+    this.confettiService.celebrate('reward');
     setTimeout(() => this.confettiService.celebrate('hearts'), 500);
     setTimeout(() => this.confettiService.celebrate('stars'), 1000);
-
-    // Play special event celebration sequence
-    this.soundService.playSoundSequence([
-      { type: 'danish_chime', delay: 0 },
-      { type: 'celebration_achievement', delay: 300 },
-      { type: 'milestone_reached', delay: 800 }
-    ]);
   }
 
   // Get theme based on transaction type
@@ -314,11 +239,11 @@ export class CelebrationService {
       case TransactionType.SAVINGS:
         return 'savings';
       case TransactionType.PURCHASE:
-        return 'celebration';
+        return 'reward';
       case TransactionType.PENALTY:
-        return 'danish'; // Gentle theme for penalties
+        return 'danish';
       default:
-        return 'celebration';
+        return 'reward';
     }
   }
 

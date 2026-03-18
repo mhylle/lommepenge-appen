@@ -4,11 +4,12 @@
     <!-- Modal Header -->
     <div class="login-header">
       <div class="welcome-section">
-        <div class="family-icon">
-          <mat-icon>family_restroom</mat-icon>
+        <div class="family-icon" [class.child-icon]="loginMode === 'child'">
+          <mat-icon>{{ loginMode === 'child' ? 'child_care' : 'family_restroom' }}</mat-icon>
         </div>
-        <h2>Lommepenge App'en</h2>
-        <p class="subtitle">{{ isRegistering ? 'Opret ny familie konto' : 'Log ind for at administrere familiens lommepenge' }}</p>
+        <h2>{{ loginMode === 'child' ? 'Hej!' : 'Lommepenge App\'en' }}</h2>
+        <p class="subtitle" *ngIf="loginMode === 'parent'">{{ isRegistering ? 'Opret ny familie konto' : 'Log ind for at administrere familiens lommepenge' }}</p>
+        <p class="subtitle child-subtitle" *ngIf="loginMode === 'child'">Indtast dit brugernavn og PIN-kode</p>
       </div>
       <button mat-icon-button class="close-button" (click)="closeModal()">
         <mat-icon>close</mat-icon>
@@ -18,19 +19,32 @@
     <!-- Login/Register Form -->
     <div class="login-content">
       <!-- Mode Toggle -->
-      <div class="mode-toggle">
-        <button 
-          type="button" 
-          mat-stroked-button 
-          (click)="toggleRegistrationMode()" 
+      <div class="mode-toggle" *ngIf="loginMode === 'parent'">
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="toggleRegistrationMode()"
           class="toggle-button">
           <mat-icon>{{ isRegistering ? 'login' : 'person_add' }}</mat-icon>
           {{ isRegistering ? 'Har du allerede en konto? Log ind her' : 'Ny familie? Opret konto her' }}
         </button>
       </div>
 
+      <!-- Child/Parent Login Toggle -->
+      <div class="child-toggle">
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="toggleLoginMode()"
+          class="child-toggle-button"
+          [class.active-child]="loginMode === 'child'">
+          <mat-icon>{{ loginMode === 'child' ? 'person' : 'child_care' }}</mat-icon>
+          {{ loginMode === 'child' ? 'Er du en voksen? Log ind her' : 'Er du et barn? Log ind her' }}
+        </button>
+      </div>
+
       <!-- Login Form -->
-      <form *ngIf="!isRegistering" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form"
+      <form *ngIf="!isRegistering && loginMode === 'parent'" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form"
             (focusin)="onFormInteractionStart()" (focusout)="onFormInteractionEnd()">
         <!-- Welcome Message -->
         <div class="form-welcome">
@@ -101,7 +115,7 @@
       </form>
 
       <!-- Registration Form -->
-      <form *ngIf="isRegistering" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form register-form" 
+      <form *ngIf="isRegistering && loginMode === 'parent'" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="login-form register-form" 
             (focusin)="onFormInteractionStart()" (focusout)="onFormInteractionEnd()">
         <!-- Welcome Message -->
         <div class="form-welcome">
@@ -236,6 +250,71 @@
           <p class="help-text">
             <mat-icon class="info-icon">info</mat-icon>
             Ved at oprette en konto accepterer du vores brugervilkår.
+          </p>
+        </div>
+      </form>
+
+      <!-- Child Login Form -->
+      <form *ngIf="loginMode === 'child'" [formGroup]="childLoginForm" (ngSubmit)="onChildLogin()" class="login-form child-login-form"
+            (focusin)="onFormInteractionStart()" (focusout)="onFormInteractionEnd()">
+        <!-- Child Welcome Message -->
+        <div class="form-welcome child-welcome">
+          <h3>Log ind som barn</h3>
+          <p>Skriv dit brugernavn og din hemmelige kode</p>
+        </div>
+
+        <!-- Username Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Brugernavn</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="username"
+            placeholder="Dit brugernavn"
+            autocomplete="username">
+          <mat-icon matSuffix>face</mat-icon>
+          <mat-error *ngIf="childUsername?.invalid && (childUsername?.dirty || childUsername?.touched)">
+            {{ getChildUsernameErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- PIN Field -->
+        <mat-form-field appearance="outline" class="full-width pin-field">
+          <mat-label>PIN-kode (4 cifre)</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="pin"
+            placeholder="1234"
+            maxlength="4"
+            inputmode="numeric"
+            autocomplete="off"
+            class="pin-input">
+          <mat-icon matSuffix>lock</mat-icon>
+          <mat-error *ngIf="childPin?.invalid && (childPin?.dirty || childPin?.touched)">
+            {{ getChildPinErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Child Login Button -->
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            type="submit"
+            class="login-button child-login-button"
+            [disabled]="isLoading || childLoginForm.invalid">
+            <mat-icon *ngIf="!isLoading">play_arrow</mat-icon>
+            <mat-spinner *ngIf="isLoading" diameter="20" class="login-spinner"></mat-spinner>
+            <span *ngIf="!isLoading">Log ind!</span>
+            <span *ngIf="isLoading">Logger ind...</span>
+          </button>
+        </div>
+
+        <!-- Helper Text -->
+        <div class="form-footer">
+          <p class="help-text child-help">
+            <mat-icon class="info-icon">help_outline</mat-icon>
+            Kan du ikke huske din kode? Bed en voksen om hjælp.
           </p>
         </div>
       </form>

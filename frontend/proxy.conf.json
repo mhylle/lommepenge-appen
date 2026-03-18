@@ -1,5 +1,5 @@
 {
-  "/api/app2/*": {
+  "/api/app2": {
     "target": "http://localhost:3005",
     "secure": false,
     "changeOrigin": true,

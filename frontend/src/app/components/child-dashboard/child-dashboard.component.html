@@ -1,9 +1,15 @@
 <div class="child-dashboard" *ngIf="!isLoading && currentChild">
-  <!-- Header with child's name and back button -->
+  <!-- Header with child's name and navigation -->
   <div class="child-header">
-    <button class="scrapbook-back-button" (click)="goBack()" title="Tilbage til familiens dagbog">
+    <!-- Parent view: show back button to family dashboard -->
+    <button *ngIf="!isOwnAccount" class="scrapbook-back-button" (click)="goBack()" title="Tilbage til familiens dagbog">
       <span class="back-icon">🏠</span>
       <span class="back-text">Tilbage</span>
+    </button>
+    <!-- Child view: show logout button instead -->
+    <button *ngIf="isOwnAccount" class="scrapbook-back-button child-logout-button" (click)="logoutChild()" title="Log ud">
+      <span class="back-icon">🚪</span>
+      <span class="back-text">Log ud</span>
     </button>
     <div class="child-greeting">
       <h1 class="child-name">Hej {{ currentChild.name }}! 👋</h1>
@@ -312,8 +318,11 @@
   <div class="error-content">
     <h2>😔 Ups! Noget gik galt</h2>
     <p>Vi kunne ikke finde dine penge-oplysninger.</p>
-    <button mat-raised-button color="primary" (click)="goBack()">
+    <button *ngIf="!isOwnAccount" mat-raised-button color="primary" (click)="goBack()">
       🏠 Tilbage til startsiden
+    </button>
+    <button *ngIf="isOwnAccount" mat-raised-button color="primary" (click)="logoutChild()">
+      🚪 Log ud
     </button>
   </div>
 </div>

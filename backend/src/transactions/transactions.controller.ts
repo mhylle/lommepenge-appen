@@ -9,17 +9,30 @@ import {
   Query,
   ParseUUIDPipe,
   ParseEnumPipe,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ParentOnlyGuard } from '../auth-proxy/parent-only.guard';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto, UpdateTransactionDto } from '../dto/transaction.dto';
-import { Transaction, TransactionType, TransactionStatus } from '../entities/transaction.entity';
+import {
+  CreateTransactionDto,
+  UpdateTransactionDto,
+} from '../dto/transaction.dto';
+import {
+  Transaction,
+  TransactionType,
+  TransactionStatus,
+} from '../entities/transaction.entity';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
-  async create(@Body() createTransactionDto: CreateTransactionDto): Promise<Transaction> {
+  @UseGuards(AuthGuard('jwt'), ParentOnlyGuard)
+  async create(
+    @Body() createTransactionDto: CreateTransactionDto,
+  ): Promise<Transaction> {
     return await this.transactionsService.create(createTransactionDto);
   }
 
@@ -61,12 +74,16 @@ export class TransactionsController {
   }
 
   @Get('by-user/:userId')
-  async findByUserId(@Param('userId', ParseUUIDPipe) userId: string): Promise<Transaction[]> {
+  async findByUserId(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<Transaction[]> {
     return await this.transactionsService.findByUserId(userId);
   }
 
   @Get('by-family/:familyId')
-  async findByFamilyId(@Param('familyId', ParseUUIDPipe) familyId: string): Promise<Transaction[]> {
+  async findByFamilyId(
+    @Param('familyId', ParseUUIDPipe) familyId: string,
+  ): Promise<Transaction[]> {
     return await this.transactionsService.findByFamilyId(familyId);
   }
 
@@ -79,7 +96,8 @@ export class TransactionsController {
 
   @Get('by-status/:status')
   async findByStatus(
-    @Param('status', new ParseEnumPipe(TransactionStatus)) status: TransactionStatus,
+    @Param('status', new ParseEnumPipe(TransactionStatus))
+    status: TransactionStatus,
   ): Promise<Transaction[]> {
     return await this.transactionsService.findByStatus(status);
   }
@@ -108,7 +126,10 @@ export class TransactionsController {
     @Query('limit') limit?: string,
   ): Promise<Transaction[]> {
     const limitNumber = limit ? parseInt(limit, 10) : 5;
-    return await this.transactionsService.getRecentTransactionsByFamilyId(familyId, limitNumber);
+    return await this.transactionsService.getRecentTransactionsByFamilyId(
+      familyId,
+      limitNumber,
+    );
   }
 
   @Get('family-paginated/:familyId')
@@ -119,12 +140,17 @@ export class TransactionsController {
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 10;
-    return await this.transactionsService.findByFamilyIdWithPagination(familyId, pageNumber, limitNumber);
+    return await this.transactionsService.findByFamilyIdWithPagination(
+      familyId,
+      pageNumber,
+      limitNumber,
+    );
   }
 
   @Get('last-activity/:userId')
   async getLastActivity(@Param('userId', ParseUUIDPipe) userId: string) {
-    const activity = await this.transactionsService.getLastActivityByUserId(userId);
+    const activity =
+      await this.transactionsService.getLastActivityByUserId(userId);
     return { lastActivity: activity };
   }
 
@@ -134,6 +160,7 @@ export class TransactionsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'), ParentOnlyGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
@@ -142,6 +169,7 @@ export class TransactionsController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), ParentOnlyGuard)
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return await this.transactionsService.remove(id);
   }

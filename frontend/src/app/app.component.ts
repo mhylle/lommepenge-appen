@@ -24,16 +24,17 @@ interface HealthStatus {
   selector: 'app-root',
   standalone: false,
   template: `
-    <div class="lommepenge-app">
+    <div class="lommepenge-app" [class.child-mode]="isChildAccount()">
       <!-- Main Header -->
-      <header class="lommepenge-header">
+      <header class="lommepenge-header" [class.child-header-theme]="isChildAccount()">
         <div class="header-content">
           <div class="app-branding">
             <h1 class="app-title">💰 Lommepenge App'en</h1>
-            <p class="app-subtitle">Familiens levende scrapbog</p>
+            <p class="app-subtitle" *ngIf="!isChildAccount()">Familiens levende scrapbog</p>
+            <p class="app-subtitle child-subtitle" *ngIf="isChildAccount()">Mine penge</p>
           </div>
           <div class="header-user-area" *ngIf="currentUser">
-            <div class="user-welcome">
+            <div class="user-welcome" [class.child-welcome]="isChildAccount()">
               <span class="welcome-text">Hej, {{currentUser.firstName}}! 👋</span>
               <div class="user-actions">
                 <button (click)="logout()" class="logout-btn">
@@ -45,16 +46,16 @@ interface HealthStatus {
         </div>
       </header>
 
-      <!-- Navigation Breadcrumbs -->
-      <app-breadcrumb></app-breadcrumb>
+      <!-- Navigation Breadcrumbs (hidden for child accounts) -->
+      <app-breadcrumb *ngIf="!isChildAccount()"></app-breadcrumb>
 
       <!-- Main Content Area -->
       <main class="lommepenge-main">
         <router-outlet></router-outlet>
       </main>
 
-      <!-- Footer with family-friendly decorations -->
-      <footer class="lommepenge-footer" *ngIf="currentUser">
+      <!-- Footer with family-friendly decorations (simplified for children) -->
+      <footer class="lommepenge-footer" *ngIf="currentUser && !isChildAccount()">
         <div class="footer-decoration">
           <span class="footer-emoji">🌈</span>
           <span class="footer-emoji">⭐</span>
@@ -63,10 +64,10 @@ interface HealthStatus {
           <span class="footer-emoji">🌟</span>
         </div>
         <div class="footer-content">
-          <p class="footer-text">© 2025 Lommepenge App'en - Hvor pengeventure begynder! ✨</p>
+          <p class="footer-text">© 2026 Lommepenge App'en - Hvor pengeventure begynder! ✨</p>
         </div>
       </footer>
-      
+
       <!-- Login Modal -->
       <app-login (loginSuccess)="onLoginSuccess()"></app-login>
     </div>
@@ -238,6 +239,28 @@ interface HealthStatus {
       50% { transform: translateY(-3px); }
     }
 
+    /* Child account theme */
+    .child-header-theme {
+      background: linear-gradient(145deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+      border-bottom: 3px solid #66bb6a;
+    }
+
+    .child-subtitle {
+      font-weight: 700;
+      color: #2e7d32;
+      font-style: normal;
+      opacity: 1;
+    }
+
+    .child-welcome {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid rgba(46, 125, 50, 0.3);
+    }
+
+    .child-mode .lommepenge-header .welcome-text {
+      color: #2e7d32;
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .header-content {
@@ -347,6 +370,10 @@ export class AppComponent implements OnInit {
   onLoginSuccess(): void {
     // User successfully logged in - router will handle navigation
     console.log('Login successful for Task Management App!');
+  }
+
+  isChildAccount(): boolean {
+    return this.authService.isChildAccount();
   }
 
   isAdmin(): boolean {

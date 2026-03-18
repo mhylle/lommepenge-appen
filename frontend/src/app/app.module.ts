@@ -1,10 +1,14 @@
-import { NgModule, isDevMode } from '@angular/core';
+import { NgModule, isDevMode, LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { registerLocaleData } from '@angular/common';
+import localeDa from '@angular/common/locales/da';
 import { authInterceptor } from './interceptors/auth.interceptor';
+
+registerLocaleData(localeDa);
 
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -36,6 +40,7 @@ import { DeductionModalComponent } from './components/deduction-modal/deduction-
 import { TransactionHistoryModalComponent } from './components/transaction-history-modal/transaction-history-modal.component';
 import { AddMoneyModalComponent } from './components/add-money-modal/add-money-modal.component';
 import { RewardModalComponent } from './components/reward-modal/reward-modal.component';
+import { ChildCredentialsModalComponent } from './components/child-credentials-modal/child-credentials-modal.component';
 import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
 import { ConfettiComponent } from './components/confetti/confetti.component';
 import { AnimatedCounterDirective } from './directives/animated-counter.directive';
@@ -49,7 +54,8 @@ import { AnimatedCounterDirective } from './directives/animated-counter.directiv
     AccessDeniedComponent,
     TransactionHistoryModalComponent,
     AddMoneyModalComponent,
-    RewardModalComponent
+    RewardModalComponent,
+    ChildCredentialsModalComponent
   ],
   imports: [
     BrowserModule,
@@ -87,7 +93,8 @@ import { AnimatedCounterDirective } from './directives/animated-counter.directiv
     })
   ],
   providers: [
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor])),
+    { provide: LOCALE_ID, useValue: 'da' }
   ],
   bootstrap: [AppComponent]
 })

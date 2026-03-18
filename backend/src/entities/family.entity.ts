@@ -39,10 +39,21 @@ export class Family {
   @Column({ type: 'varchar', length: 3, default: 'DKK' })
   currency: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'defaultAllowance' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+    name: 'defaultAllowance',
+  })
   defaultAllowance: number;
 
-  @Column({ type: 'varchar', length: 50, default: 'weekly', name: 'allowanceFrequency' })
+  @Column({
+    type: 'varchar',
+    length: 50,
+    default: 'weekly',
+    name: 'allowanceFrequency',
+  })
   allowanceFrequency: string; // 'weekly', 'monthly', 'biweekly'
 
   @CreateDateColumn({ name: 'createdAt' })

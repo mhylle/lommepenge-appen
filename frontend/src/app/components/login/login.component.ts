@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService, LoginRequest, RegisterRequest } from '../../services/auth.service';
+import { AuthService, LoginRequest, RegisterRequest, ChildLoginRequest } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ErrorHandlerService } from '../../services/error-handler.service';
@@ -22,6 +22,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   showModal = false;
   isRegistering = false;
   private formInteractionActive = false;
+  loginMode: 'parent' | 'child' = 'parent';
+  childLoginForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -43,6 +45,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       confirmPassword: ['', [Validators.required]],
       familyName: ['', [Validators.minLength(2)]]
     }, { validators: this.passwordMatchValidator });
+
+    this.childLoginForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(2)]],
+      pin: ['', [Validators.required, Validators.pattern(/^\d{4}$/)]]
+    });
   }
 
   ngOnInit(): void {
@@ -64,6 +71,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isRegistering = false;
     this.loginForm.reset();
     this.registerForm.reset();
+    this.loginMode = 'parent';
+    this.childLoginForm.reset();
     this.isLoading = false;
   }
 
@@ -97,6 +106,16 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isRegistering = !this.isRegistering;
     this.loginForm.reset();
     this.registerForm.reset();
+    this.loginMode = 'parent';
+    this.childLoginForm.reset();
+    this.isLoading = false;
+  }
+
+  toggleLoginMode(): void {
+    this.loginMode = this.loginMode === 'parent' ? 'child' : 'parent';
+    this.loginForm.reset();
+    this.childLoginForm.reset();
+    this.isRegistering = false;
     this.isLoading = false;
   }
 
@@ -123,15 +142,50 @@ export class LoginComponent implements OnInit, OnDestroy {
       };
 
       const user = await this.authService.login(credentials);
-      
+
       // Success!
       this.errorHandler.showSuccess(`Velkommen tilbage, ${user.firstName}!`);
-      this.closeModal();
+      this.formInteractionActive = false;
+      this.showModal = false;
+      this.isRegistering = false;
       this.loginSuccess.emit();
       
       // Navigate to dashboard
       this.router.navigate(['/dashboard']);
       
+    } catch (error: any) {
+      this.errorHandler.handleError(error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async onChildLogin(): Promise<void> {
+    if (this.childLoginForm.invalid) {
+      this.markFormGroupTouched(this.childLoginForm);
+      return;
+    }
+
+    this.isLoading = true;
+
+    try {
+      const credentials: ChildLoginRequest = {
+        username: this.childLoginForm.get('username')?.value,
+        pin: this.childLoginForm.get('pin')?.value
+      };
+
+      const user = await this.authService.loginAsChild(credentials);
+
+      this.errorHandler.showSuccess('Velkommen, ' + user.firstName + '!');
+      this.formInteractionActive = false;
+      this.showModal = false;
+      this.loginMode = 'parent';
+      this.loginSuccess.emit();
+
+      // Navigate to child dashboard
+      const childId = user.childId || user.id;
+      this.router.navigate(['/child', childId]);
+
     } catch (error: any) {
       this.errorHandler.handleError(error);
     } finally {
@@ -157,10 +211,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       };
 
       const user = await this.authService.register(registrationData);
-      
+
       // Success!
       this.errorHandler.showSuccess(`Velkommen til familien, ${user.firstName}!`);
-      this.closeModal();
+      this.formInteractionActive = false;
+      this.showModal = false;
+      this.isRegistering = false;
       this.loginSuccess.emit();
       
       // Navigate to dashboard
@@ -308,6 +364,35 @@ export class LoginComponent implements OnInit, OnDestroy {
   getFamilyNameErrorMessage(): string {
     if (this.familyName?.hasError('minlength')) {
       return 'Familienavnet skal være mindst 2 tegn';
+    }
+    return '';
+  }
+
+  // Child login form getters
+  get childUsername() {
+    return this.childLoginForm.get('username');
+  }
+
+  get childPin() {
+    return this.childLoginForm.get('pin');
+  }
+
+  getChildUsernameErrorMessage(): string {
+    if (this.childUsername?.hasError('required')) {
+      return 'Brugernavn er påkrævet';
+    }
+    if (this.childUsername?.hasError('minlength')) {
+      return 'Brugernavnet skal være mindst 2 tegn';
+    }
+    return '';
+  }
+
+  getChildPinErrorMessage(): string {
+    if (this.childPin?.hasError('required')) {
+      return 'PIN-kode er påkrævet';
+    }
+    if (this.childPin?.hasError('pattern')) {
+      return 'PIN-koden skal være præcis 4 cifre';
     }
     return '';
   }

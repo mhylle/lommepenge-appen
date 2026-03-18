@@ -83,7 +83,7 @@ export class ConfettiTestService {
     positions.forEach((position, index) => {
       setTimeout(() => {
         console.log(`Testing confetti at position: ${position.x}, ${position.y}`);
-        this.confettiService.celebrateAt(position.x, position.y, 'celebration');
+        this.confettiService.celebrateAt(position.x, position.y, 'reward');
       }, index * 1000);
     });
   }

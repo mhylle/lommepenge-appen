@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TransactionService, TransactionType } from '../../services/transaction.service';
-import { SoundService } from '../../services/sound.service';
 import { Child } from '../child-registration-modal/child-registration-modal.component';
 
 export interface AddMoneyData {
@@ -21,7 +20,7 @@ export interface AddMoneyData {
 export class AddMoneyModalComponent implements OnInit {
   addMoneyForm: FormGroup;
   isSubmitting = false;
-  
+
   // Quick transaction types
   transactionTypes = [
     { type: TransactionType.ALLOWANCE, name: 'Ugepenge', icon: '💰', color: '#7fb069' },
@@ -38,8 +37,7 @@ export class AddMoneyModalComponent implements OnInit {
     private dialogRef: MatDialogRef<AddMoneyModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: AddMoneyData,
     private transactionService: TransactionService,
-    private snackBar: MatSnackBar,
-    private soundService: SoundService
+    private snackBar: MatSnackBar
   ) {
     this.addMoneyForm = this.fb.group({
       childId: [this.data.selectedChildId || '', Validators.required],
@@ -68,14 +66,10 @@ export class AddMoneyModalComponent implements OnInit {
 
   setQuickAmount(amount: number): void {
     this.addMoneyForm.patchValue({ amount });
-    // Play UI feedback sound
-    this.soundService.playUIFeedback('click');
   }
 
   setTransactionType(type: TransactionType): void {
     this.addMoneyForm.patchValue({ type });
-    // Play UI feedback sound
-    this.soundService.playUIFeedback('pop');
   }
 
   getSelectedTypeInfo() {
@@ -91,9 +85,9 @@ export class AddMoneyModalComponent implements OnInit {
   onSubmit(): void {
     if (this.addMoneyForm.valid) {
       this.isSubmitting = true;
-      
+
       const formData = this.addMoneyForm.value;
-      
+
       this.transactionService.createTransaction({
         userId: formData.childId,
         familyId: this.data.familyId,
@@ -104,22 +98,16 @@ export class AddMoneyModalComponent implements OnInit {
         next: (transaction) => {
           const childName = this.getChildName(transaction.userId);
           const typeInfo = this.getSelectedTypeInfo();
-          
-          // Play success sound
-          this.soundService.playUIFeedback('success');
-          
-          // Play celebration sound for transaction
-          this.soundService.playCelebrationForTransaction(transaction.type, transaction.amount);
-          
+
           this.snackBar.open(
             `${typeInfo?.icon} ${formData.amount} kr. tilføjet til ${childName}!`,
             'Luk',
-            { 
+            {
               duration: 4000,
               panelClass: ['success-snackbar']
             }
           );
-          
+
           this.dialogRef.close(transaction);
         },
         error: (error) => {
@@ -127,7 +115,7 @@ export class AddMoneyModalComponent implements OnInit {
           this.snackBar.open(
             'Der opstod en fejl ved tilføjelse af penge',
             'Luk',
-            { 
+            {
               duration: 4000,
               panelClass: ['error-snackbar']
             }

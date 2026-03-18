@@ -559,6 +559,104 @@ $warning-orange: #f4a261; // Warm orange
   }
 }
 
+// Child/Parent Login Toggle
+.child-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+
+  .child-toggle-button {
+    color: #34495e;
+    border-color: rgba($dusty-blue, 0.3);
+    font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    font-size: 14px;
+
+    &:hover {
+      background: rgba($dusty-blue, 0.05);
+      border-color: $dusty-blue;
+      color: $dusty-blue;
+    }
+
+    &.active-child {
+      background: rgba($dusty-blue, 0.1);
+      border-color: $dusty-blue;
+      color: $dusty-blue;
+    }
+
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Child Login Form Styles
+.child-login-form {
+  .child-welcome {
+    h3 {
+      color: $dusty-blue;
+      font-size: 26px;
+    }
+
+    p {
+      font-size: 16px;
+    }
+  }
+
+  // Large, child-friendly PIN input
+  .pin-field {
+    .pin-input {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 12px;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+    }
+  }
+
+  .form-actions {
+    .child-login-button {
+      min-width: 220px;
+      height: 56px;
+      background: linear-gradient(135deg, $dusty-blue, #5a8dbf);
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 28px;
+      box-shadow: 0 4px 16px rgba(107, 163, 214, 0.4);
+
+      &:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(107, 163, 214, 0.5);
+        background: linear-gradient(135deg, #5a8dbf, #4a7dad);
+      }
+
+      &:disabled {
+        background: $text-light;
+      }
+    }
+  }
+
+  .child-help {
+    border-left-color: $dusty-blue;
+
+    .info-icon {
+      color: $dusty-blue;
+    }
+  }
+}
+
+// Child mode header styles
+.child-icon {
+  background: linear-gradient(135deg, $dusty-blue, #5a8dbf) !important;
+}
+
+.child-subtitle {
+  color: $dusty-blue;
+  font-weight: 600;
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .login-modal {
@@ -653,6 +751,25 @@ $warning-orange: #f4a261; // Warm orange
     &.bottom-left,
     &.bottom-right {
       bottom: 12px;
+    }
+  }
+
+  .child-login-form {
+    .pin-field .pin-input {
+      font-size: 28px;
+      letter-spacing: 8px;
+    }
+
+    .form-actions .child-login-button {
+      min-width: 200px;
+      height: 50px;
+      font-size: 16px;
+    }
+  }
+
+  .child-toggle {
+    .child-toggle-button {
+      font-size: 13px;
     }
   }
 }

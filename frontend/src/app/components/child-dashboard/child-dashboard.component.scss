@@ -347,7 +347,28 @@
         inset 0 1px 2px rgba(255, 255, 255, 0.4);
     }
   }
-  
+
+  .child-logout-button {
+    background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+    box-shadow:
+      0 4px 8px rgba(255, 107, 107, 0.3),
+      inset 0 1px 2px rgba(255, 255, 255, 0.3);
+
+    &:hover {
+      background: linear-gradient(145deg, #ee5a52, #dd4b47);
+      box-shadow:
+        0 8px 16px rgba(255, 107, 107, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(255, 107, 107, 0.3);
+    }
+
+    &:active {
+      box-shadow:
+        0 3px 6px rgba(255, 107, 107, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
+    }
+  }
+
   .child-greeting {
     .child-name {
       font-size: 2.5em;

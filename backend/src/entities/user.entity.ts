@@ -30,17 +30,30 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column('simple-json', { 
+  @Column('simple-json', {
     default: () => "'[]'",
-    comment: 'List of apps the user has access to'
+    comment: 'List of apps the user has access to',
   })
   apps: string[];
 
-  @Column('simple-json', { 
+  @Column('simple-json', {
     default: () => "'{}'",
-    comment: 'App-specific roles for the user'
+    comment: 'App-specific roles for the user',
   })
   roles: Record<string, string[]>;
+
+  @Column({ type: 'varchar', length: 100, nullable: true, unique: true })
+  username: string;
+
+  @Column({ type: 'varchar', length: 20, default: 'parent' })
+  accountType: string; // 'parent' or 'child'
+
+  @Column({ type: 'varchar', nullable: true })
+  @Exclude()
+  pin: string; // hashed 4-digit PIN for child accounts
+
+  @Column({ type: 'uuid', nullable: true, name: 'linkedPocketMoneyUserId' })
+  linkedPocketMoneyUserId: string; // reference to PocketMoneyUser
 
   // @OneToMany(() => Family, family => family.parent, { cascade: true })
   // families: Family[];

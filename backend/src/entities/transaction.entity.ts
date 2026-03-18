@@ -63,7 +63,13 @@ export class Transaction {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   amount: number; // Positive for income, negative for expenses
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, name: 'balanceAfter', nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    name: 'balanceAfter',
+    nullable: true,
+  })
   balanceAfter: number; // Balance after this transaction
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -162,11 +168,11 @@ export class Transaction {
       case TransactionType.BONUS:
         return 'Bonus';
       case TransactionType.CHORE_REWARD:
-        return this.metadata?.choreDetails?.choreName 
+        return this.metadata?.choreDetails?.choreName
           ? `Arbejde: ${this.metadata.choreDetails.choreName}`
           : 'Arbejde belønning';
       case TransactionType.PURCHASE:
-        return this.metadata?.purchaseDetails?.itemName 
+        return this.metadata?.purchaseDetails?.itemName
           ? `Køb: ${this.metadata.purchaseDetails.itemName}`
           : 'Indkøb';
       case TransactionType.SAVINGS:

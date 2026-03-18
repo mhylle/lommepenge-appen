@@ -42,6 +42,7 @@ export interface Child {
   dateOfBirth: string;
   role: string;
   isActive: boolean;
+  authUserId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -263,10 +264,15 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
       const apiUrl = `/api/app2/pocket-money-users/children`;
 
       this.subscriptions.add(
-        this.http.post<Child>(apiUrl, createChildRequest).subscribe({
-          next: (newChild) => {
+        this.http.post<Child & { credentials?: { username: string; pin: string } }>(apiUrl, createChildRequest).subscribe({
+          next: (response) => {
             this.isSubmitting = false;
-            this.dialogRef.close(newChild); // Return the created child
+            // Return full response including credentials if present
+            if (response.credentials) {
+              this.dialogRef.close({ child: response, credentials: response.credentials });
+            } else {
+              this.dialogRef.close(response); // Return just the child for backward compatibility
+            }
           },
           error: (error) => {
             this.isSubmitting = false;

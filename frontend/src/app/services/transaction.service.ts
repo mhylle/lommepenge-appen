@@ -47,6 +47,7 @@ export interface CreateTransactionDto {
   amount: number;
   type: TransactionType;
   description: string;
+  createdByUserId?: string;
   transactionDate?: Date;
 }
 

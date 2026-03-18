@@ -46,7 +46,9 @@ export class AuthProxyService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.authServiceUrl = this.configService.get<string>('AUTH_URL') || 'http://mhylle-auth-service:3000/api/auth';
+    this.authServiceUrl =
+      this.configService.get<string>('AUTH_URL') ||
+      'http://mhylle-auth-service:3000/api/auth';
     this.logger.log(`Auth service URL: ${this.authServiceUrl}`);
   }
 
@@ -56,31 +58,31 @@ export class AuthProxyService {
   async login(loginDto: LoginDto): Promise<AuthResponse> {
     try {
       this.logger.log(`Attempting login for user: ${loginDto.email}`);
-      
+
       const response: AxiosResponse<AuthResponse> = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/login`, loginDto, {
           timeout: 10000,
           headers: {
             'Content-Type': 'application/json',
           },
-        })
+        }),
       );
 
       this.logger.log(`Login successful for user: ${loginDto.email}`);
       return response.data;
     } catch (error) {
       this.logger.error(`Login failed for user: ${loginDto.email}`, error);
-      
+
       if (error.response) {
         throw new HttpException(
           error.response.data?.message || 'Login failed',
-          error.response.status || HttpStatus.UNAUTHORIZED
+          error.response.status || HttpStatus.UNAUTHORIZED,
         );
       }
-      
+
       throw new HttpException(
         'Auth service unavailable',
-        HttpStatus.SERVICE_UNAVAILABLE
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
   }
@@ -91,31 +93,34 @@ export class AuthProxyService {
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     try {
       this.logger.log(`Attempting registration for user: ${registerDto.email}`);
-      
+
       const response: AxiosResponse<AuthResponse> = await firstValueFrom(
         this.httpService.post(`${this.authServiceUrl}/register`, registerDto, {
           timeout: 10000,
           headers: {
             'Content-Type': 'application/json',
           },
-        })
+        }),
       );
 
       this.logger.log(`Registration successful for user: ${registerDto.email}`);
       return response.data;
     } catch (error) {
-      this.logger.error(`Registration failed for user: ${registerDto.email}`, error);
-      
+      this.logger.error(
+        `Registration failed for user: ${registerDto.email}`,
+        error,
+      );
+
       if (error.response) {
         throw new HttpException(
           error.response.data?.message || 'Registration failed',
-          error.response.status || HttpStatus.BAD_REQUEST
+          error.response.status || HttpStatus.BAD_REQUEST,
         );
       }
-      
+
       throw new HttpException(
         'Auth service unavailable',
-        HttpStatus.SERVICE_UNAVAILABLE
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
   }
@@ -131,20 +136,20 @@ export class AuthProxyService {
           headers: {
             Cookie: cookies,
           },
-        })
+        }),
       );
 
       return response.data;
     } catch (error) {
       this.logger.error('Session validation failed', error);
-      
+
       if (error.response) {
         return { valid: false };
       }
-      
+
       throw new HttpException(
         'Auth service unavailable',
-        HttpStatus.SERVICE_UNAVAILABLE
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
   }
@@ -154,19 +159,24 @@ export class AuthProxyService {
    */
   async logout(cookies: string): Promise<{ success: boolean }> {
     try {
-      const response: AxiosResponse<{ success: boolean }> = await firstValueFrom(
-        this.httpService.post(`${this.authServiceUrl}/logout`, {}, {
-          timeout: 5000,
-          headers: {
-            Cookie: cookies,
-          },
-        })
-      );
+      const response: AxiosResponse<{ success: boolean }> =
+        await firstValueFrom(
+          this.httpService.post(
+            `${this.authServiceUrl}/logout`,
+            {},
+            {
+              timeout: 5000,
+              headers: {
+                Cookie: cookies,
+              },
+            },
+          ),
+        );
 
       return response.data;
     } catch (error) {
       this.logger.error('Logout failed', error);
-      
+
       // Even if logout fails, we consider it successful from client perspective
       return { success: true };
     }
@@ -183,7 +193,7 @@ export class AuthProxyService {
           headers: {
             Cookie: cookies,
           },
-        })
+        }),
       );
 
       return response.data;

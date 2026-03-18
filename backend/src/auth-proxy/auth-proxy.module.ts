@@ -9,10 +9,12 @@ import { LocalAuthService } from './local-auth.service';
 import { ProductionAuthService } from './production-auth.service';
 import { AuthProxyController } from './auth-proxy.controller';
 import { AuthGuard } from './auth.guard';
+import { ParentOnlyGuard } from './parent-only.guard';
 import { LocalStrategy } from './local-auth.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { FamiliesModule } from '../families/families.module';
 import { User } from '../entities/user.entity';
+import { PocketMoneyUser } from '../entities/pocket-money-user.entity';
 
 @Module({
   imports: [
@@ -23,25 +25,24 @@ import { User } from '../entities/user.entity';
     ConfigModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'lommepenge_secret_key_for_development_only_2024',
+      secret:
+        process.env.JWT_SECRET ||
+        'lommepenge_secret_key_for_development_only_2024',
       signOptions: { expiresIn: '7d' },
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, PocketMoneyUser]),
     FamiliesModule,
   ],
   controllers: [AuthProxyController],
   providers: [
-    AuthProxyService, 
+    AuthProxyService,
     LocalAuthService,
     ProductionAuthService,
-    AuthGuard, 
-    LocalStrategy, 
-    JwtStrategy
+    AuthGuard,
+    ParentOnlyGuard,
+    LocalStrategy,
+    JwtStrategy,
   ],
-  exports: [
-    AuthProxyService, 
-    LocalAuthService,
-    AuthGuard
-  ],
+  exports: [AuthProxyService, LocalAuthService, AuthGuard, ParentOnlyGuard],
 })
 export class AuthProxyModule {}

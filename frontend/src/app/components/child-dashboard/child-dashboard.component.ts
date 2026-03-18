@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -57,6 +57,9 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
   isLoadingTransactions = false;
   isLoadingGoals = false;
   
+  // Account type state
+  isOwnAccount = false;
+
   // UI state
   stickyNoteRotation = 0;
   balanceColor = '#FFD700';
@@ -109,7 +112,8 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
     private balanceAnimationService: BalanceAnimationService,
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    private breadcrumbService: BreadcrumbService
+    private breadcrumbService: BreadcrumbService,
+    private cdr: ChangeDetectorRef
   ) {
     // Generate random rotation for sticky note effect
     this.stickyNoteRotation = Math.random() * 6 - 3; // -3 to 3 degrees
@@ -118,20 +122,26 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Get child ID from route parameters
     this.childId = this.route.snapshot.paramMap.get('childId');
-    
+
     if (!this.childId) {
       this.snackBar.open('Ingen barn ID fundet', 'Luk', { duration: 3000 });
       this.router.navigate(['/dashboard']);
       return;
     }
 
+    // Determine if this is the child's own account (child logged in viewing their own dashboard)
+    this.isOwnAccount = this.authService.isChildAccount();
+
     // Subscribe to current family
     this.subscriptions.add(
       this.familyService.currentFamily$.subscribe(family => {
-        this.currentFamily = family;
-        if (family) {
-          this.loadChildData();
-        }
+        queueMicrotask(() => {
+          this.currentFamily = family;
+          if (family) {
+            this.loadChildData();
+          }
+          this.cdr.detectChanges();
+        });
       })
     );
 
@@ -326,7 +336,7 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
   getChildAge(): number {
     if (!this.currentChild) return 0;
     
-    if (this.currentChild.age !== null) return this.currentChild.age;
+    if (this.currentChild.age != null && this.currentChild.age !== undefined) return this.currentChild.age;
     
     if (this.currentChild.dateOfBirth) {
       const birthDate = new Date(this.currentChild.dateOfBirth);
@@ -402,6 +412,16 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
   // Navigation methods
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  async logoutChild(): Promise<void> {
+    try {
+      await this.authService.logout();
+      this.snackBar.open('Du er nu logget ud. Vi ses! 👋', 'Luk', { duration: 3000 });
+    } catch (error) {
+      console.error('Logout error:', error);
+      this.snackBar.open('Der opstod en fejl ved logout', 'Luk', { duration: 3000 });
+    }
   }
 
   // Fun interaction methods for children

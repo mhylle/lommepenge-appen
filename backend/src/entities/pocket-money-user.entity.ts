@@ -27,7 +27,12 @@ export class PocketMoneyUser {
   @Column({ type: 'date', nullable: true, name: 'dateOfBirth' })
   dateOfBirth: Date;
 
-  @Column({ type: 'varchar', length: 255, nullable: true, name: 'profilePicture' })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    name: 'profilePicture',
+  })
   profilePicture: string;
 
   @Column({ type: 'varchar', length: 7, default: '#FFB6C1', name: 'cardColor' })
@@ -36,10 +41,22 @@ export class PocketMoneyUser {
   @Column({ type: 'varchar', length: 50, default: 'child' })
   role: string; // 'child', 'teen' - different UI/features
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'currentBalance' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+    name: 'currentBalance',
+  })
   currentBalance: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.00, name: 'weeklyAllowance' })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0.0,
+    name: 'weeklyAllowance',
+  })
   weeklyAllowance: number;
 
   @Column({ type: 'boolean', default: true, name: 'isActive' })
@@ -92,7 +109,10 @@ export class PocketMoneyUser {
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
 

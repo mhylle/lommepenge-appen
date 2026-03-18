@@ -7,22 +7,24 @@ import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { ChildGuard } from './guards/child.guard';
+import { ParentGuard } from './guards/parent.guard';
+import { ChildAccountGuard } from './guards/child-account.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { 
-    path: 'dashboard', 
+  {
+    path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, ParentGuard],
     data: { 
       title: 'Dashboard - Lommepenge App\'en',
       description: 'Oversigt over dine lommepenge opgaver'
     }
   },
-  { 
-    path: 'child/:childId', 
+  {
+    path: 'child/:childId',
     component: ChildDashboardComponent,
-    canActivate: [AuthGuard, ChildGuard],
+    canActivate: [AuthGuard, ChildAccountGuard],
     data: { 
       title: 'Børne Dashboard - Lommepenge App\'en',
       description: 'Barnets personlige lommepenge dashboard'

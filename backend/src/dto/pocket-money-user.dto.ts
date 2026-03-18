@@ -1,4 +1,17 @@
-import { IsString, IsOptional, IsNumber, IsBoolean, IsDateString, MaxLength, IsIn, IsObject, Min, Max, IsHexColor, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsDateString,
+  MaxLength,
+  IsIn,
+  IsObject,
+  Min,
+  Max,
+  IsHexColor,
+  IsInt,
+} from 'class-validator';
 
 export class CreatePocketMoneyUserDto {
   @IsString()
@@ -60,7 +73,9 @@ export class CreateChildDto {
   age: number;
 
   @IsOptional()
-  @IsHexColor({ message: 'Farve skal være en gyldig hex-kode (f.eks. #FF5733)' })
+  @IsHexColor({
+    message: 'Farve skal være en gyldig hex-kode (f.eks. #FF5733)',
+  })
   cardColor?: string;
 
   @IsOptional()
