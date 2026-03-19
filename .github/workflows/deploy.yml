@@ -262,14 +262,28 @@ jobs:
             --health-start-period=30s \
             "$FRONTEND_FULL"
           
-          # Wait for containers to be healthy (allow health-start-period to pass)
+          # Wait for containers to be healthy
           echo "⏳ Waiting for App2 containers to be healthy..."
-          sleep 15
-          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-backend 2>/dev/null)" = "healthy" ]; do echo "Waiting for backend..."; sleep 5; done' || echo "⚠️ Backend health check timeout"
-          timeout 60 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-frontend 2>/dev/null)" = "healthy" ]; do echo "Waiting for frontend..."; sleep 5; done' || echo "⚠️ Frontend health check timeout"
-          
-          # Final verification
-          if docker ps | grep -q "app2-backend.*Up" && docker ps | grep -q "app2-frontend.*Up"; then
+          echo "Waiting 45s for health-start-period..."
+          sleep 45
+
+          # Poll until healthy or timeout after 90s
+          TRIES=0
+          MAX_TRIES=18
+          while [ $TRIES -lt $MAX_TRIES ]; do
+            BACKEND_HEALTH=$(docker inspect --format="{{.State.Health.Status}}" app2-backend 2>/dev/null || echo "unknown")
+            FRONTEND_HEALTH=$(docker inspect --format="{{.State.Health.Status}}" app2-frontend 2>/dev/null || echo "unknown")
+            echo "Backend: $BACKEND_HEALTH, Frontend: $FRONTEND_HEALTH (attempt $((TRIES+1))/$MAX_TRIES)"
+            if [ "$BACKEND_HEALTH" = "healthy" ] && [ "$FRONTEND_HEALTH" = "healthy" ]; then
+              echo "✅ Both containers healthy!"
+              break
+            fi
+            TRIES=$((TRIES+1))
+            sleep 5
+          done
+
+          # Final verification - check containers are running (even if health not yet reported)
+          if docker ps | grep -q "app2-backend" && docker ps | grep -q "app2-frontend"; then
             echo "✅ App2 deployment successful!"
 
             # Show final status ensuring both apps are independent
