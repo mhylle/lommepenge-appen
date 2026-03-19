@@ -49,26 +49,32 @@
     <div class="dashboard-card goals-card">
       <div class="card-header">
         <h2>🎯 Mit Mål</h2>
+        <button class="add-goal-btn" (click)="addGoal()" title="Nyt mål">
+          <span class="add-goal-icon">➕</span>
+          <span class="add-goal-text">Nyt mål</span>
+        </button>
       </div>
       <div class="card-content">
         <div *ngIf="childGoals.length === 0 && !isLoadingGoals" class="no-goals">
-          <p class="fun-message">🌟 Få hjælp fra dine forældre til at sætte et mål!</p>
+          <p class="fun-message">🌟 Opret dit første opsparingsmål!</p>
+          <button class="add-goal-empty-btn" (click)="addGoal()">🎯 Opret mål</button>
         </div>
-        
+
         <div *ngIf="isLoadingGoals" class="loading-goals">
           <mat-spinner diameter="40"></mat-spinner>
           <p>Henter dine mål...</p>
         </div>
 
-        <div *ngFor="let goal of childGoals" class="goal-item">
+        <div *ngFor="let goal of childGoals" class="goal-item" (click)="celebrateGoalProgress(goal, $event)">
           <div class="goal-header">
             <span class="goal-emoji">{{ goal.emoji }}</span>
             <span class="goal-name">{{ goal.name }}</span>
+            <button class="delete-goal-btn" (click)="deleteGoal(goal, $event)" title="Slet mål">🗑️</button>
           </div>
           <div class="goal-progress">
             <div class="progress-bar-container">
-              <div 
-                class="progress-bar" 
+              <div
+                class="progress-bar"
                 [style.width.%]="getGoalProgress(goal)"
                 [style.background-color]="goal.color">
               </div>

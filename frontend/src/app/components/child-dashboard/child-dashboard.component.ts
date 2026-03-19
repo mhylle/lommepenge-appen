@@ -3,14 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { FamilyService, Family } from '../../services/family.service';
 import { TransactionService, Transaction, TransactionType } from '../../services/transaction.service';
+import { GoalsService, SavingsGoal } from '../../services/goals.service';
 import { CelebrationService } from '../../services/celebration.service';
 import { ConfettiService } from '../../services/confetti.service';
 import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { BalanceAnimationService, BalanceChange } from '../../services/balance-animation.service';
 import { Child } from '../child-registration-modal/child-registration-modal.component';
+import { AddGoalModalComponent, AddGoalDialogData } from '../add-goal-modal/add-goal-modal.component';
 import { environment } from '../../../environments/environment';
 
 // Interfaces for child-specific data
@@ -52,6 +55,7 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
   recentTransactions: Transaction[] = [];
   childGoals: ChildGoal[] = [];
   purchaseSuggestions: PurchaseSuggestion[] = [];
+  isDeletingGoal = false;
   
   // Loading states
   isLoadingTransactions = false;
@@ -107,11 +111,13 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private familyService: FamilyService,
     private transactionService: TransactionService,
+    private goalsService: GoalsService,
     private celebrationService: CelebrationService,
     private confettiService: ConfettiService,
     private balanceAnimationService: BalanceAnimationService,
     private http: HttpClient,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
     private breadcrumbService: BreadcrumbService,
     private cdr: ChangeDetectorRef
   ) {
@@ -249,39 +255,86 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Load child's savings goals (mock implementation for now)
+  // Load child's savings goals from API
   private loadChildGoals(): void {
-    this.isLoadingGoals = true;
-    
-    // Mock goals - in real implementation, this would come from API
-    const mockGoals: ChildGoal[] = [
-      {
-        id: '1',
-        name: 'Ny cykel',
-        targetAmount: 800,
-        currentAmount: this.currentChild?.currentBalance || 0,
-        emoji: '🚲',
-        color: '#FF6B6B',
-        priority: 'high',
-        createdDate: new Date()
-      },
-      {
-        id: '2',
-        name: 'Tegnesæt',
-        targetAmount: 150,
-        currentAmount: this.currentChild?.currentBalance || 0,
-        emoji: '🎨',
-        color: '#4ECDC4',
-        priority: 'medium',
-        createdDate: new Date()
-      }
-    ];
+    if (!this.childId) return;
 
-    // Simulate API delay
-    setTimeout(() => {
-      this.childGoals = mockGoals.filter(goal => goal.targetAmount > (this.currentChild?.currentBalance || 0));
-      this.isLoadingGoals = false;
-    }, 500);
+    this.isLoadingGoals = true;
+
+    this.subscriptions.add(
+      this.goalsService.getGoals(this.childId).subscribe({
+        next: (goals) => {
+          this.childGoals = goals.map(goal => ({
+            id: goal.id,
+            name: goal.name,
+            targetAmount: Number(goal.targetAmount),
+            currentAmount: Number(goal.currentAmount),
+            emoji: goal.emoji || '🎯',
+            color: this.getGoalColor(goal.priority),
+            priority: goal.priority,
+            createdDate: new Date(goal.createdAt),
+          }));
+          this.isLoadingGoals = false;
+        },
+        error: (error) => {
+          console.error('Error loading goals:', error);
+          this.isLoadingGoals = false;
+        }
+      })
+    );
+  }
+
+  // Map priority to color
+  private getGoalColor(priority: string): string {
+    switch (priority) {
+      case 'high': return '#FF6B6B';
+      case 'medium': return '#4ECDC4';
+      case 'low': return '#FFD93D';
+      default: return '#4ECDC4';
+    }
+  }
+
+  // Open add goal dialog
+  addGoal(): void {
+    if (!this.childId) return;
+
+    const dialogRef = this.dialog.open(AddGoalModalComponent, {
+      width: '520px',
+      maxHeight: '90vh',
+      panelClass: 'scrapbook-dialog',
+      data: { childId: this.childId } as AddGoalDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Reload goals after creating a new one
+        this.loadChildGoals();
+        this.snackBar.open('Nyt mål oprettet! 🎯', '', { duration: 3000 });
+        this.celebrationService.celebrateWithMessage('Nyt opsparingsmål oprettet! 🎯', 'achievement', 'medium');
+      }
+    });
+  }
+
+  // Delete a goal
+  deleteGoal(goal: ChildGoal, event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    if (!confirm(`Er du sikker på, at du vil slette målet "${goal.name}"?`)) {
+      return;
+    }
+
+    this.goalsService.deleteGoal(goal.id).subscribe({
+      next: () => {
+        this.childGoals = this.childGoals.filter(g => g.id !== goal.id);
+        this.snackBar.open('Mål slettet', '', { duration: 2000 });
+      },
+      error: (error) => {
+        console.error('Error deleting goal:', error);
+        this.snackBar.open('Kunne ikke slette målet', 'Luk', { duration: 3000 });
+      }
+    });
   }
 
   // Generate purchase suggestions based on balance

@@ -5,3 +5,4 @@ export {
   TransactionType,
   TransactionStatus,
 } from './transaction.entity';
+export { SavingsGoal, SavingsGoalPriority } from './savings-goal.entity';

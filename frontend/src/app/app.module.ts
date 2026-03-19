@@ -37,6 +37,7 @@ import { LoginComponent } from './components/login/login.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 import { ChildRegistrationModalComponent } from './components/child-registration-modal/child-registration-modal.component';
 import { DeductionModalComponent } from './components/deduction-modal/deduction-modal.component';
+import { AddGoalModalComponent } from './components/add-goal-modal/add-goal-modal.component';
 import { TransactionHistoryModalComponent } from './components/transaction-history-modal/transaction-history-modal.component';
 import { AddMoneyModalComponent } from './components/add-money-modal/add-money-modal.component';
 import { RewardModalComponent } from './components/reward-modal/reward-modal.component';
@@ -65,6 +66,7 @@ import { AnimatedCounterDirective } from './directives/animated-counter.directiv
     FormsModule,
     ChildRegistrationModalComponent,
     DeductionModalComponent,
+    AddGoalModalComponent,
     BreadcrumbComponent,
     ConfettiComponent,
     AnimatedCounterDirective,

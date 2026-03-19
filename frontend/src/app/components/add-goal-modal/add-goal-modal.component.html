@@ -1,0 +1,105 @@
+<div class="modal-overlay scrapbook-modal">
+  <div class="modal-container">
+    <!-- Paper texture background -->
+    <div class="paper-texture"></div>
+
+    <!-- Decorative tape in corners -->
+    <div class="tape tape-top-left"></div>
+    <div class="tape tape-top-right"></div>
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2 class="modal-title handwritten">🎯 Nyt opsparingsmål</h2>
+      <div class="sticker-decoration">✨</div>
+    </div>
+
+    <!-- Form Content -->
+    <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" class="goal-form">
+
+      <!-- Emoji Picker -->
+      <div class="form-group emoji-selection">
+        <label class="form-label handwritten">Vælg et ikon til dit mål</label>
+        <div class="emoji-grid">
+          <button
+            type="button"
+            *ngFor="let emoji of availableEmojis"
+            class="emoji-option"
+            [class.selected]="selectedEmoji === emoji.value"
+            (click)="selectEmoji(emoji.value)"
+            [title]="emoji.label">
+            <span class="emoji-icon">{{ emoji.value }}</span>
+          </button>
+        </div>
+        <div class="selected-emoji-display">
+          <span class="selected-emoji-large">{{ selectedEmoji }}</span>
+        </div>
+      </div>
+
+      <!-- Goal Name -->
+      <div class="form-group">
+        <label class="form-label handwritten" for="goalName">
+          Hvad sparer du op til?
+          <span class="required">*</span>
+        </label>
+        <mat-form-field appearance="outline" class="full-width scrapbook-field">
+          <input
+            matInput
+            id="goalName"
+            formControlName="name"
+            placeholder="F.eks. Ny cykel, LEGO, Spil..."
+            maxlength="100">
+          <mat-error>{{ getFieldError('name') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Target Amount -->
+      <div class="form-group">
+        <label class="form-label handwritten" for="targetAmount">
+          Hvor meget koster det?
+          <span class="required">*</span>
+        </label>
+        <mat-form-field appearance="outline" class="full-width scrapbook-field">
+          <input
+            matInput
+            type="number"
+            id="targetAmount"
+            formControlName="targetAmount"
+            min="1"
+            max="100000"
+            placeholder="0">
+          <span matTextSuffix>kr.</span>
+          <mat-hint>Skriv hvor meget du skal spare op</mat-hint>
+          <mat-error>{{ getFieldError('targetAmount') }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="cancel-btn scrapbook-btn-outline"
+          (click)="onCancel()"
+          [disabled]="isSubmitting">
+          Annuller
+        </button>
+        <button
+          type="submit"
+          class="submit-btn scrapbook-btn-primary"
+          [disabled]="goalForm.invalid || isSubmitting">
+          <mat-spinner
+            *ngIf="isSubmitting"
+            diameter="20"
+            class="submit-spinner">
+          </mat-spinner>
+          <span *ngIf="!isSubmitting">🎯 Opret mål</span>
+          <span *ngIf="isSubmitting">Opretter...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
