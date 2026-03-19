@@ -29,6 +29,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       await this.migration006_VerifyAndFixDatabaseSchema();
       await this.migration007_TemporaryDisableForeignKeyConstraints();
       await this.migration008_AddMissingTransactionColumns();
+      await this.migration009_AddChildAccountsAndSavingsGoals();
 
       this.logger.log('Database migrations completed successfully');
     } catch (error) {
@@ -485,6 +486,60 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
     }
 
     this.logger.log('Missing transaction columns added successfully');
+    await this.markMigrationExecuted(migrationName);
+  }
+
+  private async migration009_AddChildAccountsAndSavingsGoals() {
+    const migrationName = 'migration009_AddChildAccountsAndSavingsGoals';
+
+    if (await this.isMigrationExecuted(migrationName)) {
+      this.logger.log(`Migration ${migrationName} already executed, skipping`);
+      return;
+    }
+
+    this.logger.log('Running migration: Add child accounts and savings goals');
+
+    const queries = [
+      // Add new columns to users table for child accounts
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(100) UNIQUE;',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS "accountType" VARCHAR(20) DEFAULT \'parent\';',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS pin VARCHAR(255);',
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS "linkedPocketMoneyUserId" UUID;',
+
+      // Create savings_goals table
+      `CREATE TABLE IF NOT EXISTS savings_goals (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        "childId" UUID NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        "targetAmount" DECIMAL(10,2) NOT NULL,
+        "currentAmount" DECIMAL(10,2) DEFAULT 0,
+        emoji VARCHAR(10) DEFAULT '🎯',
+        priority VARCHAR(10) DEFAULT 'medium',
+        "isCompleted" BOOLEAN DEFAULT false,
+        "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY ("childId") REFERENCES pocket_money_users(id) ON DELETE CASCADE
+      );`,
+
+      // Index for fast lookups
+      'CREATE INDEX IF NOT EXISTS idx_savings_goals_child ON savings_goals("childId");',
+      'CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);',
+      'CREATE INDEX IF NOT EXISTS idx_users_account_type ON users("accountType");',
+    ];
+
+    for (const query of queries) {
+      try {
+        await this.dataSource.query(query);
+        this.logger.log(`Successfully executed: ${query.substring(0, 80)}...`);
+      } catch (error) {
+        this.logger.warn(
+          `Migration query failed (might already exist): ${query.substring(0, 80)}`,
+          error.message,
+        );
+      }
+    }
+
+    this.logger.log('Child accounts and savings goals migration completed');
     await this.markMigrationExecuted(migrationName);
   }
 }
