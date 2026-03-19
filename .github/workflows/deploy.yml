@@ -237,6 +237,8 @@ jobs:
             -e DB_NAME=mhylle_app2 \
             -e DB_USER=app2_user \
             -e DB_PASSWORD="${APP2_DB_PASSWORD}" \
+            -e JWT_SECRET="${APP2_JWT_SECRET:-lommepenge_secret_key_production_2026}" \
+            -e USE_PRODUCTION_AUTH=false \
             -e API_PREFIX=/api/app2 \
             --health-cmd="curl -f http://localhost:3000/health || exit 1" \
             --health-interval=30s \
@@ -260,8 +262,9 @@ jobs:
             --health-start-period=30s \
             "$FRONTEND_FULL"
           
-          # Wait for containers to be healthy
+          # Wait for containers to be healthy (allow health-start-period to pass)
           echo "⏳ Waiting for App2 containers to be healthy..."
+          sleep 15
           timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-backend 2>/dev/null)" = "healthy" ]; do echo "Waiting for backend..."; sleep 5; done' || echo "⚠️ Backend health check timeout"
           timeout 60 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" app2-frontend 2>/dev/null)" = "healthy" ]; do echo "Waiting for frontend..."; sleep 5; done' || echo "⚠️ Frontend health check timeout"
           

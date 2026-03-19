@@ -108,12 +108,18 @@ export class ProductionAuthService {
         `Forwarding registration request for user: ${registerDto.email}`,
       );
 
+      // Central auth service requires confirmPassword field
+      const authPayload = {
+        ...registerDto,
+        confirmPassword: registerDto.password,
+      };
+
       const response = await fetch(`${this.authBaseUrl}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(registerDto),
+        body: JSON.stringify(authPayload),
       });
 
       if (!response.ok) {
