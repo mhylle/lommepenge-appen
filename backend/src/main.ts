@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setDefaultResultOrder, lookup } from 'dns';
 import { promisify } from 'util';
+import * as cookieParser from 'cookie-parser';
 
 // Force DNS to resolve IPv4 first to avoid IPv6 localhost issues
 setDefaultResultOrder('ipv4first');
@@ -29,6 +30,9 @@ async function bootstrap() {
   await ensureIPv4Resolution();
 
   const app = await NestFactory.create(AppModule);
+
+  // Enable cookie parsing for SSO cookie-based authentication
+  app.use(cookieParser());
 
   // Enable CORS for development and production
   app.enableCors({

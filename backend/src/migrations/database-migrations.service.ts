@@ -30,6 +30,7 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
       await this.migration007_TemporaryDisableForeignKeyConstraints();
       await this.migration008_AddMissingTransactionColumns();
       await this.migration009_AddChildAccountsAndSavingsGoals();
+      await this.migration010_LinkCentralAuthAndMigrateEmail();
 
       this.logger.log('Database migrations completed successfully');
     } catch (error) {
@@ -540,6 +541,52 @@ export class DatabaseMigrationService implements OnApplicationBootstrap {
     }
 
     this.logger.log('Child accounts and savings goals migration completed');
+    await this.markMigrationExecuted(migrationName);
+  }
+
+  private async migration010_LinkCentralAuthAndMigrateEmail() {
+    const migrationName = 'migration010_LinkCentralAuthAndMigrateEmail';
+
+    if (await this.isMigrationExecuted(migrationName)) {
+      this.logger.log(`Migration ${migrationName} already executed, skipping`);
+      return;
+    }
+
+    this.logger.log(
+      'Running migration: Add central_auth_user_id column and migrate email',
+    );
+
+    const queries = [
+      // Add central_auth_user_id column to link local users to central auth users
+      'ALTER TABLE users ADD COLUMN IF NOT EXISTS central_auth_user_id UUID;',
+
+      // Index for fast lookups by central auth user ID
+      'CREATE INDEX IF NOT EXISTS idx_users_central_auth_user_id ON users(central_auth_user_id);',
+
+      // Migrate email from mhylle1@yahoo.com to mhylle@yahoo.com
+      // Only if mhylle@yahoo.com doesn't already exist (idempotent)
+      `UPDATE users SET email = 'mhylle@yahoo.com'
+       WHERE email = 'mhylle1@yahoo.com'
+       AND NOT EXISTS (SELECT 1 FROM users WHERE email = 'mhylle@yahoo.com');`,
+    ];
+
+    for (const query of queries) {
+      try {
+        await this.dataSource.query(query);
+        this.logger.log(
+          `Successfully executed: ${query.substring(0, 80)}...`,
+        );
+      } catch (error) {
+        this.logger.warn(
+          `Migration query failed (might already exist): ${query.substring(0, 80)}`,
+          error.message,
+        );
+      }
+    }
+
+    this.logger.log(
+      'Central auth link and email migration completed successfully',
+    );
     await this.markMigrationExecuted(migrationName);
   }
 }

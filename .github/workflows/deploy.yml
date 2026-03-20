@@ -237,8 +237,8 @@ jobs:
             -e DB_NAME=mhylle_app2 \
             -e DB_USER=app2_user \
             -e DB_PASSWORD="${APP2_DB_PASSWORD}" \
-            -e JWT_SECRET="${APP2_JWT_SECRET:-lommepenge_secret_key_production_2026}" \
-            -e USE_PRODUCTION_AUTH=false \
+            -e JWT_SECRET="${JWT_SECRET}" \
+            -e USE_PRODUCTION_AUTH=true \
             -e API_PREFIX=/api/app2 \
             --health-cmd="curl -f http://localhost:3000/health || exit 1" \
             --health-interval=30s \

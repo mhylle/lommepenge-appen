@@ -42,6 +42,7 @@ export interface AuthResponse {
   };
   access_token?: string;
   message?: string;
+  setCookieHeaders?: string[];
 }
 
 export interface ValidationResponse {
@@ -542,6 +543,66 @@ export class LocalAuthService {
         error,
       );
       return null;
+    }
+  }
+
+  /**
+   * Find a local user by email address.
+   * Used to map central auth users to their local user records.
+   */
+  async findByEmail(email: string): Promise<User | null> {
+    try {
+      return await this.userRepository.findOne({ where: { email } });
+    } catch (error) {
+      this.logger.error(`Error finding user by email ${email}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Create a local user record linked to a central auth user.
+   * This is used when a user authenticates via central auth but doesn't
+   * have a local user record yet in app2's database.
+   */
+  async createLocalUser(params: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    centralAuthUserId: string;
+  }): Promise<User> {
+    try {
+      this.logger.log(
+        `Creating local user for central auth user: ${params.email} (centralAuthId: ${params.centralAuthUserId})`,
+      );
+
+      // Generate a placeholder password (auth is handled by central auth service)
+      const placeholderPassword = await bcrypt.hash(uuidv4(), 10);
+
+      const user = this.userRepository.create({
+        email: params.email,
+        firstName: params.firstName,
+        lastName: params.lastName,
+        password: placeholderPassword,
+        centralAuthUserId: params.centralAuthUserId,
+        apps: ['app2'],
+        roles: { app2: ['admin'] },
+      });
+
+      const savedUser = await this.userRepository.save(user);
+      this.logger.log(
+        `Local user created: ${savedUser.id} for central auth user ${params.centralAuthUserId}`,
+      );
+
+      return savedUser;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create local user for ${params.email}:`,
+        error,
+      );
+      throw new HttpException(
+        'Failed to create local user record',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

@@ -24,6 +24,7 @@ import { FamiliesService } from '../families/families.service';
 export class AuthProxyController {
   private readonly logger = new Logger(AuthProxyController.name);
   private readonly authService: LocalAuthService | ProductionAuthService;
+  private readonly useProductionAuth: boolean;
 
   constructor(
     private readonly localAuthService: LocalAuthService,
@@ -31,14 +32,32 @@ export class AuthProxyController {
     private readonly familiesService: FamiliesService,
   ) {
     // Use production auth service if USE_PRODUCTION_AUTH env var is set to 'true'
-    const useProductionAuth = process.env.USE_PRODUCTION_AUTH === 'true';
-    this.authService = useProductionAuth
+    this.useProductionAuth = process.env.USE_PRODUCTION_AUTH === 'true';
+    this.authService = this.useProductionAuth
       ? this.productionAuthService
       : this.localAuthService;
 
     this.logger.log(
-      `Using ${useProductionAuth ? 'production' : 'local'} authentication service`,
+      `Using ${this.useProductionAuth ? 'production' : 'local'} authentication service`,
     );
+  }
+
+  /**
+   * Forward Set-Cookie headers from the central auth service response
+   * to the browser response, enabling SSO cookie propagation.
+   */
+  private forwardSetCookieHeaders(
+    res: Response,
+    setCookieHeaders?: string[],
+  ): void {
+    if (setCookieHeaders && setCookieHeaders.length > 0) {
+      for (const header of setCookieHeaders) {
+        res.append('Set-Cookie', header);
+      }
+      this.logger.log(
+        `Forwarded ${setCookieHeaders.length} Set-Cookie header(s) from central auth`,
+      );
+    }
   }
 
   @Post('login')
@@ -50,23 +69,65 @@ export class AuthProxyController {
     try {
       const result = await this.authService.login(loginDto);
 
+      // Forward Set-Cookie headers from central auth for SSO
+      if (this.useProductionAuth && result.setCookieHeaders) {
+        this.forwardSetCookieHeaders(res, result.setCookieHeaders);
+      }
+
+      // Remove setCookieHeaders from the JSON response body (internal field)
+      const { setCookieHeaders, ...responseBody } = result;
+
       // If login is successful and we have user data, ensure family exists
-      if (result.success && result.user) {
+      if (responseBody.success && responseBody.user) {
         try {
+          // When using production auth, resolve the LOCAL user by email
+          // so that family/transaction queries use the correct local UUID
+          let userId = responseBody.user.id;
+          if (this.useProductionAuth) {
+            const centralUser = responseBody.user;
+            let localUser = await this.localAuthService.findByEmail(
+              centralUser.email,
+            );
+
+            if (!localUser) {
+              // Create a local user record linked to the central auth user
+              localUser = await this.localAuthService.createLocalUser({
+                email: centralUser.email,
+                firstName: centralUser.firstName,
+                lastName: centralUser.lastName,
+                centralAuthUserId: centralUser.id,
+              });
+            } else if (!localUser.centralAuthUserId) {
+              // Link existing local user to central auth if not already linked
+              localUser.centralAuthUserId = centralUser.id;
+              // Save is handled via the repository in localAuthService,
+              // but we have direct access through the service
+              this.logger.log(
+                `Linking existing local user ${localUser.id} to central auth user ${centralUser.id}`,
+              );
+            }
+
+            userId = localUser.id;
+            this.logger.log(
+              `Resolved local user ${userId} for central auth user ${centralUser.id}`,
+            );
+          }
+
           const parentName =
-            `${result.user.firstName} ${result.user.lastName}`.trim();
+            `${responseBody.user.firstName} ${responseBody.user.lastName}`.trim();
           const family = await this.familiesService.createOrGetDefaultFamily(
-            result.user.id,
-            parentName || result.user.firstName,
+            userId,
+            parentName || responseBody.user.firstName,
           );
 
           this.logger.log(
-            `Family ensured for user ${result.user.id}: ${family.id}`,
+            `Family ensured for user ${userId}: ${family.id}`,
           );
 
           // Add family info to the response
           const enrichedResult = {
-            ...result,
+            ...responseBody,
+            localUserId: this.useProductionAuth ? userId : undefined,
             family: {
               id: family.id,
               name: family.name,
@@ -79,13 +140,13 @@ export class AuthProxyController {
         } catch (familyError) {
           // Don't fail login if family creation fails
           this.logger.warn(
-            `Failed to create family for user ${result.user.id}:`,
+            `Failed to create family for user ${responseBody.user.id}:`,
             familyError,
           );
 
           // Return original login result with family creation warning
           const resultWithWarning = {
-            ...result,
+            ...responseBody,
             warnings: [
               'Familie kunne ikke oprettes automatisk. Prøv igen senere.',
             ], // "Family could not be created automatically. Try again later."
@@ -95,10 +156,7 @@ export class AuthProxyController {
         }
       }
 
-      // Note: Cookie forwarding will be handled by the auth service response
-      // The auth service should set cookies directly in its response
-
-      return res.status(HttpStatus.OK).json(result);
+      return res.status(HttpStatus.OK).json(responseBody);
     } catch (error) {
       this.logger.error('Login error:', error);
       return res
@@ -160,26 +218,57 @@ export class AuthProxyController {
     try {
       const result = await this.authService.register(registerDto);
 
+      // Forward Set-Cookie headers from central auth for SSO
+      if (this.useProductionAuth && result.setCookieHeaders) {
+        this.forwardSetCookieHeaders(res, result.setCookieHeaders);
+      }
+
+      // Remove setCookieHeaders from the JSON response body (internal field)
+      const { setCookieHeaders, ...responseBody } = result;
+
       // If registration is successful and we have user data, create family
-      if (result.success && result.user) {
+      if (responseBody.success && responseBody.user) {
         try {
+          // When using production auth, resolve/create the LOCAL user
+          let userId = responseBody.user.id;
+          if (this.useProductionAuth) {
+            const centralUser = responseBody.user;
+            let localUser = await this.localAuthService.findByEmail(
+              centralUser.email,
+            );
+
+            if (!localUser) {
+              localUser = await this.localAuthService.createLocalUser({
+                email: centralUser.email,
+                firstName: centralUser.firstName,
+                lastName: centralUser.lastName,
+                centralAuthUserId: centralUser.id,
+              });
+            }
+
+            userId = localUser.id;
+            this.logger.log(
+              `Resolved local user ${userId} for central auth user ${centralUser.id}`,
+            );
+          }
+
           const parentName =
-            `${result.user.firstName} ${result.user.lastName}`.trim();
+            `${responseBody.user.firstName} ${responseBody.user.lastName}`.trim();
           const familyName = registerDto.familyName || `${parentName} Familie`;
 
           const family = await this.familiesService.createOrGetDefaultFamily(
-            result.user.id,
-            parentName || result.user.firstName,
+            userId,
+            parentName || responseBody.user.firstName,
             familyName,
           );
 
           this.logger.log(
-            `Family created for new user ${result.user.id}: ${family.id}`,
+            `Family created for user ${userId}: ${family.id}`,
           );
 
           // Add family info to the response
           const enrichedResult = {
-            ...result,
+            ...responseBody,
             family: {
               id: family.id,
               name: family.name,
@@ -192,13 +281,13 @@ export class AuthProxyController {
         } catch (familyError) {
           // Don't fail registration if family creation fails
           this.logger.warn(
-            `Failed to create family for new user ${result.user.id}:`,
+            `Failed to create family for new user ${responseBody.user.id}:`,
             familyError,
           );
 
           // Return original registration result with family creation warning
           const resultWithWarning = {
-            ...result,
+            ...responseBody,
             warnings: [
               'Familie kunne ikke oprettes automatisk. Du kan oprette en senere.',
             ],
@@ -208,10 +297,7 @@ export class AuthProxyController {
         }
       }
 
-      // Note: Cookie forwarding will be handled by the auth service response
-      // The auth service should set cookies directly in its response
-
-      return res.status(HttpStatus.CREATED).json(result);
+      return res.status(HttpStatus.CREATED).json(responseBody);
     } catch (error) {
       this.logger.error('Registration error:', error);
       return res
@@ -229,16 +315,37 @@ export class AuthProxyController {
       // If session is valid and we have user data, ensure family exists
       if (result.valid && result.user) {
         try {
+          // When using production auth, resolve the LOCAL user by email
+          let userId = result.user.id;
+          if (this.useProductionAuth) {
+            const centralUser = result.user;
+            let localUser = await this.localAuthService.findByEmail(
+              centralUser.email,
+            );
+
+            if (!localUser) {
+              localUser = await this.localAuthService.createLocalUser({
+                email: centralUser.email,
+                firstName: centralUser.firstName,
+                lastName: centralUser.lastName,
+                centralAuthUserId: centralUser.id,
+              });
+            }
+
+            userId = localUser.id;
+          }
+
           const parentName =
             `${result.user.firstName} ${result.user.lastName}`.trim();
           const family = await this.familiesService.createOrGetDefaultFamily(
-            result.user.id,
+            userId,
             parentName || result.user.firstName,
           );
 
           // Add family info to the response
           const enrichedResult = {
             ...result,
+            localUserId: this.useProductionAuth ? userId : undefined,
             family: {
               id: family.id,
               name: family.name,
@@ -270,12 +377,12 @@ export class AuthProxyController {
     try {
       const result = await this.authService.logout();
 
-      // Clear cookies on logout
-      res.clearCookie('authToken', {
+      // Clear the SSO cookie (must match the cookie name and options set by auth service)
+      res.clearCookie('auth_token', {
         domain: 'mhylle.com',
         path: '/',
         httpOnly: true,
-        secure: true,
+        secure: false,
         sameSite: 'lax',
       });
 

@@ -82,11 +82,22 @@ export class ProductionAuthService {
       const result = await response.json();
       this.logger.log(`Login successful for user: ${loginDto.email}`);
 
+      // Capture Set-Cookie headers from the central auth response
+      // so the controller can forward them to the browser for SSO
+      const setCookieHeaders = response.headers.getSetCookie
+        ? response.headers.getSetCookie()
+        : [];
+
+      this.logger.log(
+        `Captured ${setCookieHeaders.length} Set-Cookie header(s) from central auth`,
+      );
+
       const user = result.user || result.data;
       return {
         success: true,
         user: user ? this.ensureUserHasPermissions(user) : user,
         access_token: result.access_token || result.token,
+        setCookieHeaders,
       };
     } catch (error) {
       this.logger.error(`Login failed for user: ${loginDto.email}`, error);
@@ -133,11 +144,17 @@ export class ProductionAuthService {
       const result = await response.json();
       this.logger.log(`Registration successful for user: ${registerDto.email}`);
 
+      // Capture Set-Cookie headers from the central auth response for SSO
+      const setCookieHeaders = response.headers.getSetCookie
+        ? response.headers.getSetCookie()
+        : [];
+
       const user = result.user || result.data;
       return {
         success: true,
         user: user ? this.ensureUserHasPermissions(user) : user,
         access_token: result.access_token || result.token,
+        setCookieHeaders,
       };
     } catch (error) {
       this.logger.error(

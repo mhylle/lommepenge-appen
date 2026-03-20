@@ -55,6 +55,9 @@ export class User {
   @Column({ type: 'uuid', nullable: true, name: 'linkedPocketMoneyUserId' })
   linkedPocketMoneyUserId: string; // reference to PocketMoneyUser
 
+  @Column({ name: 'central_auth_user_id', type: 'uuid', nullable: true })
+  centralAuthUserId: string; // reference to central auth service user ID
+
   // @OneToMany(() => Family, family => family.parent, { cascade: true })
   // families: Family[];
 
