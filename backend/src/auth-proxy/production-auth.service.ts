@@ -174,31 +174,28 @@ export class ProductionAuthService {
   }
 
   async validateByJwt(payload: any): Promise<ValidationResponse> {
-    try {
-      // For production auth, we would need to validate the JWT
-      // This might require sending a validation request to the auth service
-      const response = await fetch(`${this.authBaseUrl}/validate`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${payload.token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const user = data.user || data.data;
-        return {
-          valid: true,
-          user: user ? this.ensureUserHasPermissions(user) : user,
-        };
-      }
-
-      return { valid: false };
-    } catch (error) {
-      this.logger.error('JWT validation failed:', error);
+    // The JWT was already validated by Passport's JwtAuthGuard (signature + expiry).
+    // The payload contains the decoded user info from the token.
+    // No need to call the auth service again — just return the user data.
+    if (!payload || !payload.id) {
       return { valid: false };
     }
+
+    const user = {
+      id: payload.id,
+      email: payload.email,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      permissions: {
+        apps: payload.apps || ['app2'],
+        roles: payload.roles || { app2: ['admin'] },
+      },
+    };
+
+    return {
+      valid: true,
+      user: this.ensureUserHasPermissions(user),
+    };
   }
 
   async getCurrentUser(userId: string): Promise<ValidationResponse> {
