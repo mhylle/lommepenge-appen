@@ -133,16 +133,19 @@ jobs:
     steps:
     - name: Deploy to Scaleway
       uses: appleboy/ssh-action@v1.0.0
+      env:
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: ${{ secrets.SERVER_PORT || 22 }}
+        envs: JWT_SECRET
         script: |
           set -e
-          
+
           echo "🚀 Starting deployment of ${{ env.APP_NAME }}..."
-          
+
           # Navigate to infrastructure directory
           cd /home/mhylle/projects/mhylle.com
           
