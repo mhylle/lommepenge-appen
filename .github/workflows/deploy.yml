@@ -94,8 +94,8 @@ jobs:
         tags: ${{ steps.meta-frontend.outputs.tags }}
         labels: ${{ steps.meta-frontend.outputs.labels }}
         build-args: |
-          BASE_HREF=/app2/
-          DEPLOY_URL=/app2/
+          BASE_HREF=/lommepenge/
+          DEPLOY_URL=/lommepenge/
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -185,8 +185,42 @@ jobs:
           # Log in to GitHub Container Registry
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
-          echo "✅ Nginx configuration updated successfully"
-          
+          # Update nginx config to route /lommepenge/ and /api/lommepenge/
+          echo "🔧 Updating nginx configuration for /lommepenge/ routes..."
+          NGINX_CONF="/tmp/nginx-conf.d/apps.conf"
+          if [ -f "$NGINX_CONF" ]; then
+            # Add /lommepenge/ routes if not already present
+            if ! grep -q "location /lommepenge/" "$NGINX_CONF"; then
+              cat >> "$NGINX_CONF" << 'NGINX_EOF'
+
+          # Lommepenge App (formerly app2)
+          location /lommepenge/ {
+              proxy_pass http://app2-frontend:80/lommepenge/;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+
+          location /api/lommepenge/ {
+              rewrite ^/api/lommepenge/(.*)$ /$1 break;
+              proxy_pass http://app2-backend:3000;
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+          }
+          NGINX_EOF
+              echo "✅ Added /lommepenge/ routes to nginx config"
+            else
+              echo "✅ /lommepenge/ routes already in nginx config"
+            fi
+            # Reload nginx
+            docker exec mhylle-nginx nginx -s reload 2>/dev/null || echo "⚠️ Could not reload nginx (may need manual reload)"
+          else
+            echo "⚠️ Nginx config not found at $NGINX_CONF - routes need manual setup"
+          fi
+
           # Deploy App2 independently using Docker directly
           echo "🚀 Deploying App2 using Docker containers..."
 
@@ -242,7 +276,7 @@ jobs:
             -e DB_PASSWORD="${APP2_DB_PASSWORD}" \
             -e JWT_SECRET="${JWT_SECRET}" \
             -e USE_PRODUCTION_AUTH=true \
-            -e API_PREFIX=/api/app2 \
+            -e API_PREFIX=/api/lommepenge \
             --health-cmd="curl -f http://localhost:3000/health || exit 1" \
             --health-interval=30s \
             --health-timeout=10s \

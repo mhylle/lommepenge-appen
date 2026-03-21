@@ -64,7 +64,7 @@ async function bootstrap() {
     });
   });
 
-  app.use('/api/app2/health', (req, res) => {
+  app.use('/api/lommepenge/health', (req, res) => {
     res.status(200).json({
       status: 'healthy',
       application: 'App2 Backend',
@@ -79,6 +79,6 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   console.log(`🚀 App2 Backend is running on port ${port}`);
   console.log(`🏥 Health Check: http://localhost:${port}/health`);
-  console.log(`🏥 API Health Check: http://localhost:${port}/api/app2/health`);
+  console.log(`🏥 API Health Check: http://localhost:${port}/api/lommepenge/health`);
 }
 bootstrap();

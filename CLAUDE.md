@@ -13,7 +13,7 @@ This is "Example App 2" - a task management application built with Angular 19 fr
 # Development
 npm start                    # Start dev server with proxy (http://localhost:4200)
 npm run build               # Build for production
-npm run build:prod          # Build with base-href="/app2/" for deployment
+npm run build:prod          # Build with base-href="/lommepenge/" for deployment
 npm run serve:prod          # Serve production build locally
 
 # Testing
@@ -52,7 +52,7 @@ docker-compose up --build
 
 # Access application
 # Frontend: http://localhost:3002 (or via nginx proxy)
-# Backend: http://localhost:8002 (or via nginx proxy at /api/app2/)
+# Backend: http://localhost:8002 (or via nginx proxy at /api/lommepenge/)
 ```
 
 ## Architecture Overview
@@ -73,9 +73,9 @@ This is a **task management system** with the following key features:
 
 ### Subpath Routing Configuration
 The application is designed for subpath deployment:
-- **Frontend**: Served at `/app2/` (configured with `baseHref: "/app2/"`)
-- **Backend API**: Accessible at `/api/app2/` (nginx strips prefix before forwarding)
-- **Health Check**: `/api/app2/health` endpoint for monitoring
+- **Frontend**: Served at `/lommepenge/` (configured with `baseHref: "/lommepenge/"`)
+- **Backend API**: Accessible at `/api/lommepenge/` (nginx strips prefix before forwarding)
+- **Health Check**: `/api/lommepenge/health` endpoint for monitoring
 
 ### Database Architecture
 - Uses shared PostgreSQL instance (`mhylle-postgres`)
@@ -96,7 +96,7 @@ The application is designed for subpath deployment:
 - **Modules**: Tasks module, Database module, Health module, App module
 - **Services**: TasksService for business logic (currently minimal implementation)
 - **Entities**: Task entity with UUID primary key, status, priority, due dates
-- **Health Endpoints**: `/health` and `/api/app2/health` for monitoring
+- **Health Endpoints**: `/health` and `/api/lommepenge/health` for monitoring
 
 ### Docker Configuration
 - **Networks**: Uses both `app2-network` (internal) and `mhylle-network` (external)
@@ -118,7 +118,7 @@ The backend includes special DNS resolution fixes:
 2. Configure environment variables for database connection
 3. Start backend with `npm run start:dev`
 4. Start frontend with `npm start` (includes proxy configuration)
-5. Access app at `http://localhost:4200/app2/`
+5. Access app at `http://localhost:4200/lommepenge/`
 
 ### Building for Production
 - Frontend: `npm run build:prod` (includes correct base-href)
@@ -133,7 +133,7 @@ The backend includes special DNS resolution fixes:
 ## Critical Configuration Notes
 
 ### Angular Configuration
-- **Base Href**: Configured for `/app2/` in both development and production
+- **Base Href**: Configured for `/lommepenge/` in both development and production
 - **Proxy Config**: `proxy.conf.json` for local development API routing
 - **Build Budgets**: Initial bundle limit of 2MB, component styles limit of 8KB
 - **Material Theme**: Uses prebuilt indigo-pink theme
@@ -159,7 +159,7 @@ The backend includes special DNS resolution fixes:
 
 ### Backend Issues  
 - **Database Connection**: Verify `DB_HOST=mhylle-postgres` and database exists (`app2_db`)
-- **Health Check Failures**: Ensure health endpoints respond correctly at `/health` and `/api/app2/health`
+- **Health Check Failures**: Ensure health endpoints respond correctly at `/health` and `/api/lommepenge/health`
 - **CORS Errors**: Verify CORS configuration includes correct origins for environment
 
 ### Docker Issues

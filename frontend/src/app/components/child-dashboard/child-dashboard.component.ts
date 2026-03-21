@@ -196,7 +196,7 @@ export class ChildDashboardComponent implements OnInit, OnDestroy {
   private loadChild(): void {
     if (!this.childId || !this.currentFamily?.id) return;
 
-    const apiUrl = `/api/app2/pocket-money-users/child/${this.childId}`;
+    const apiUrl = `/api/lommepenge/pocket-money-users/child/${this.childId}`;
     
     this.subscriptions.add(
       this.http.get<Child>(apiUrl).subscribe({

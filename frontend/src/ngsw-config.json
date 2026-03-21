@@ -31,7 +31,7 @@
   "dataGroups": [
     {
       "name": "api-freshness",
-      "urls": ["/api/app2/**"],
+      "urls": ["/api/lommepenge/**"],
       "cacheConfig": {
         "strategy": "freshness",
         "maxSize": 100,

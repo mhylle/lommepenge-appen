@@ -46,9 +46,9 @@ USER nestjs
 # Expose port
 EXPOSE 3000
 
-# Health check (app2 uses /api/app2/health endpoint)
+# Health check (app2 uses /api/lommepenge/health endpoint)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:3000/api/app2/health || exit 1
+  CMD curl -f http://localhost:3000/api/lommepenge/health || exit 1
 
 # Start the application
 CMD ["node", "dist/main"]

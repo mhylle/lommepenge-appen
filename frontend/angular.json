@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/app2-frontend",
+            "outputPath": "dist/lommepenge-frontend",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -51,7 +51,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/app2/"
+              "baseHref": "/lommepenge/"
             },
             "development": {
               "buildOptimizer": false,
@@ -60,7 +60,7 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true,
-              "baseHref": "/app2/"
+              "baseHref": "/lommepenge/"
             }
           },
           "defaultConfiguration": "production"

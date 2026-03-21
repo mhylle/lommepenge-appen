@@ -54,7 +54,7 @@ export class ChildAccountGuard implements CanActivate {
   }
 
   private verifyChildAccess(childId: string, familyId: string): Observable<boolean> {
-    const apiUrl = `/api/app2/pocket-money-users/verify-child-access/${childId}/${familyId}`;
+    const apiUrl = `/api/lommepenge/pocket-money-users/verify-child-access/${childId}/${familyId}`;
 
     return this.http.get<{ hasAccess: boolean }>(apiUrl).pipe(
       map(response => {

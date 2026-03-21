@@ -327,7 +327,7 @@ export class AppComponent implements OnInit {
     name: 'App2 - Task Management Application',
     version: '1.0.0',
     environment: 'production',
-    apiUrl: '/api/app2'
+    apiUrl: '/api/lommepenge'
   };
 
   currentUser: UserInfo | null = null;
@@ -388,7 +388,7 @@ export class AppComponent implements OnInit {
     this.appInfo = {
       ...this.appInfo,
       environment: isProduction ? 'production' : 'development',
-      apiUrl: '/api/app2' // Always use relative URL - handled by proxy in dev
+      apiUrl: '/api/lommepenge' // Always use relative URL - handled by proxy in dev
     };
   }
 }

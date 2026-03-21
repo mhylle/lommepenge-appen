@@ -74,7 +74,7 @@ export class FamilyService {
    */
   async getFamilies(): Promise<Family[]> {
     try {
-      const response = await fetch('/api/app2/families', {
+      const response = await fetch('/api/lommepenge/families', {
         credentials: 'include'
       });
 
@@ -101,7 +101,7 @@ export class FamilyService {
    */
   async getActiveFamilies(): Promise<Family[]> {
     try {
-      const response = await fetch('/api/app2/families/active', {
+      const response = await fetch('/api/lommepenge/families/active', {
         credentials: 'include'
       });
 
@@ -128,7 +128,7 @@ export class FamilyService {
    */
   async getFamily(id: string): Promise<Family> {
     try {
-      const response = await fetch(`/api/app2/families/${id}`, {
+      const response = await fetch(`/api/lommepenge/families/${id}`, {
         credentials: 'include'
       });
 
@@ -148,7 +148,7 @@ export class FamilyService {
    */
   async createFamily(familyDto: CreateFamilyDto): Promise<Family> {
     try {
-      const response = await fetch('/api/app2/families', {
+      const response = await fetch('/api/lommepenge/families', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -176,7 +176,7 @@ export class FamilyService {
    */
   async updateFamily(id: string, familyDto: UpdateFamilyDto): Promise<Family> {
     try {
-      const response = await fetch(`/api/app2/families/${id}`, {
+      const response = await fetch(`/api/lommepenge/families/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -209,7 +209,7 @@ export class FamilyService {
    */
   async deleteFamily(id: string): Promise<void> {
     try {
-      const response = await fetch(`/api/app2/families/${id}`, {
+      const response = await fetch(`/api/lommepenge/families/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });

@@ -227,7 +227,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!this.currentFamily?.id) return;
     
     this.isLoadingChildren = true;
-    const apiUrl = `/api/app2/pocket-money-users/children/${this.currentFamily.id}`;
+    const apiUrl = `/api/lommepenge/pocket-money-users/children/${this.currentFamily.id}`;
     
     this.subscriptions.add(
       this.http.get<Child[]>(apiUrl).subscribe({
@@ -274,7 +274,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isLoadingStats = true;
     
     this.subscriptions.add(
-      this.http.get(`/api/app2/transactions/family-stats/${this.currentFamily.id}`).subscribe({
+      this.http.get(`/api/lommepenge/transactions/family-stats/${this.currentFamily.id}`).subscribe({
         next: (stats) => {
           this.realFamilyStats = stats;
           this.isLoadingStats = false;
@@ -291,7 +291,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadChildrenLastActivity(): void {
     this.actualChildren.forEach(child => {
       this.subscriptions.add(
-        this.http.get<{lastActivity: string}>(`/api/app2/transactions/last-activity/${child.id}`).subscribe({
+        this.http.get<{lastActivity: string}>(`/api/lommepenge/transactions/last-activity/${child.id}`).subscribe({
           next: (response) => {
             this.childrenLastActivity[child.id] = response.lastActivity;
           },
@@ -715,7 +715,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Reset PIN for a child
   resetPin(child: Child): void {
-    const apiUrl = `/api/app2/pocket-money-users/credentials/${child.id}/reset-pin`;
+    const apiUrl = `/api/lommepenge/pocket-money-users/credentials/${child.id}/reset-pin`;
 
     this.subscriptions.add(
       this.http.post<{ username: string; pin: string }>(apiUrl, {}).subscribe({
@@ -734,7 +734,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Create login account for existing child without one
   createChildAccount(child: Child): void {
-    const apiUrl = `/api/app2/pocket-money-users/credentials/${child.id}/create-account`;
+    const apiUrl = `/api/lommepenge/pocket-money-users/credentials/${child.id}/create-account`;
 
     this.subscriptions.add(
       this.http.post<{ username: string; pin: string }>(apiUrl, {}).subscribe({

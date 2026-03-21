@@ -230,7 +230,7 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
         weeklyAllowance: formValue.weeklyAllowance || this.getRecommendedAllowance()
       };
 
-      const apiUrl = `/api/app2/pocket-money-users/${this.data.editChild.id}`;
+      const apiUrl = `/api/lommepenge/pocket-money-users/${this.data.editChild.id}`;
 
       this.subscriptions.add(
         this.http.patch<Child>(apiUrl, updateChildRequest).subscribe({
@@ -261,7 +261,7 @@ export class ChildRegistrationModalComponent implements OnInit, OnDestroy {
         weeklyAllowance: formValue.weeklyAllowance || this.getRecommendedAllowance()
       };
 
-      const apiUrl = `/api/app2/pocket-money-users/children`;
+      const apiUrl = `/api/lommepenge/pocket-money-users/children`;
 
       this.subscriptions.add(
         this.http.post<Child & { credentials?: { username: string; pin: string } }>(apiUrl, createChildRequest).subscribe({

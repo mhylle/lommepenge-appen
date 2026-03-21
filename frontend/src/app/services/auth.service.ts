@@ -48,7 +48,7 @@ export class AuthService {
 
   async validateSession(): Promise<UserInfo | null> {
     try {
-      const response = await fetch('/api/app2/auth/validate', {
+      const response = await fetch('/api/lommepenge/auth/validate', {
         credentials: 'include' // Include cookies
       });
       
@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async login(credentials: LoginRequest): Promise<UserInfo> {
-    const response = await fetch('/api/app2/auth/login', {
+    const response = await fetch('/api/lommepenge/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -123,7 +123,7 @@ export class AuthService {
   }
 
   async loginAsChild(credentials: ChildLoginRequest): Promise<UserInfo> {
-    const response = await fetch('/api/app2/auth/login/child', {
+    const response = await fetch('/api/lommepenge/auth/login/child', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ export class AuthService {
   }
 
   async register(registrationData: RegisterRequest): Promise<UserInfo> {
-    const response = await fetch('/api/app2/auth/register', {
+    const response = await fetch('/api/lommepenge/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -195,7 +195,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await fetch('/api/app2/auth/logout', {
+      await fetch('/api/lommepenge/auth/logout', {
         method: 'POST',
         credentials: 'include'
       });

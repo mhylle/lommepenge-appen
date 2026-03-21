@@ -1,11 +1,11 @@
 {
-  "/api/app2": {
+  "/api/lommepenge": {
     "target": "http://localhost:3005",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug",
     "pathRewrite": {
-      "^/api/app2": ""
+      "^/api/lommepenge": ""
     }
   }
 }

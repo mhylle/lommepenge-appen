@@ -24,7 +24,7 @@ export class AppService {
       ],
       endpoints: {
         health: '/health',
-        api: '/api/app2',
+        api: '/api/lommepenge',
       },
       timestamp: new Date().toISOString(),
     };

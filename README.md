@@ -26,10 +26,10 @@ This is the second example application (`app2`) showing how to add additional ap
 ## 🏗️ Architecture
 
 ### Routing Configuration
-- **Frontend**: `https://mhylle.com/app2/`
-- **Backend API**: `https://mhylle.com/api/app2/`
-- **API Documentation**: `https://mhylle.com/api/app2/docs`
-- **Health Check**: `https://mhylle.com/api/app2/health`
+- **Frontend**: `https://mhylle.com/lommepenge/`
+- **Backend API**: `https://mhylle.com/api/lommepenge/`
+- **API Documentation**: `https://mhylle.com/api/lommepenge/docs`
+- **Health Check**: `https://mhylle.com/api/lommepenge/health`
 
 ### Database Schema
 ```sql
@@ -79,19 +79,19 @@ CREATE TABLE tasks (
 
 3. **Start development servers**:
    ```bash
-   # Frontend (runs on http://localhost:4200/app2/)
+   # Frontend (runs on http://localhost:4200/lommepenge/)
    cd frontend
    npm run start
    
-   # Backend (runs on http://localhost:3000/api/app2/)
+   # Backend (runs on http://localhost:3000/api/lommepenge/)
    cd backend
    npm run start:dev
    ```
 
 4. **Access the application**:
-   - Frontend: http://localhost:4200/app2/
-   - API: http://localhost:3000/api/app2/
-   - API Docs: http://localhost:3000/api/app2/docs
+   - Frontend: http://localhost:4200/lommepenge/
+   - API: http://localhost:3000/api/lommepenge/
+   - API Docs: http://localhost:3000/api/lommepenge/docs
 
 ### Docker Development
 
@@ -100,8 +100,8 @@ CREATE TABLE tasks (
 docker-compose up --build
 
 # Access via nginx proxy (if infrastructure is running)
-# Frontend: https://mhylle.com/app2/
-# API: https://mhylle.com/api/app2/
+# Frontend: https://mhylle.com/lommepenge/
+# API: https://mhylle.com/api/lommepenge/
 ```
 
 ## 📦 Production Deployment
@@ -152,8 +152,8 @@ docker exec app2-backend npm run migration:run
 #### Frontend Configuration
 ```bash
 # Build time configuration
-NG_APP_API_URL=/api/app2
-NG_APP_BASE_HREF=/app2/
+NG_APP_API_URL=/api/lommepenge
+NG_APP_BASE_HREF=/lommepenge/
 NG_APP_NAME="Task Manager"
 ```
 
@@ -172,8 +172,8 @@ APP2_JWT_SECRET=your_unique_jwt_secret
 
 ### Nginx Configuration
 The application routing is defined in `/infrastructure/nginx/apps/app2.conf`:
-- Handles subpath routing for `/app2/`
-- API proxying for `/api/app2/`
+- Handles subpath routing for `/lommepenge/`
+- API proxying for `/api/lommepenge/`
 - Static asset optimization
 - CORS configuration
 - Rate limiting
@@ -217,31 +217,31 @@ npm run lint
 ## 📊 API Documentation
 
 ### Authentication Endpoints
-- `POST /api/app2/auth/login` - User login
-- `POST /api/app2/auth/register` - User registration
-- `POST /api/app2/auth/refresh` - Token refresh
+- `POST /api/lommepenge/auth/login` - User login
+- `POST /api/lommepenge/auth/register` - User registration
+- `POST /api/lommepenge/auth/refresh` - Token refresh
 
 ### Task Management Endpoints
-- `GET /api/app2/tasks` - List all tasks
-- `GET /api/app2/tasks/stats` - Get task statistics
-- `GET /api/app2/tasks/:id` - Get specific task
-- `POST /api/app2/tasks` - Create new task
-- `PATCH /api/app2/tasks/:id` - Update task
-- `DELETE /api/app2/tasks/:id` - Delete task
+- `GET /api/lommepenge/tasks` - List all tasks
+- `GET /api/lommepenge/tasks/stats` - Get task statistics
+- `GET /api/lommepenge/tasks/:id` - Get specific task
+- `POST /api/lommepenge/tasks` - Create new task
+- `PATCH /api/lommepenge/tasks/:id` - Update task
+- `DELETE /api/lommepenge/tasks/:id` - Delete task
 
 ### Health & Monitoring
-- `GET /api/app2/health` - Health check endpoint
-- `GET /api/app2/docs` - Swagger API documentation
+- `GET /api/lommepenge/health` - Health check endpoint
+- `GET /api/lommepenge/docs` - Swagger API documentation
 
 ### Example API Usage
 
 ```bash
 # Get all tasks
-curl -X GET "https://mhylle.com/api/app2/tasks" \
+curl -X GET "https://mhylle.com/api/lommepenge/tasks" \
   -H "Authorization: Bearer your_jwt_token"
 
 # Create a new task
-curl -X POST "https://mhylle.com/api/app2/tasks" \
+curl -X POST "https://mhylle.com/api/lommepenge/tasks" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer your_jwt_token" \
   -d '{
@@ -253,7 +253,7 @@ curl -X POST "https://mhylle.com/api/app2/tasks" \
   }'
 
 # Get task statistics
-curl -X GET "https://mhylle.com/api/app2/tasks/stats" \
+curl -X GET "https://mhylle.com/api/lommepenge/tasks/stats" \
   -H "Authorization: Bearer your_jwt_token"
 ```
 
@@ -265,8 +265,8 @@ curl -X GET "https://mhylle.com/api/app2/tasks/stats" \
 ./scripts/health-check.sh app2
 
 # Check specific components
-curl -I https://mhylle.com/app2/
-curl -I https://mhylle.com/api/app2/health
+curl -I https://mhylle.com/lommepenge/
+curl -I https://mhylle.com/api/lommepenge/health
 ```
 
 ### Log Management
@@ -288,7 +288,7 @@ docker logs app2-backend
 docker stats app2-frontend app2-backend
 
 # Check response times
-curl -w "@curl-format.txt" -o /dev/null -s https://mhylle.com/app2/
+curl -w "@curl-format.txt" -o /dev/null -s https://mhylle.com/lommepenge/
 ```
 
 ## 🚨 Troubleshooting
@@ -320,12 +320,12 @@ docker exec -it mhylle-postgres psql -U mhylle_user -c "\l" | grep app2_db
 #### Routing Issues
 ```bash
 # Test frontend routing
-curl -I https://mhylle.com/app2/
-curl -I https://mhylle.com/app2/dashboard
+curl -I https://mhylle.com/lommepenge/
+curl -I https://mhylle.com/lommepenge/dashboard
 
 # Test API routing
-curl -I https://mhylle.com/api/app2/health
-curl -I https://mhylle.com/api/app2/tasks
+curl -I https://mhylle.com/api/lommepenge/health
+curl -I https://mhylle.com/api/lommepenge/tasks
 ```
 
 ### Recovery Procedures
@@ -339,7 +339,7 @@ curl -I https://mhylle.com/api/app2/tasks
 #### Restart Services
 ```bash
 # Restart application containers
-docker-compose -f applications/app2/docker-compose.yml restart
+docker-compose -f applications/lommepenge/docker-compose.yml restart
 
 # Restart specific service
 docker restart app2-backend

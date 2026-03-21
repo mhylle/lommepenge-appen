@@ -23,7 +23,7 @@ FROM nginx:alpine
 RUN apk add --no-cache curl
 
 # Copy built application from build stage
-COPY --from=build /app/dist/app2-frontend/ /usr/share/nginx/html/
+COPY --from=build /app/dist/lommepenge-frontend/ /usr/share/nginx/html/
 
 # Copy nginx configuration
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
