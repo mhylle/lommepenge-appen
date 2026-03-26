@@ -11,7 +11,7 @@ env:
   REGISTRY: ghcr.io
   FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
   BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
-  APP_NAME: app2
+  APP_NAME: lommepenge
 
 jobs:
   test:

@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Health check endpoint
-  if (path === '/health' || path === '/api/app2/health') {
+  if (path === '/health' || path === '/api/lommepenge/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       status: 'healthy',
@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Tasks API endpoint
-  if (path === '/api/app2/tasks') {
+  if (path === '/api/lommepenge/tasks') {
     const tasks = [
       { 
         id: 1, 
@@ -78,7 +78,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Projects API endpoint
-  if (path === '/api/app2/projects') {
+  if (path === '/api/lommepenge/projects') {
     const projects = [
       {
         id: 1,
@@ -100,7 +100,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Status endpoint
-  if (path === '/api/app2/status') {
+  if (path === '/api/lommepenge/status') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       application: 'Task Management System',
@@ -113,27 +113,27 @@ const server = http.createServer((req, res) => {
         'Reporting & Analytics'
       ],
       endpoints: [
-        'GET /api/app2/health',
-        'GET /api/app2/status',
-        'GET /api/app2/tasks',
-        'GET /api/app2/projects'
+        'GET /api/lommepenge/health',
+        'GET /api/lommepenge/status',
+        'GET /api/lommepenge/tasks',
+        'GET /api/lommepenge/projects'
       ]
     }));
     return;
   }
 
   // Root endpoint
-  if (path === '/' || path === '/api/app2') {
+  if (path === '/' || path === '/api/lommepenge') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       message: 'App2 Backend API is running',
       service: 'Task Management System',
       version: '1.0.0',
       endpoints: {
-        health: '/api/app2/health',
-        status: '/api/app2/status',
-        tasks: '/api/app2/tasks',
-        projects: '/api/app2/projects'
+        health: '/api/lommepenge/health',
+        status: '/api/lommepenge/status',
+        tasks: '/api/lommepenge/tasks',
+        projects: '/api/lommepenge/projects'
       }
     }));
     return;
@@ -144,14 +144,14 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({
     error: 'Not Found',
     message: 'The requested endpoint does not exist',
-    available_endpoints: ['/api/app2/health', '/api/app2/status', '/api/app2/tasks', '/api/app2/projects']
+    available_endpoints: ['/api/lommepenge/health', '/api/lommepenge/status', '/api/lommepenge/tasks', '/api/lommepenge/projects']
   }));
 });
 
 server.listen(port, () => {
   console.log(`App2 Backend server running on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/api/app2/health`);
-  console.log(`Status: http://localhost:${port}/api/app2/status`);
+  console.log(`Health check: http://localhost:${port}/api/lommepenge/health`);
+  console.log(`Status: http://localhost:${port}/api/lommepenge/status`);
 });
 
 // Graceful shutdown
