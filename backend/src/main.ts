@@ -80,5 +80,14 @@ async function bootstrap() {
   console.log(`🚀 App2 Backend is running on port ${port}`);
   console.log(`🏥 Health Check: http://localhost:${port}/health`);
   console.log(`🏥 API Health Check: http://localhost:${port}/api/lommepenge/health`);
+
+  // Log JWT_SECRET configuration status (for debugging SSO issues)
+  const jwtSecret = process.env.JWT_SECRET;
+  if (jwtSecret) {
+    console.log(`🔑 JWT_SECRET is set (length: ${jwtSecret.length}, starts with: ${jwtSecret.substring(0, 4)}...)`);
+  } else {
+    console.warn(`⚠️ JWT_SECRET is NOT set - using development fallback. SSO will NOT work in production!`);
+  }
+  console.log(`🔐 USE_PRODUCTION_AUTH: ${process.env.USE_PRODUCTION_AUTH || 'false'}`);
 }
 bootstrap();

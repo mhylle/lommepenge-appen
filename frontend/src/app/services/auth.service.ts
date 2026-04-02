@@ -54,18 +54,23 @@ export class AuthService {
       
       if (response.ok) {
         const result = await response.json();
-        
+
         // Handle both old format (result.data) and new format (result.user)
         const user = result.data || result.user;
-        
+
         if (user) {
+          // Store access token from SSO validation (locally signed by backend)
+          if (result.access_token) {
+            localStorage.setItem('access_token', result.access_token);
+          }
+
           this.currentUserSubject.next(user);
-          
+
           // Initialize family context if available
           if (result.family) {
             this.familyService.initializeFamilyFromAuth(result.family);
           }
-          
+
           return user;
         }
       }

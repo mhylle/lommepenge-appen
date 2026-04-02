@@ -17,15 +17,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  // Add Bearer token to requests if available
+  // Add Bearer token and ensure cookies are sent with requests
   const token = localStorage.getItem('access_token');
-  if (token) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
+  req = req.clone({
+    withCredentials: true,
+    ...(token ? { setHeaders: { Authorization: `Bearer ${token}` } } : {}),
+  });
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {

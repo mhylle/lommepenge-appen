@@ -18,6 +18,7 @@ import {
   ChildLoginDto,
 } from './local-auth.service';
 import { ProductionAuthService } from './production-auth.service';
+import { JwtService } from '@nestjs/jwt';
 import { FamiliesService } from '../families/families.service';
 
 @Controller('auth')
@@ -29,6 +30,7 @@ export class AuthProxyController {
   constructor(
     private readonly localAuthService: LocalAuthService,
     private readonly productionAuthService: ProductionAuthService,
+    private readonly jwtService: JwtService,
     private readonly familiesService: FamiliesService,
   ) {
     // Use production auth service if USE_PRODUCTION_AUTH env var is set to 'true'
@@ -342,9 +344,22 @@ export class AuthProxyController {
             parentName || result.user.firstName,
           );
 
-          // Add family info to the response
+          // Sign a local access_token so the frontend can use Bearer auth
+          // for subsequent API requests (important for SSO flow where the
+          // frontend only has the cookie, not a localStorage token)
+          const localToken = this.jwtService.sign({
+            sub: userId,
+            email: result.user.email,
+            firstName: result.user.firstName,
+            lastName: result.user.lastName,
+            apps: result.user.permissions?.apps || ['app2'],
+            roles: result.user.permissions?.roles || { app2: ['admin'] },
+          });
+
+          // Add family info and access_token to the response
           const enrichedResult = {
             ...result,
+            access_token: localToken,
             localUserId: this.useProductionAuth ? userId : undefined,
             family: {
               id: family.id,
