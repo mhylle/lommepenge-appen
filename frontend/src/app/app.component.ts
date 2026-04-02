@@ -324,7 +324,7 @@ interface HealthStatus {
 })
 export class AppComponent implements OnInit {
   appInfo: AppInfo = {
-    name: 'App2 - Task Management Application',
+    name: 'Lommepenge App',
     version: '1.0.0',
     environment: 'production',
     apiUrl: '/api/lommepenge'
@@ -369,7 +369,7 @@ export class AppComponent implements OnInit {
 
   onLoginSuccess(): void {
     // User successfully logged in - router will handle navigation
-    console.log('Login successful for Task Management App!');
+    console.log('Login successful for Lommepenge App!');
   }
 
   isChildAccount(): boolean {
@@ -377,8 +377,8 @@ export class AppComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return this.authService.hasRole('app2', 'admin') || 
-           this.authService.hasRole('app2', 'super-admin');
+    return this.authService.hasRole('lommepenge', 'admin') ||
+           this.authService.hasRole('lommepenge', 'super-admin');
   }
 
   private loadAppInfo(): void {

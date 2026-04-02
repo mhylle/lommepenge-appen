@@ -15,23 +15,23 @@ export class ProductionAuthService {
     // Ensure the user object includes permissions structure
     if (!user.permissions) {
       user.permissions = {
-        apps: user.apps || ['app2'], // Default to app2 access
-        roles: user.roles || { app2: ['admin'] }, // Default to admin role for app2
+        apps: user.apps || ['lommepenge'],
+        roles: user.roles || { lommepenge: ['admin'] },
       };
     }
 
-    // Ensure user has app2 access
-    if (!user.permissions.apps.includes('app2')) {
-      user.permissions.apps.push('app2');
+    // Ensure user has lommepenge access
+    if (!user.permissions.apps.includes('lommepenge')) {
+      user.permissions.apps.push('lommepenge');
     }
 
-    // Ensure user has admin role for app2
+    // Ensure user has admin role for lommepenge
     if (
-      !user.permissions.roles.app2 ||
-      !user.permissions.roles.app2.includes('admin')
+      !user.permissions.roles.lommepenge ||
+      !user.permissions.roles.lommepenge.includes('admin')
     ) {
-      if (!user.permissions.roles.app2) user.permissions.roles.app2 = [];
-      user.permissions.roles.app2.push('admin');
+      if (!user.permissions.roles.lommepenge) user.permissions.roles.lommepenge = [];
+      user.permissions.roles.lommepenge.push('admin');
     }
 
     return user;
@@ -187,8 +187,8 @@ export class ProductionAuthService {
       firstName: payload.firstName,
       lastName: payload.lastName,
       permissions: {
-        apps: payload.apps || ['app2'],
-        roles: payload.roles || { app2: ['admin'] },
+        apps: payload.apps || ['lommepenge'],
+        roles: payload.roles || { lommepenge: ['admin'] },
       },
     };
 

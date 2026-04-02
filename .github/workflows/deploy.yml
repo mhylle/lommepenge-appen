@@ -1,4 +1,4 @@
-name: Deploy App2 to mhylle.com
+name: Deploy Lommepenge to mhylle.com
 
 on:
   push:
@@ -193,9 +193,9 @@ jobs:
             if ! grep -q "location /lommepenge/" "$NGINX_CONF"; then
               cat >> "$NGINX_CONF" << 'NGINX_EOF'
 
-          # Lommepenge App (formerly app2)
+          # Lommepenge App
           location /lommepenge/ {
-              proxy_pass http://app2-frontend:80/lommepenge/;
+              proxy_pass http://lommepenge-frontend:80/lommepenge/;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -204,7 +204,7 @@ jobs:
 
           location /api/lommepenge/ {
               rewrite ^/api/lommepenge/(.*)$ /$1 break;
-              proxy_pass http://app2-backend:3000;
+              proxy_pass http://lommepenge-backend:3000;
               proxy_set_header Host $host;
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -221,8 +221,8 @@ jobs:
             echo "⚠️ Nginx config not found at $NGINX_CONF - routes need manual setup"
           fi
 
-          # Deploy App2 independently using Docker directly
-          echo "🚀 Deploying App2 using Docker containers..."
+          # Deploy Lommepenge independently using Docker directly
+          echo "🚀 Deploying Lommepenge using Docker containers..."
 
           # Extract version for cleanup
           VERSION="${{ needs.build.outputs.version }}"
@@ -248,23 +248,23 @@ jobs:
           docker pull "$FRONTEND_FULL"
           docker pull "$BACKEND_FULL"
           
-          # Stop and remove existing App2 containers only (app independence)
-          echo "🛑 Stopping existing App2 containers only..."
-          docker stop app2-frontend app2-backend 2>/dev/null || echo "No existing App2 containers to stop"
-          docker rm app2-frontend app2-backend 2>/dev/null || echo "No existing App2 containers to remove"
+          # Stop and remove existing Lommepenge containers (both old and new names)
+          echo "🛑 Stopping existing Lommepenge containers..."
+          docker stop lommepenge-frontend lommepenge-backend app2-frontend app2-backend 2>/dev/null || echo "No existing containers to stop"
+          docker rm lommepenge-frontend lommepenge-backend app2-frontend app2-backend 2>/dev/null || echo "No existing containers to remove"
           
-          # Verify App2 is still running (critical independence check)
-          echo "🔍 Verifying App2 independence..."
-          if docker ps | grep -E "app2-(frontend|backend)"; then
-            echo "✅ App2 containers still running - independence maintained"
+          # Verify Lommepenge is still running (critical independence check)
+          echo "🔍 Verifying Lommepenge independence..."
+          if docker ps | grep -E "lommepenge-(frontend|backend)"; then
+            echo "✅ Lommepenge containers still running - independence maintained"
           else
-            echo "ℹ️ App2 containers not found (may not be deployed yet)"
+            echo "ℹ️ Lommepenge containers not found (may not be deployed yet)"
           fi
           
-          # Start App2 backend with database connection
-          echo "🚀 Starting App2 backend..."
+          # Start Lommepenge backend with database connection
+          echo "🚀 Starting Lommepenge backend..."
           docker run -d \
-            --name app2-backend \
+            --name lommepenge-backend \
             --restart unless-stopped \
             --network mhylle_app-network \
             -p 8002:3000 \
@@ -284,10 +284,10 @@ jobs:
             --health-start-period=40s \
             "$BACKEND_FULL"
           
-          # Start App2 frontend
-          echo "🚀 Starting App2 frontend..."
+          # Start Lommepenge frontend
+          echo "🚀 Starting Lommepenge frontend..."
           docker run -d \
-            --name app2-frontend \
+            --name lommepenge-frontend \
             --restart unless-stopped \
             --network mhylle_app-network \
             -p 3002:80 \
@@ -300,7 +300,7 @@ jobs:
             "$FRONTEND_FULL"
           
           # Wait for containers to be healthy
-          echo "⏳ Waiting for App2 containers to be healthy..."
+          echo "⏳ Waiting for Lommepenge containers to be healthy..."
           echo "Waiting 45s for health-start-period..."
           sleep 45
 
@@ -308,8 +308,8 @@ jobs:
           TRIES=0
           MAX_TRIES=18
           while [ $TRIES -lt $MAX_TRIES ]; do
-            BACKEND_HEALTH=$(docker inspect --format="{{.State.Health.Status}}" app2-backend 2>/dev/null || echo "unknown")
-            FRONTEND_HEALTH=$(docker inspect --format="{{.State.Health.Status}}" app2-frontend 2>/dev/null || echo "unknown")
+            BACKEND_HEALTH=$(docker inspect --format="{{.State.Health.Status}}" lommepenge-backend 2>/dev/null || echo "unknown")
+            FRONTEND_HEALTH=$(docker inspect --format="{{.State.Health.Status}}" lommepenge-frontend 2>/dev/null || echo "unknown")
             echo "Backend: $BACKEND_HEALTH, Frontend: $FRONTEND_HEALTH (attempt $((TRIES+1))/$MAX_TRIES)"
             if [ "$BACKEND_HEALTH" = "healthy" ] && [ "$FRONTEND_HEALTH" = "healthy" ]; then
               echo "✅ Both containers healthy!"
@@ -320,16 +320,16 @@ jobs:
           done
 
           # Final verification - check containers are running (even if health not yet reported)
-          if docker ps | grep -q "app2-backend" && docker ps | grep -q "app2-frontend"; then
-            echo "✅ App2 deployment successful!"
+          if docker ps | grep -q "lommepenge-backend" && docker ps | grep -q "lommepenge-frontend"; then
+            echo "✅ Lommepenge deployment successful!"
 
             # Show final status ensuring both apps are independent
             echo "📊 Current application status:"
-            docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(app2|app2)" || echo "No app containers found"
+            docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "lommepenge" || echo "No app containers found"
 
-            # Clean up old app2 images after successful deployment
-            echo "🧹 Cleaning up old app2 images..."
-            docker images | grep -E "mhylle/mhylle-app2" | grep -v "$VERSION" | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || echo "No old app2 images to remove"
+            # Clean up old lommepenge images after successful deployment
+            echo "🧹 Cleaning up old lommepenge images..."
+            docker images | grep -E "mhylle/lommepenge" | grep -v "$VERSION" | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || echo "No old lommepenge images to remove"
 
             # Final disk usage report
             echo "📊 Disk usage after cleanup:"
@@ -337,10 +337,10 @@ jobs:
             docker system df || true
 
           else
-            echo "❌ App2 deployment failed!"
-            docker ps | grep app2 || echo "No app2 containers found"
-            docker logs app2-backend --tail=10 2>/dev/null || echo "No backend logs"
-            docker logs app2-frontend --tail=10 2>/dev/null || echo "No frontend logs"
+            echo "❌ Lommepenge deployment failed!"
+            docker ps | grep lommepenge || echo "No lommepenge containers found"
+            docker logs lommepenge-backend --tail=10 2>/dev/null || echo "No backend logs"
+            docker logs lommepenge-frontend --tail=10 2>/dev/null || echo "No frontend logs"
             exit 1
           fi
 
@@ -357,25 +357,25 @@ jobs:
           # Wait for services to be ready
           sleep 30
           
-          # Check if app2 containers are running
-          if docker ps | grep -E "app2-(frontend|backend)"; then
-            echo "✅ App2 containers are running"
+          # Check if lommepenge containers are running
+          if docker ps | grep -E "lommepenge-(frontend|backend)"; then
+            echo "✅ Lommepenge containers are running"
           else
-            echo "❌ App2 containers not found"
+            echo "❌ Lommepenge containers not found"
             exit 1
           fi
           
-          # CRITICAL: Verify app2 is still running (independence check)
-          if docker ps | grep -E "app2-(frontend|backend)"; then
-            echo "✅ App2 containers are still running (independence verified)"
+          # CRITICAL: Verify lommepenge is still running (independence check)
+          if docker ps | grep -E "lommepenge-(frontend|backend)"; then
+            echo "✅ Lommepenge containers are still running (independence verified)"
           else
-            echo "⚠️ App2 containers not found - checking if this is expected"
-            # Don't fail deployment if app2 was never deployed, but warn
+            echo "⚠️ Lommepenge containers not found - checking if this is expected"
+            # Don't fail deployment if lommepenge was never deployed, but warn
           fi
           
           # Show current status of all apps
           echo "📊 Current application status:"
-          docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "(app2|app2)" || echo "No application containers found"
+          docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "lommepenge" || echo "No application containers found"
           
           # Test health endpoint
           if curl -f -s "https://mhylle.com/health/${{ env.APP_NAME }}" > /dev/null; then

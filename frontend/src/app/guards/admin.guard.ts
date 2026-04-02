@@ -26,9 +26,9 @@ export class AdminGuard implements CanActivate {
         return false;
       }
 
-      // Check if user has admin role for app2
-      const isAdmin = this.authService.hasRole('app2', 'admin') || 
-                     this.authService.hasRole('app2', 'super-admin');
+      // Check if user has admin role for lommepenge
+      const isAdmin = this.authService.hasRole('lommepenge', 'admin') ||
+                     this.authService.hasRole('lommepenge', 'super-admin');
 
       if (isAdmin) {
         return true;

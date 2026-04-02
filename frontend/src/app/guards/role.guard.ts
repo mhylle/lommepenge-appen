@@ -28,7 +28,7 @@ export class RoleGuard implements CanActivate {
 
       // Get required roles from route data
       const requiredRoles = route.data?.['roles'] as string[] | undefined;
-      const appId = route.data?.['appId'] as string || 'app2';
+      const appId = route.data?.['appId'] as string || 'lommepenge';
 
       if (!requiredRoles || requiredRoles.length === 0) {
         // No specific roles required

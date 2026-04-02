@@ -352,8 +352,8 @@ export class AuthProxyController {
             email: result.user.email,
             firstName: result.user.firstName,
             lastName: result.user.lastName,
-            apps: result.user.permissions?.apps || ['app2'],
-            roles: result.user.permissions?.roles || { app2: ['admin'] },
+            apps: result.user.permissions?.apps || ['lommepenge'],
+            roles: result.user.permissions?.roles || { lommepenge: ['admin'] },
           });
 
           // Add family info and access_token to the response

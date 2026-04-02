@@ -14,7 +14,7 @@ services:
       - postgres_dev_data:/var/lib/postgresql/data
       - ./scripts/init-app2-db.sql:/docker-entrypoint-initdb.d/init-app2-db.sql:ro
     networks:
-      - app2-dev-network
+      - lommepenge-dev-network
     ports:
       - "5432:5432"
     healthcheck:
@@ -25,21 +25,21 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # App2 Backend - NestJS with all Lommepenge API endpoints
-  app2-backend:
+  # Lommepenge Backend - NestJS with all Lommepenge API endpoints
+  lommepenge-backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: app2-backend-dev
+    container_name: lommepenge-backend-dev
     environment:
       - NODE_ENV=development
       - PORT=3000
       - DB_HOST=mhylle-postgres-dev
       - DB_PORT=5432
-      - DB_NAME=app2_db
+      - DB_NAME=mhylle_app2
       - DB_USER=app2_user
       - DB_PASSWORD=app2_secure_password
-      - JWT_SECRET=app2_jwt_secret_mhylle_2024_secure_token
+      - JWT_SECRET=lommepenge_jwt_secret_mhylle_2024_secure_token
       - JWT_EXPIRATION=7d
     volumes:
       - ./backend/src:/app/src:ro
@@ -50,7 +50,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - app2-dev-network
+      - lommepenge-dev-network
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,15 +63,15 @@ services:
     restart: unless-stopped
     command: npm run start:dev
 
-  # App2 Frontend - Angular with Lommepenge UI
-  app2-frontend:
+  # Lommepenge Frontend - Angular with Lommepenge UI
+  lommepenge-frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    container_name: app2-frontend-dev
+    container_name: lommepenge-frontend-dev
     environment:
       - NODE_ENV=development
-      - API_URL=http://app2-backend-dev:3000
+      - API_URL=http://lommepenge-backend-dev:3000
     volumes:
       - ./frontend/src:/app/src:ro
       - ./frontend/angular.json:/app/angular.json:ro
@@ -82,9 +82,9 @@ services:
     ports:
       - "4200:4200"
     networks:
-      - app2-dev-network
+      - lommepenge-dev-network
     depends_on:
-      - app2-backend
+      - lommepenge-backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4200"]
       interval: 30s
@@ -95,9 +95,9 @@ services:
     command: npm run start -- --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json
 
 networks:
-  app2-dev-network:
+  lommepenge-dev-network:
     driver: bridge
-    name: app2-dev-network
+    name: lommepenge-dev-network
 
 volumes:
   postgres_dev_data:

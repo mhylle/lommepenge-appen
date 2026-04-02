@@ -1,18 +1,18 @@
 version: '3.8'
 
 services:
-  app2-frontend:
+  lommepenge-frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
-    container_name: app2-frontend-test
+    container_name: lommepenge-frontend-test
     restart: unless-stopped
     ports:
       - "3003:80"
     environment:
       - NODE_ENV=production
     networks:
-      - app2-network
+      - lommepenge-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 30s
@@ -20,23 +20,23 @@ services:
       retries: 3
       start_period: 30s
 
-  app2-backend:
+  lommepenge-backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: app2-backend-test
+    container_name: lommepenge-backend-test
     restart: unless-stopped
     ports:
       - "8003:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - JWT_SECRET=test_jwt_secret_app2
+      - JWT_SECRET=test_jwt_secret_lommepenge
       - JWT_EXPIRATION=7d
     volumes:
       - sqlite_data:/app/data
     networks:
-      - app2-network
+      - lommepenge-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
@@ -45,9 +45,9 @@ services:
       start_period: 45s
 
 networks:
-  app2-network:
+  lommepenge-network:
     driver: bridge
-    name: app2-test-network
+    name: lommepenge-test-network
 
 volumes:
   sqlite_data:

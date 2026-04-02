@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  app2-frontend:
-    image: ${FRONTEND_IMAGE:-ghcr.io/mhylle/mhylle-app2-frontend}:${IMAGE_TAG:-latest}
-    container_name: app2-frontend
+  lommepenge-frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/mhylle/lommepenge-appen-frontend}:${IMAGE_TAG:-latest}
+    container_name: lommepenge-frontend
     restart: unless-stopped
     ports:
       - "3002:80"
@@ -12,10 +12,10 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "app.name=app2"
+      - "app.name=lommepenge"
       - "app.type=frontend"
     networks:
-      - app2-network
+      - lommepenge-network
       - mhylle-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/"]
@@ -29,9 +29,9 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  app2-backend:
-    image: ${BACKEND_IMAGE:-ghcr.io/mhylle/mhylle-app2-backend}:${IMAGE_TAG:-latest}
-    container_name: app2-backend
+  lommepenge-backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/mhylle/lommepenge-appen-backend}:${IMAGE_TAG:-latest}
+    container_name: lommepenge-backend
     restart: unless-stopped
     ports:
       - "8002:3000"
@@ -40,18 +40,18 @@ services:
       - PORT=3000
       - DB_HOST=mhylle-postgres
       - DB_PORT=5432
-      - DB_NAME=app2_db
+      - DB_NAME=mhylle_app2
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - JWT_SECRET=${APP2_JWT_SECRET:-default_jwt_secret_app2}
+      - JWT_SECRET=${JWT_SECRET:-default_jwt_secret}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-7d}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
-      - "app.name=app2"
+      - "app.name=lommepenge"
       - "app.type=backend"
     networks:
-      - app2-network
+      - lommepenge-network
       - mhylle-network
     depends_on:
       - mhylle-postgres
@@ -68,11 +68,11 @@ services:
         max-file: "3"
 
 networks:
-  app2-network:
+  lommepenge-network:
     driver: bridge
-    name: app2-network
+    name: lommepenge-network
     labels:
-      - "app.name=app2"
+      - "app.name=lommepenge"
   mhylle-network:
     external: true
     name: mhylle-network

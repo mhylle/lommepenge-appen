@@ -54,7 +54,7 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { 
       roles: ['user', 'admin'],
-      appId: 'app2',
+      appId: 'lommepenge',
       title: 'Profil - Lommepenge App\'en',
       description: 'Din brugerprofil og indstillinger'
     }

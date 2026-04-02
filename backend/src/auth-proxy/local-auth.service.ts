@@ -116,20 +116,20 @@ export class LocalAuthService {
   }
 
   private buildUserResponse(user: User, childId?: string, familyId?: string) {
-    // Ensure user has default permissions for app2
+    // Ensure user has default permissions for lommepenge
     const apps = user.apps || [];
     const roles = user.roles || {};
 
-    // Grant access to app2 for all users by default
-    if (!apps.includes('app2')) {
-      apps.push('app2');
+    // Grant access to lommepenge for all users by default
+    if (!apps.includes('lommepenge')) {
+      apps.push('lommepenge');
     }
 
     // For parent accounts, grant admin role by default (for development)
     if (user.accountType !== 'child') {
-      if (!roles.app2 || !roles.app2.includes('admin')) {
-        if (!roles.app2) roles.app2 = [];
-        roles.app2.push('admin');
+      if (!roles.lommepenge || !roles.lommepenge.includes('admin')) {
+        if (!roles.lommepenge) roles.lommepenge = [];
+        roles.lommepenge.push('admin');
       }
     }
 
@@ -231,8 +231,8 @@ export class LocalAuthService {
         firstName: registerDto.firstName,
         lastName: registerDto.lastName,
         password: hashedPassword,
-        apps: ['app2'], // Grant access to app2 by default
-        roles: { app2: ['admin'] }, // Grant admin role by default for development
+        apps: ['lommepenge'], // Grant access to lommepenge by default
+        roles: { lommepenge: ['admin'] }, // Grant admin role by default for development
       });
 
       const savedUser = await this.userRepository.save(user);
@@ -330,8 +330,8 @@ export class LocalAuthService {
           firstName: 'Test',
           lastName: 'Familie',
           password: hashedPassword,
-          apps: ['app2'], // Grant access to app2
-          roles: { app2: ['admin'] }, // Grant admin role for app2
+          apps: ['lommepenge'], // Grant access to lommepenge
+          roles: { lommepenge: ['admin'] }, // Grant admin role for lommepenge
         });
 
         await this.userRepository.save(user);
@@ -493,8 +493,8 @@ export class LocalAuthService {
         accountType: 'child',
         pin: hashedPin,
         linkedPocketMoneyUserId: pocketMoneyUserId,
-        apps: ['app2'],
-        roles: { app2: ['child'] },
+        apps: ['lommepenge'],
+        roles: { lommepenge: ['child'] },
       });
 
       const savedUser = await this.userRepository.save(user);
@@ -562,7 +562,7 @@ export class LocalAuthService {
   /**
    * Create a local user record linked to a central auth user.
    * This is used when a user authenticates via central auth but doesn't
-   * have a local user record yet in app2's database.
+   * have a local user record yet in lommepenge's database.
    */
   async createLocalUser(params: {
     email: string;
@@ -584,8 +584,8 @@ export class LocalAuthService {
         lastName: params.lastName,
         password: placeholderPassword,
         centralAuthUserId: params.centralAuthUserId,
-        apps: ['app2'],
-        roles: { app2: ['admin'] },
+        apps: ['lommepenge'],
+        roles: { lommepenge: ['admin'] },
       });
 
       const savedUser = await this.userRepository.save(user);

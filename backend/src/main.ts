@@ -52,11 +52,11 @@ async function bootstrap() {
   });
 
   // Health check endpoints (required for Docker health checks)
-  // App2 uses a different path structure
+  // Lommepenge uses a different path structure
   app.use('/health', (req, res) => {
     res.status(200).json({
       status: 'healthy',
-      application: 'App2 Backend',
+      application: 'Lommepenge Backend',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
       uptime: process.uptime(),
@@ -67,7 +67,7 @@ async function bootstrap() {
   app.use('/api/lommepenge/health', (req, res) => {
     res.status(200).json({
       status: 'healthy',
-      application: 'App2 Backend',
+      application: 'Lommepenge Backend',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
       uptime: process.uptime(),
@@ -77,7 +77,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
-  console.log(`🚀 App2 Backend is running on port ${port}`);
+  console.log(`🚀 Lommepenge Backend is running on port ${port}`);
   console.log(`🏥 Health Check: http://localhost:${port}/health`);
   console.log(`🏥 API Health Check: http://localhost:${port}/api/lommepenge/health`);
 

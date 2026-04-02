@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
 
       if (user) {
         // Check if user has access to this app
-        if (this.authService.hasAppAccess('app2')) {
+        if (this.authService.hasAppAccess('lommepenge')) {
           // Check if session is expiring soon and warn user
           this.checkSessionExpiration();
           return true;
